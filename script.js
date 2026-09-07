@@ -57,9 +57,10 @@ function loadFromGoogle() {
                 location.reload();
                 return;
             }
+            
+            // Tady starý kód dělal neplechu. Nyní správně zpracujeme data:
             const data = JSON.parse(text);
-        .then(response => response.json())
-        .then(data => {
+            
             if (data["Pondělí"] && (data["Pondělí"].length > 0 || data["Úterý"].length > 0)) {
                 schedule = data;
                 localStorage.setItem('zus_schedule', JSON.stringify(schedule));
