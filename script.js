@@ -289,10 +289,6 @@ document.addEventListener('touchend', e => {
     }
 }, {passive: true});
 
-// --- ZMĚNA: Barva systémové lišty podle pozadí aplikace ---
-const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-const metaThemeColor = document.getElementById('theme-color-meta');
-
 function updateThemeColor() {
     if (darkModeMediaQuery.matches) {
         metaThemeColor.setAttribute('content', '#121212'); // Pozadí v tmavém režimu
