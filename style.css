@@ -160,3 +160,19 @@ h1 { margin: 0 0 1rem 0; font-size: 1.4rem; text-align: center; font-weight: 700
 .modal-actions-danger button { flex: 1; padding: 0.8rem; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; background: transparent; }
 .btn-outline { color: var(--primary-color); border: 1px solid var(--primary-color) !important; }
 .btn-danger { color: #d32f2f; border: 1px solid #d32f2f !important; }
+
+/* --- ANIMACE PRO PŘECHODY DNŮ --- */
+@keyframes slideFromRight {
+    from { transform: translateX(60px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideFromLeft {
+    from { transform: translateX(-60px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+.slide-from-right {
+    animation: slideFromRight 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.slide-from-left {
+    animation: slideFromLeft 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}

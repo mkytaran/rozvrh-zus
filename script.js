@@ -124,21 +124,39 @@ function addMinutes(timeStr, mins) {
     return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
 }
 
-// --- 6. Vykreslování rozvrhu ---
+// --- VYLEPŠENÉ: Vykreslování tlačítek dnů ---
 function renderTabs() {
     document.querySelectorAll('.day-selector button').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.day === currentDay);
         btn.onclick = () => {
+            // Zjistíme, jestli jdeme v týdnu dopředu nebo dozadu
+            const oldIndex = workDays.indexOf(currentDay);
+            const newIndex = workDays.indexOf(btn.dataset.day);
+            
+            let animDir = '';
+            if (newIndex > oldIndex) animDir = 'right'; // Jdeme dopředu (přijede zprava)
+            if (newIndex < oldIndex) animDir = 'left';  // Jdeme dozadu (přijede zleva)
+
             currentDay = btn.dataset.day;
             swapSourceIndex = null;
             renderTabs();
-            renderSchedule();
+            renderSchedule(animDir);
         };
     });
 }
 
-function renderSchedule() {
+// --- VYLEPŠENÉ: Vykreslování rozvrhu s animací ---
+function renderSchedule(animDir = '') {
     const container = document.getElementById('schedule-container');
+    
+    // Trik: Odebrání tříd a vynucené překreslení (reflow), aby animace běžela znovu
+    container.classList.remove('slide-from-right', 'slide-from-left');
+    void container.offsetWidth; 
+    
+    // Přidání správné animace podle směru
+    if (animDir === 'right') container.classList.add('slide-from-right');
+    if (animDir === 'left') container.classList.add('slide-from-left');
+
     container.innerHTML = '';
     
     let dayData = schedule[currentDay] || [];
@@ -284,20 +302,22 @@ document.addEventListener('touchend', e => {
     let currentIndex = workDays.indexOf(currentDay);
     if (currentIndex === -1) return;
 
+    // Tah doleva (přechod na další den)
     if (touchEndX < touchStartX - 60) {
         if (currentIndex < workDays.length - 1) {
             currentDay = workDays[currentIndex + 1];
             swapSourceIndex = null;
             renderTabs();
-            renderSchedule();
+            renderSchedule('right'); // Animace přijede zprava
         }
     }
+    // Tah doprava (přechod na předchozí den)
     if (touchEndX > touchStartX + 60) {
         if (currentIndex > 0) {
             currentDay = workDays[currentIndex - 1];
             swapSourceIndex = null;
             renderTabs();
-            renderSchedule();
+            renderSchedule('left'); // Animace přijede zleva
         }
     }
 }, {passive: true});
