@@ -320,23 +320,6 @@ document.addEventListener('touchend', e => {
     }
 }, {passive: true});
 
-// --- DYNAMICKÁ BARVA SYSTÉMOVÉ LIŠTY ---
-const themeColorMeta = document.getElementById('theme-color-meta');
-const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-function updateSystemBarColor() {
-    if (themeColorMeta) {
-        if (darkModeMediaQuery.matches) {
-            themeColorMeta.setAttribute('content', '#121212'); 
-        } else {
-            themeColorMeta.setAttribute('content', '#f0f4f8'); 
-        }
-    }
-}
-
-darkModeMediaQuery.addEventListener('change', updateSystemBarColor);
-updateSystemBarColor();
-
 // --- Inicializace aplikace ---
 if (!schedule['Pondělí']) schedule['Pondělí'] = [];
 renderTabs();
