@@ -322,6 +322,25 @@ document.addEventListener('touchend', e => {
     }
 }, {passive: true});
 
+// --- DYNAMICKÁ BARVA SYSTÉMOVÉ LIŠTY ---
+const themeColorMeta = document.getElementById('theme-color-meta');
+const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function updateSystemBarColor() {
+    if (darkModeMediaQuery.matches) {
+        // Tmavé pozadí aplikace (ověř, že přesně tuto barvu máš v CSS pro dark mode)
+        themeColorMeta.setAttribute('content', '#121212'); 
+    } else {
+        // Světlé pozadí aplikace
+        themeColorMeta.setAttribute('content', '#f0f4f8'); 
+    }
+}
+
+// Spustí se při změně režimu
+darkModeMediaQuery.addEventListener('change', updateSystemBarColor);
+// Spustí se hned po načtení
+updateSystemBarColor();
+
 // --- Inicializace aplikace ---
 if (!schedule['Pondělí']) schedule['Pondělí'] = [];
 renderTabs();
