@@ -1,5 +1,12 @@
 const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbzbn-loEtgL8Q96wbLrqR9Jluff6YSdmnVxnjnmULq0OMTAsFgjAaEjn77hw66aqjel/exec"
 
+// --- NOVÉ: Zjištění PINu z paměti telefonu ---
+let appPin = localStorage.getItem('zus_pin');
+if (!appPin) {
+    appPin = prompt("Zadejte tajný PIN pro synchronizaci rozvrhu:");
+    localStorage.setItem('zus_pin', appPin);
+}
+
 const defaultSchedule = {
   "Pondělí": [], "Úterý": [], "Středa": [], "Čtvrtek": [], "Pátek": []
 };
@@ -15,7 +22,7 @@ currentDay = (today >= 1 && today <= 5) ? dayMap[today] : 'Pondělí';
 
 function saveSchedule() {
     localStorage.setItem('zus_schedule', JSON.stringify(schedule));
-    fetch(GOOGLE_APP_URL, {
+    fetch(GOOGLE_APP_URL + "?pin=" + appPin, {
         method: 'POST',
         body: JSON.stringify(schedule)
     }).then(response => {
@@ -37,7 +44,20 @@ function addMinutes(timeStr, mins) {
 }
 
 function loadFromGoogle() {
-    fetch(GOOGLE_APP_URL)
+    fetch(GOOGLE_APP_URL + "?pin=" + appPin)
+        .then(response => {
+            // Kontrola, jestli Google nevrátil chybu o špatném pinu
+            if (response.status === 200) return response.text();
+            throw new Error("Chyba spojení");
+        })
+        .then(text => {
+            if (text.includes("Přístup odepřen")) {
+                alert("Špatný PIN. Aplikace se nyní resetuje.");
+                localStorage.removeItem('zus_pin');
+                location.reload();
+                return;
+            }
+            const data = JSON.parse(text);
         .then(response => response.json())
         .then(data => {
             if (data["Pondělí"] && (data["Pondělí"].length > 0 || data["Úterý"].length > 0)) {
