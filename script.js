@@ -1,9 +1,8 @@
 const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbzbn-loEtgL8Q96wbLrqR9Jluff6YSdmnVxnjnmULq0OMTAsFgjAaEjn77hw66aqjel/exec";
 
-// --- OPRAVA: Zjištění PINu z paměti telefonu ---
+// --- 1. Zjištění PINu z paměti telefonu ---
 let appPin = localStorage.getItem('zus_pin');
 
-// Pojistka: Pokud je PIN prázdný, nebo se omylem uložilo slovo "null", zeptá se znovu
 if (!appPin || appPin === "null" || appPin === "") {
     appPin = prompt("Zadejte tajný PIN pro synchronizaci rozvrhu:");
     if (appPin) {
@@ -11,7 +10,7 @@ if (!appPin || appPin === "null" || appPin === "") {
     }
 }
 
-// Vrácení tvého plného rozvrhu (pokud selže spojení s Googlem)
+// --- 2. Výchozí rozvrh (plný) ---
 const defaultSchedule = {
   "Pondělí": [
     { "time": "13:45", "name": "Maxík Král", "rocnik": "2", "hn": "Po 14:30" },
@@ -49,7 +48,20 @@ const defaultSchedule = {
   ]
 };
 
-let schedule = JSON.parse(localStorage.getItem('zus_schedule')) || defaultSchedule;
+// --- 3. Chytré načtení dat (Samooprava paměti) ---
+let savedSchedule = JSON.parse(localStorage.getItem('zus_schedule'));
+let hasAnyLessons = false;
+
+if (savedSchedule) {
+    for (let day in savedSchedule) {
+        if (savedSchedule[day] && savedSchedule[day].length > 0) {
+            hasAnyLessons = true;
+            break;
+        }
+    }
+}
+
+let schedule = hasAnyLessons ? savedSchedule : defaultSchedule;
 let currentDay = '';
 let swapSourceIndex = null;
 let editingIndex = null;
@@ -58,6 +70,37 @@ const today = new Date().getDay();
 const dayMap = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
 currentDay = (today >= 1 && today <= 5) ? dayMap[today] : 'Pondělí';
 
+// --- 4. Tlačítko pro manuální synchronizaci 🔄 ---
+document.getElementById('btn-sync').onclick = () => {
+    if (navigator.vibrate) navigator.vibrate(50);
+    
+    fetch(GOOGLE_APP_URL + "?pin=" + appPin)
+        .then(response => {
+            if (response.status === 200) return response.text();
+            throw new Error("Chyba spojení");
+        })
+        .then(text => {
+            if (text.includes("Přístup odepřen")) {
+                alert("Špatný PIN. Aplikace se nyní resetuje.");
+                localStorage.removeItem('zus_pin');
+                location.reload();
+                return;
+            }
+            
+            const data = JSON.parse(text);
+            if (data["Pondělí"] && (data["Pondělí"].length > 0 || data["Úterý"].length > 0)) {
+                schedule = data;
+                localStorage.setItem('zus_schedule', JSON.stringify(schedule));
+                renderSchedule();
+                alert("Rozvrh byl úspěšně synchronizován s Google Tabulkou.");
+            } else {
+                alert("Google Tabulka je prázdná. Zkuste nejdříve data uložit z mobilu.");
+            }
+        })
+        .catch(err => alert("Chyba při stahování: Jste připojeni k internetu?"));
+};
+
+// --- 5. Funkce pro ukládání a čas ---
 function saveSchedule() {
     localStorage.setItem('zus_schedule', JSON.stringify(schedule));
     fetch(GOOGLE_APP_URL + "?pin=" + appPin, {
@@ -81,35 +124,7 @@ function addMinutes(timeStr, mins) {
     return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
 }
 
-function loadFromGoogle() {
-    fetch(GOOGLE_APP_URL + "?pin=" + appPin)
-        .then(response => {
-            // Kontrola, jestli Google nevrátil chybu o špatném pinu
-            if (response.status === 200) return response.text();
-            throw new Error("Chyba spojení");
-        })
-        .then(text => {
-            if (text.includes("Přístup odepřen")) {
-                alert("Špatný PIN. Aplikace se nyní resetuje.");
-                localStorage.removeItem('zus_pin');
-                location.reload();
-                return;
-            }
-            
-            // Tady starý kód dělal neplechu. Nyní správně zpracujeme data:
-            const data = JSON.parse(text);
-            
-            if (data["Pondělí"] && (data["Pondělí"].length > 0 || data["Úterý"].length > 0)) {
-                schedule = data;
-                localStorage.setItem('zus_schedule', JSON.stringify(schedule));
-                renderSchedule();
-            } else if (schedule["Pondělí"].length > 0) {
-                saveSchedule();
-            }
-        })
-        .catch(err => console.log("Nelze načíst data, používám lokální.", err));
-}
-
+// --- 6. Vykreslování rozvrhu ---
 function renderTabs() {
     document.querySelectorAll('.day-selector button').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.day === currentDay);
@@ -153,6 +168,7 @@ function renderSchedule() {
     });
 }
 
+// --- 7. Logika Modálního okna a výměny ---
 function handleCardClick(index) {
     if (swapSourceIndex !== null) {
         if (swapSourceIndex === index) {
@@ -251,13 +267,12 @@ document.getElementById('add-break-btn').onclick = () => {
     renderSchedule();
 };
 
-// --- NOVÉ: Přecházení mezi dny tažením (Swipe) ---
+// --- 8. Přecházení mezi dny tažením (Swipe) ---
 let touchStartX = 0;
 let touchEndX = 0;
 const workDays = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek'];
 
 document.addEventListener('touchstart', e => {
-    // Nechceme reagovat na tahání, pokud je otevřené modální okno k úpravám
     if (!document.getElementById('edit-modal').classList.contains('hidden')) return;
     touchStartX = e.changedTouches[0].screenX;
 }, {passive: true});
@@ -269,7 +284,6 @@ document.addEventListener('touchend', e => {
     let currentIndex = workDays.indexOf(currentDay);
     if (currentIndex === -1) return;
 
-    // Tah doleva (přechod na další den)
     if (touchEndX < touchStartX - 60) {
         if (currentIndex < workDays.length - 1) {
             currentDay = workDays[currentIndex + 1];
@@ -278,7 +292,6 @@ document.addEventListener('touchend', e => {
             renderSchedule();
         }
     }
-    // Tah doprava (přechod na předchozí den)
     if (touchEndX > touchStartX + 60) {
         if (currentIndex > 0) {
             currentDay = workDays[currentIndex - 1];
@@ -289,17 +302,7 @@ document.addEventListener('touchend', e => {
     }
 }, {passive: true});
 
-function updateThemeColor() {
-    if (darkModeMediaQuery.matches) {
-        metaThemeColor.setAttribute('content', '#121212'); // Pozadí v tmavém režimu
-    } else {
-        metaThemeColor.setAttribute('content', '#f0f4f8'); // Pozadí ve světlém režimu
-    }
-}
-darkModeMediaQuery.addEventListener('change', updateThemeColor);
-updateThemeColor();
-
+// --- Inicializace aplikace ---
 if (!schedule['Pondělí']) schedule['Pondělí'] = [];
 renderTabs();
 renderSchedule();
-loadFromGoogle();

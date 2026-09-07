@@ -12,7 +12,10 @@
 </head>
 <body>
     <header>
-        <h1>Můj rozvrh</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 0.5rem;">
+            <h1>Můj rozvrh</h1>
+            <button id="btn-sync" style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 0;">🔄</button>
+        </div>
         <div class="day-selector">
             <button data-day="Pondělí">Po</button>
             <button data-day="Úterý">Út</button>
@@ -69,7 +72,7 @@
         </div>
     </div>
     
-    <script src="script.js?v=1.4"></script>
+    <script src="script.js?v=1.5"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
