@@ -285,10 +285,10 @@ document.getElementById('add-break-btn').onclick = () => {
     renderSchedule();
 };
 
-// --- 8. Přecházení mezi dny tažením (Swipe) ---
+// --- 8. Přecházení mezi dny tažen່ມ (Swipe) a Definice dnů ---
+const workDays = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek'];
 let touchStartX = 0;
 let touchEndX = 0;
-const workDays = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek'];
 
 document.addEventListener('touchstart', e => {
     if (!document.getElementById('edit-modal').classList.contains('hidden')) return;
@@ -302,22 +302,20 @@ document.addEventListener('touchend', e => {
     let currentIndex = workDays.indexOf(currentDay);
     if (currentIndex === -1) return;
 
-    // Tah doleva (přechod na další den)
     if (touchEndX < touchStartX - 60) {
         if (currentIndex < workDays.length - 1) {
             currentDay = workDays[currentIndex + 1];
             swapSourceIndex = null;
             renderTabs();
-            renderSchedule('right'); // Animace přijede zprava
+            renderSchedule('right');
         }
     }
-    // Tah doprava (přechod na předchozí den)
     if (touchEndX > touchStartX + 60) {
         if (currentIndex > 0) {
             currentDay = workDays[currentIndex - 1];
             swapSourceIndex = null;
             renderTabs();
-            renderSchedule('left'); // Animace přijede zleva
+            renderSchedule('left');
         }
     }
 }, {passive: true});
@@ -327,18 +325,16 @@ const themeColorMeta = document.getElementById('theme-color-meta');
 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
 function updateSystemBarColor() {
-    if (darkModeMediaQuery.matches) {
-        // Tmavé pozadí aplikace (ověř, že přesně tuto barvu máš v CSS pro dark mode)
-        themeColorMeta.setAttribute('content', '#121212'); 
-    } else {
-        // Světlé pozadí aplikace
-        themeColorMeta.setAttribute('content', '#f0f4f8'); 
+    if (themeColorMeta) {
+        if (darkModeMediaQuery.matches) {
+            themeColorMeta.setAttribute('content', '#121212'); 
+        } else {
+            themeColorMeta.setAttribute('content', '#f0f4f8'); 
+        }
     }
 }
 
-// Spustí se při změně režimu
 darkModeMediaQuery.addEventListener('change', updateSystemBarColor);
-// Spustí se hned po načtení
 updateSystemBarColor();
 
 // --- Inicializace aplikace ---
