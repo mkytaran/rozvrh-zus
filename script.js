@@ -1,14 +1,52 @@
-const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbzbn-loEtgL8Q96wbLrqR9Jluff6YSdmnVxnjnmULq0OMTAsFgjAaEjn77hw66aqjel/exec"
+const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbzbn-loEtgL8Q96wbLrqR9Jluff6YSdmnVxnjnmULq0OMTAsFgjAaEjn77hw66aqjel/exec";
 
-// --- NOVÉ: Zjištění PINu z paměti telefonu ---
+// --- OPRAVA: Zjištění PINu z paměti telefonu ---
 let appPin = localStorage.getItem('zus_pin');
-if (!appPin) {
+
+// Pojistka: Pokud je PIN prázdný, nebo se omylem uložilo slovo "null", zeptá se znovu
+if (!appPin || appPin === "null" || appPin === "") {
     appPin = prompt("Zadejte tajný PIN pro synchronizaci rozvrhu:");
-    localStorage.setItem('zus_pin', appPin);
+    if (appPin) {
+        localStorage.setItem('zus_pin', appPin);
+    }
 }
 
+// Vrácení tvého plného rozvrhu (pokud selže spojení s Googlem)
 const defaultSchedule = {
-  "Pondělí": [], "Úterý": [], "Středa": [], "Čtvrtek": [], "Pátek": []
+  "Pondělí": [
+    { "time": "13:45", "name": "Maxík Král", "rocnik": "2", "hn": "Po 14:30" },
+    { "time": "14:30", "name": "David Kolář", "rocnik": "1", "hn": "Po 13:30" },
+    { "time": "15:15", "name": "Vašík Brabec", "rocnik": "2", "hn": "Po 14:30" },
+    { "time": "16:15", "name": "Kryštof Kott", "rocnik": "3", "hn": "Po 15:30" },
+    { "time": "17:00", "name": "Váša Kováč", "rocnik": "7", "hn": "" }
+  ],
+  "Úterý": [
+    { "time": "13:30", "name": "Ondra Holub", "rocnik": "2", "hn": "St 13:30" },
+    { "time": "14:15", "name": "Tonda Martínek", "rocnik": "1", "hn": "Út 15:00" },
+    { "time": "15:15", "name": "Jeník Burda", "rocnik": "3", "hn": "Út 16:00" },
+    { "time": "16:00", "name": "Kryštof Stárek", "rocnik": "2", "hn": "St 13:30" },
+    { "time": "16:50", "name": "Natálka Komárková", "rocnik": "6", "hn": "" }
+  ],
+  "Středa": [
+    { "time": "13:00", "name": "Ema Hrstková", "rocnik": "2. př", "hn": "St 14:30" },
+    { "time": "13:45", "name": "Ellen Borčová", "rocnik": "2. př", "hn": "St 14:30" },
+    { "time": "14:30", "name": "Matyáš Dvořák", "rocnik": "2", "hn": "Po 14:30" },
+    { "time": "15:20", "name": "Vojta Kvasnička", "rocnik": "6", "hn": "" },
+    { "time": "16:05", "name": "Vašík Novotný", "rocnik": "5", "hn": "" }
+  ],
+  "Čtvrtek": [
+    { "time": "13:20", "name": "Justýna Hrachovcová", "rocnik": "2", "hn": "St 13:30" },
+    { "time": "14:05", "name": "Šimon Vrabec", "rocnik": "2", "hn": "St 13:30" },
+    { "time": "14:55", "name": "Honza Andrýs", "rocnik": "5", "hn": "" },
+    { "time": "15:45", "name": "Verča Bělohoubková", "rocnik": "5", "hn": "" },
+    { "time": "16:30", "name": "Dominik Bělohoubek", "rocnik": "5", "hn": "" },
+    { "time": "17:15", "name": "soukr. hodina", "rocnik": "", "hn": "" }
+  ],
+  "Pátek": [
+    { "time": "13:15", "name": "František Sycha", "rocnik": "2. př", "hn": "" },
+    { "time": "14:05", "name": "Kytarový soubor", "rocnik": "", "hn": "" },
+    { "time": "14:50", "name": "Kytarový soubor", "rocnik": "", "hn": "" }
+  ]
 };
 
 let schedule = JSON.parse(localStorage.getItem('zus_schedule')) || defaultSchedule;
