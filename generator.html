@@ -2,91 +2,86 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Generátor ikon</title>
+    <title>Generátor Ikony z Fotky</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #eee; padding: 20px; }
-        canvas { border: 2px dashed #999; margin: 10px; cursor: pointer; }
-        canvas:hover { border-color: #005bb5; }
+        body { font-family: sans-serif; text-align: center; background: #222; color: #fff; padding: 20px; }
+        canvas { border: 2px solid #555; margin: 10px; cursor: pointer; border-radius: 10px; background: #333; }
+        canvas:hover { border-color: #66b3ff; box-shadow: 0 0 15px rgba(102,179,255,0.4); }
+        input[type="file"] { padding: 10px; font-size: 1.1em; cursor: pointer; background: #444; color: white; border-radius: 6px; border: 1px solid #666;}
+        .hint { color: #aaa; margin-bottom: 20px; line-height: 1.5; }
     </style>
 </head>
 <body>
-    <h2>Klikni na obrázky a ony se ti stáhnou jako PNG</h2>
+    <h2>Vyrob si ikonu z vlastní fotky</h2>
+    <p class="hint">
+        1. Klikni na tlačítko níže a vyber fotku kytary, kterou sis stáhl.<br>
+        2. Prohlížeč ji automaticky ořízne do kruhu a upraví do správných velikostí pro PWA.<br>
+        3. Klikni na vygenerované obrázky a ony se ti stáhnou.
+    </p>
     
+    <input type="file" id="upload" accept="image/*">
+    <br><br>
+    
+    <!-- Zde se vykreslí ikony -->
     <canvas id="c192" width="192" height="192" title="Klikni pro stažení icon-192.png"></canvas>
     <canvas id="c512" width="512" height="512" title="Klikni pro stažení icon-512.png"></canvas>
 
     <script>
-        function drawGuitar(id, size) {
-            const canvas = document.getElementById(id);
-            const ctx = canvas.getContext('2d');
-            const cx = size / 2;
+        const upload = document.getElementById('upload');
+        const canvases = [
+            { id: 'c192', size: 192 },
+            { id: 'c512', size: 512 }
+        ];
 
-            // Tmavě modré pozadí (barva tvé aplikace)
-            ctx.fillStyle = '#005bb5';
-            ctx.beginPath();
-            ctx.arc(cx, cx, cx, 0, Math.PI * 2);
-            ctx.fill();
+        upload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-            const wood = '#dea568';
-            const darkWood = '#542e17';
-            const holeColor = '#2b160a';
+            const img = new Image();
+            img.onload = () => {
+                canvases.forEach(c => {
+                    const canvas = document.getElementById(c.id);
+                    const ctx = canvas.getContext('2d');
+                    const size = c.size;
+                    const cx = size / 2;
 
-            // Krk
-            ctx.fillStyle = darkWood;
-            ctx.fillRect(cx - size * 0.035, size * 0.2, size * 0.07, size * 0.3);
+                    ctx.clearRect(0, 0, size, size);
 
-            // Hlava
-            ctx.fillRect(cx - size * 0.05, size * 0.1, size * 0.1, size * 0.1);
+                    // 1. Modré pozadí (vyplní průhledná místa, pokud stáhneš PNG)
+                    ctx.fillStyle = '#2b2b2b';
+                    ctx.beginPath();
+                    ctx.arc(cx, cx, cx, 0, Math.PI * 2);
+                    ctx.fill();
 
-            // Ladící kolíčky
-            ctx.fillStyle = '#dcdcdc';
-            [0.12, 0.15, 0.18].forEach(y => {
-                ctx.beginPath(); ctx.arc(cx - size * 0.06, size * y, size * 0.015, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(cx + size * 0.06, size * y, size * 0.015, 0, Math.PI * 2); ctx.fill();
-            });
+                    // 2. Oříznutí dalšího kreslení do kruhu
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(cx, cx, cx, 0, Math.PI * 2);
+                    ctx.clip();
 
-            // Tělo horní
-            ctx.fillStyle = wood;
-            ctx.beginPath(); ctx.ellipse(cx, size * 0.5, size * 0.17, size * 0.12, 0, 0, Math.PI * 2); ctx.fill();
+                    // 3. Výpočet ořezu (aby fotka vyplnila celý kruh bez deformace)
+                    const scale = Math.max(size / img.width, size / img.height);
+                    const w = img.width * scale;
+                    const h = img.height * scale;
+                    const x = (size - w) / 2;
+                    const y = (size - h) / 2;
 
-            // Tělo spodní
-            ctx.beginPath(); ctx.ellipse(cx, size * 0.71, size * 0.22, size * 0.16, 0, 0, Math.PI * 2); ctx.fill();
+                    // 4. Vykreslení samotné fotky
+                    ctx.drawImage(img, x, y, w, h);
+                    ctx.restore();
 
-            // Ozvučný otvor
-            ctx.fillStyle = holeColor;
-            ctx.beginPath(); ctx.arc(cx, size * 0.605, size * 0.075, 0, Math.PI * 2); ctx.fill();
-
-            // Rozeta
-            ctx.strokeStyle = '#b46432';
-            ctx.lineWidth = Math.max(1, size * 0.005);
-            ctx.beginPath(); ctx.arc(cx, size * 0.605, size * 0.085, 0, Math.PI * 2); ctx.stroke();
-
-            // Kobylka
-            ctx.fillStyle = darkWood;
-            ctx.fillRect(cx - size * 0.08, size * 0.78, size * 0.16, size * 0.03);
-
-            // Struny (3 nylonové + 3 kovové)
-            for (let i = 0; i < 6; i++) {
-                ctx.strokeStyle = i < 3 ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)';
-                ctx.lineWidth = Math.max(1, size * 0.004);
-                ctx.beginPath();
-                let sx = cx - size * 0.025 + i * (size * 0.01);
-                ctx.moveTo(sx, size * 0.15);
-                ctx.lineTo(sx, size * 0.795);
-                ctx.stroke();
-            }
-
-            // Funkce pro stažení obrázku po kliknutí
-            canvas.onclick = () => {
-                const a = document.createElement('a');
-                a.href = canvas.toDataURL('image/png');
-                a.download = `icon-${size}.png`;
-                a.click();
+                    // 5. Zpřístupnění stažení po kliknutí
+                    canvas.onclick = () => {
+                        const a = document.createElement('a');
+                        a.href = canvas.toDataURL('image/png');
+                        a.download = `icon-${size}.png`;
+                        a.click();
+                    };
+                });
             };
-        }
-
-        drawGuitar('c192', 192);
-        drawGuitar('c512', 512);
+            // Načtení lokálního souboru přímo v prohlížeči
+            img.src = URL.createObjectURL(file);
+        });
     </script>
 </body>
 </html>
