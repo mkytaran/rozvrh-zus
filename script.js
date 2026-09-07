@@ -138,7 +138,6 @@ window.deleteLesson = function(index) {
     }
 }
 
-// Logika globálního tlačítka pro PŘIDÁNÍ HODINY
 document.getElementById('add-lesson-btn').onclick = () => {
     const dayData = schedule[currentDay] || [];
     let newTime = "13:00";
@@ -164,7 +163,6 @@ document.getElementById('add-lesson-btn').onclick = () => {
     renderSchedule();
 };
 
-// Logika globálního tlačítka pro PŘESTÁVKU
 document.getElementById('add-break-btn').onclick = () => {
     let targetTime = prompt("Od jakého času chcete všechny následující hodiny posunout (HH:MM)?", "15:15");
     if (!targetTime) return;
@@ -177,7 +175,6 @@ document.getElementById('add-break-btn').onclick = () => {
 
     const dayData = schedule[currentDay];
     
-    // Posune všechny hodiny, které začínají v zadaný čas NEBO později
     dayData.forEach(lesson => {
         if (lesson.time >= targetTime) {
             lesson.time = addMinutes(lesson.time, mins);
@@ -188,18 +185,21 @@ document.getElementById('add-break-btn').onclick = () => {
     renderSchedule();
 };
 
+// DYNAMICKÁ BARVA SYSTÉMOVÉ LIŠTY (STATUS BAR)
 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 const metaThemeColor = document.getElementById('theme-color-meta');
 
 function updateThemeColor() {
     if (darkModeMediaQuery.matches) {
-        metaThemeColor.setAttribute('content', '#121212');
+        // V tmavém režimu má hlavička barvu #1e1e1e (tmavě šedá)
+        metaThemeColor.setAttribute('content', '#1e1e1e');
     } else {
-        metaThemeColor.setAttribute('content', '#f4f6f8');
+        // Ve světlém režimu má hlavička barvu #005bb5 (primární modrá)
+        metaThemeColor.setAttribute('content', '#005bb5');
     }
 }
 darkModeMediaQuery.addEventListener('change', updateThemeColor);
-updateThemeColor();
+updateThemeColor(); // Spustit hned při načtení
 
 if (!schedule['Pondělí']) schedule['Pondělí'] = [];
 renderTabs();

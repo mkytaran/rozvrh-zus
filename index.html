@@ -2,11 +2,12 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Rozvrh ZUŠ Kytara</title>
-    <meta name="theme-color" content="#f4f6f8" id="theme-color-meta">
+    <!-- Barva se bude přes JS měnit podle světlého/tmavého režimu, aby splynula s hlavičkou -->
+    <meta name="theme-color" content="#005bb5" id="theme-color-meta">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=1.1">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
@@ -25,11 +26,15 @@
     </main>
     
     <div class="bottom-bar">
-        <button id="add-lesson-btn">➕ Hodina</button>
-        <button id="add-break-btn">☕ Přestávka</button>
+        <button id="add-lesson-btn">
+            <span class="icon">➕</span> Hodina
+        </button>
+        <button id="add-break-btn">
+            <span class="icon">☕</span> Přestávka
+        </button>
     </div>
     
-    <script src="script.js?v=1.1"></script>
+    <script src="script.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
