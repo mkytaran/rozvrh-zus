@@ -1,3 +1,5 @@
+const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbzbn-loEtgL8Q96wbLrqR9Jluff6YSdmnVxnjnmULq0OMTAsFgjAaEjn77hw66aqjel/exec"
+
 const defaultSchedule = {
   "Pondělí": [
     { "time": "13:45", "name": "Maxík Král", "rocnik": "2", "hn": "Po 14:30" },
@@ -45,7 +47,19 @@ const dayMap = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Páte
 currentDay = (today >= 1 && today <= 5) ? dayMap[today] : 'Pondělí';
 
 function saveSchedule() {
+    // 1. Okamžité uložení do mobilu (funguje i offline)
     localStorage.setItem('zus_schedule', JSON.stringify(schedule));
+    
+    // 2. Synchronizace do Google Tabulky na pozadí (pokud jsi online)
+    fetch(GOOGLE_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify(schedule)
+        // Schválně nedáváme headers (Content-Type), aby se předešlo CORS chybě
+    }).then(response => {
+        console.log("Úspěšně uloženo do Google Sheets");
+    }).catch(err => {
+        console.error("Chyba synchronizace s Google Sheets (jste offline?)", err);
+    });
 }
 
 function addMinutes(timeStr, mins) {
@@ -53,6 +67,26 @@ function addMinutes(timeStr, mins) {
     let [h, m] = timeStr.split(':').map(Number);
     let date = new Date(2000, 0, 1, h, m + mins);
     return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+}
+
+// --- NOVÁ FUNKCE PRO NAČTENÍ Z TABULKY ---
+function loadFromGoogle() {
+    // Načteme data z tabulky a pokud se liší, aktualizujeme rozvrh
+    fetch(GOOGLE_APP_URL)
+        .then(response => response.json())
+        .then(data => {
+            // Zkontrolujeme, zda tabulka není prázdná
+            if (data["Pondělí"] && (data["Pondělí"].length > 0 || data["Úterý"].length > 0)) {
+                schedule = data;
+                localStorage.setItem('zus_schedule', JSON.stringify(schedule));
+                renderSchedule();
+                console.log("Rozvrh byl aktualizován z Google Sheets");
+            } else if (schedule["Pondělí"].length > 0) {
+                // Pokud je tabulka prázdná, ale my máme data, pošleme je do tabulky
+                saveSchedule();
+            }
+        })
+        .catch(err => console.log("Nelze načíst data z Google Sheets, používám lokální.", err));
 }
 
 function renderTabs() {
@@ -211,6 +245,7 @@ document.getElementById('add-break-btn').onclick = () => {
     renderSchedule();
 };
 
+// --- ZMĚNĚNÝ KONEC SOUBORU ---
 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 const metaThemeColor = document.getElementById('theme-color-meta');
 
@@ -227,3 +262,6 @@ updateThemeColor();
 if (!schedule['Pondělí']) schedule['Pondělí'] = [];
 renderTabs();
 renderSchedule();
+
+// Pokusíme se synchronizovat aktuální stav z Google tabulky hned po spuštění
+loadFromGoogle();

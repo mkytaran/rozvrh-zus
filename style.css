@@ -139,11 +139,13 @@ h1 { margin: 0 0 1rem 0; font-size: 1.4rem; text-align: center; font-weight: 700
 .modal h3 { margin: 0 0 1.2rem 0; color: var(--text-color); font-size: 1.3rem; }
 
 .form-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
-.form-row { display: flex; gap: 1rem; }
-.form-row .form-group { flex: 1; }
+.form-row { display: flex; gap: 0.5rem; } /* Zmenšená mezera z 1rem na 0.5rem */
+.form-row .form-group { flex: 1; min-width: 0; } /* min-width: 0 zabrání roztažení flexboxu */
 
 .modal label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.4rem; }
 .modal input {
+    width: 100%; /* Donutí input držet se v hranicích rodiče */
+    box-sizing: border-box; /* Zabrání tomu, aby padding zvětšil celkovou šířku */
     padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);
     background: var(--bg-color); color: var(--text-color); font-size: 1rem; outline: none;
 }
