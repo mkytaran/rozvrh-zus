@@ -1,40 +1,7 @@
 const GOOGLE_APP_URL = "https://script.google.com/macros/s/AKfycbzbn-loEtgL8Q96wbLrqR9Jluff6YSdmnVxnjnmULq0OMTAsFgjAaEjn77hw66aqjel/exec"
 
 const defaultSchedule = {
-  "Pondělí": [
-    { "time": "13:45", "name": "Maxík Král", "rocnik": "2", "hn": "Po 14:30" },
-    { "time": "14:30", "name": "David Kolář", "rocnik": "1", "hn": "Po 13:30" },
-    { "time": "15:15", "name": "Vašík Brabec", "rocnik": "2", "hn": "Po 14:30" },
-    { "time": "16:15", "name": "Kryštof Kott", "rocnik": "3", "hn": "Po 15:30" },
-    { "time": "17:00", "name": "Váša Kováč", "rocnik": "7", "hn": "" }
-  ],
-  "Úterý": [
-    { "time": "13:30", "name": "Ondra Holub", "rocnik": "2", "hn": "St 13:30" },
-    { "time": "14:15", "name": "Tonda Martínek", "rocnik": "1", "hn": "Út 15:00" },
-    { "time": "15:15", "name": "Jeník Burda", "rocnik": "3", "hn": "Út 16:00" },
-    { "time": "16:00", "name": "Kryštof Stárek", "rocnik": "2", "hn": "St 13:30" },
-    { "time": "16:50", "name": "Natálka Komárková", "rocnik": "6", "hn": "" }
-  ],
-  "Středa": [
-    { "time": "13:00", "name": "Ema Hrstková", "rocnik": "2. př", "hn": "St 14:30" },
-    { "time": "13:45", "name": "Ellen Borčová", "rocnik": "2. př", "hn": "St 14:30" },
-    { "time": "14:30", "name": "Matyáš Dvořák", "rocnik": "2", "hn": "Po 14:30" },
-    { "time": "15:20", "name": "Vojta Kvasnička", "rocnik": "6", "hn": "" },
-    { "time": "16:05", "name": "Vašík Novotný", "rocnik": "5", "hn": "" }
-  ],
-  "Čtvrtek": [
-    { "time": "13:20", "name": "Justýna Hrachovcová", "rocnik": "2", "hn": "St 13:30" },
-    { "time": "14:05", "name": "Šimon Vrabec", "rocnik": "2", "hn": "St 13:30" },
-    { "time": "14:55", "name": "Honza Andrýs", "rocnik": "5", "hn": "" },
-    { "time": "15:45", "name": "Verča Bělohoubková", "rocnik": "5", "hn": "" },
-    { "time": "16:30", "name": "Dominik Bělohoubek", "rocnik": "5", "hn": "" },
-    { "time": "17:15", "name": "soukr. hodina", "rocnik": "", "hn": "" }
-  ],
-  "Pátek": [
-    { "time": "13:15", "name": "František Sycha", "rocnik": "2. př", "hn": "" },
-    { "time": "14:05", "name": "Kytarový soubor", "rocnik": "", "hn": "" },
-    { "time": "14:50", "name": "Kytarový soubor", "rocnik": "", "hn": "" }
-  ]
+  "Pondělí": [], "Úterý": [], "Středa": [], "Čtvrtek": [], "Pátek": []
 };
 
 let schedule = JSON.parse(localStorage.getItem('zus_schedule')) || defaultSchedule;
@@ -47,46 +14,41 @@ const dayMap = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Páte
 currentDay = (today >= 1 && today <= 5) ? dayMap[today] : 'Pondělí';
 
 function saveSchedule() {
-    // 1. Okamžité uložení do mobilu (funguje i offline)
     localStorage.setItem('zus_schedule', JSON.stringify(schedule));
-    
-    // 2. Synchronizace do Google Tabulky na pozadí (pokud jsi online)
     fetch(GOOGLE_APP_URL, {
         method: 'POST',
         body: JSON.stringify(schedule)
-        // Schválně nedáváme headers (Content-Type), aby se předešlo CORS chybě
     }).then(response => {
         console.log("Úspěšně uloženo do Google Sheets");
     }).catch(err => {
-        console.error("Chyba synchronizace s Google Sheets (jste offline?)", err);
+        console.error("Chyba synchronizace s Google Sheets", err);
     });
 }
 
 function addMinutes(timeStr, mins) {
-    if (!timeStr) return "00:00";
-    let [h, m] = timeStr.split(':').map(Number);
+    if (!timeStr || typeof timeStr !== 'string' || !timeStr.includes(':')) return "00:00";
+    let match = timeStr.match(/(\d{1,2}):(\d{2})/);
+    if (!match) return "00:00";
+    let h = parseInt(match[1]);
+    let m = parseInt(match[2]);
+    if (isNaN(h) || isNaN(m)) return "00:00";
     let date = new Date(2000, 0, 1, h, m + mins);
     return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
 }
 
-// --- NOVÁ FUNKCE PRO NAČTENÍ Z TABULKY ---
 function loadFromGoogle() {
-    // Načteme data z tabulky a pokud se liší, aktualizujeme rozvrh
     fetch(GOOGLE_APP_URL)
         .then(response => response.json())
         .then(data => {
-            // Zkontrolujeme, zda tabulka není prázdná
             if (data["Pondělí"] && (data["Pondělí"].length > 0 || data["Úterý"].length > 0)) {
                 schedule = data;
                 localStorage.setItem('zus_schedule', JSON.stringify(schedule));
                 renderSchedule();
-                console.log("Rozvrh byl aktualizován z Google Sheets");
             } else if (schedule["Pondělí"].length > 0) {
-                // Pokud je tabulka prázdná, ale my máme data, pošleme je do tabulky
                 saveSchedule();
             }
         })
-        .catch(err => console.log("Nelze načíst data z Google Sheets, používám lokální.", err));
+        .catch(err => console.log("Nelze načíst data, používám lokální.", err));
 }
 
 function renderTabs() {
@@ -127,18 +89,15 @@ function renderSchedule() {
             </div>
         `;
         
-        // Kliknutí na kartu
         card.onclick = () => handleCardClick(index);
         container.appendChild(card);
     });
 }
 
-// Logika kliknutí na kartu
 function handleCardClick(index) {
-    // 1. Zpracování výměny
     if (swapSourceIndex !== null) {
         if (swapSourceIndex === index) {
-            swapSourceIndex = null; // Zrušení výměny kliknutím na sebe
+            swapSourceIndex = null; 
         } else {
             const dayData = schedule[currentDay];
             const tempName = dayData[index].name;
@@ -160,22 +119,16 @@ function handleCardClick(index) {
         return;
     }
     
-    // 2. Otevření detailu hodiny
     editingIndex = index;
     const lesson = schedule[currentDay][index];
-    
     document.getElementById('edit-time').value = lesson.time;
     document.getElementById('edit-name').value = lesson.name;
     document.getElementById('edit-rocnik').value = lesson.rocnik;
     document.getElementById('edit-hn').value = lesson.hn;
-    
     document.getElementById('edit-modal').classList.remove('hidden');
 }
 
-// Obsluha modálního okna
-document.getElementById('btn-cancel').onclick = () => {
-    document.getElementById('edit-modal').classList.add('hidden');
-};
+document.getElementById('btn-cancel').onclick = () => document.getElementById('edit-modal').classList.add('hidden');
 
 document.getElementById('btn-save').onclick = () => {
     if (editingIndex !== null) {
@@ -205,7 +158,6 @@ document.getElementById('btn-swap').onclick = () => {
     renderSchedule();
 };
 
-
 document.getElementById('add-lesson-btn').onclick = () => {
     const dayData = schedule[currentDay] || [];
     let newTime = "13:00";
@@ -213,10 +165,8 @@ document.getElementById('add-lesson-btn').onclick = () => {
         const lastLesson = dayData[dayData.length - 1];
         newTime = addMinutes(lastLesson.time, 45); 
     }
-    
     let timeInput = prompt("Čas začátku nové hodiny (HH:MM):", newTime);
     if (!timeInput) return;
-    
     let nameInput = prompt("Jméno žáka:");
     if (nameInput === null) return;
 
@@ -228,10 +178,8 @@ document.getElementById('add-lesson-btn').onclick = () => {
 document.getElementById('add-break-btn').onclick = () => {
     let targetTime = prompt("Od jakého času chcete všechny následující hodiny posunout (HH:MM)?", "15:15");
     if (!targetTime) return;
-    
     let duration = prompt("Kolik minut má pauza trvat?", "5");
     if (!duration) return;
-    
     let mins = parseInt(duration);
     if (isNaN(mins)) return;
 
@@ -240,20 +188,57 @@ document.getElementById('add-break-btn').onclick = () => {
             lesson.time = addMinutes(lesson.time, mins);
         }
     });
-    
     saveSchedule();
     renderSchedule();
 };
 
-// --- ZMĚNĚNÝ KONEC SOUBORU ---
+// --- NOVÉ: Přecházení mezi dny tažením (Swipe) ---
+let touchStartX = 0;
+let touchEndX = 0;
+const workDays = ['Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek'];
+
+document.addEventListener('touchstart', e => {
+    // Nechceme reagovat na tahání, pokud je otevřené modální okno k úpravám
+    if (!document.getElementById('edit-modal').classList.contains('hidden')) return;
+    touchStartX = e.changedTouches[0].screenX;
+}, {passive: true});
+
+document.addEventListener('touchend', e => {
+    if (!document.getElementById('edit-modal').classList.contains('hidden')) return;
+    touchEndX = e.changedTouches[0].screenX;
+    
+    let currentIndex = workDays.indexOf(currentDay);
+    if (currentIndex === -1) return;
+
+    // Tah doleva (přechod na další den)
+    if (touchEndX < touchStartX - 60) {
+        if (currentIndex < workDays.length - 1) {
+            currentDay = workDays[currentIndex + 1];
+            swapSourceIndex = null;
+            renderTabs();
+            renderSchedule();
+        }
+    }
+    // Tah doprava (přechod na předchozí den)
+    if (touchEndX > touchStartX + 60) {
+        if (currentIndex > 0) {
+            currentDay = workDays[currentIndex - 1];
+            swapSourceIndex = null;
+            renderTabs();
+            renderSchedule();
+        }
+    }
+}, {passive: true});
+
+// --- ZMĚNA: Barva systémové lišty podle pozadí aplikace ---
 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 const metaThemeColor = document.getElementById('theme-color-meta');
 
 function updateThemeColor() {
     if (darkModeMediaQuery.matches) {
-        metaThemeColor.setAttribute('content', '#1e1e1e');
+        metaThemeColor.setAttribute('content', '#121212'); // Pozadí v tmavém režimu
     } else {
-        metaThemeColor.setAttribute('content', '#005bb5');
+        metaThemeColor.setAttribute('content', '#f0f4f8'); // Pozadí ve světlém režimu
     }
 }
 darkModeMediaQuery.addEventListener('change', updateThemeColor);
@@ -262,6 +247,4 @@ updateThemeColor();
 if (!schedule['Pondělí']) schedule['Pondělí'] = [];
 renderTabs();
 renderSchedule();
-
-// Pokusíme se synchronizovat aktuální stav z Google tabulky hned po spuštění
 loadFromGoogle();
