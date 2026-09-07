@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Rozvrh ZUŠ Kytara</title>
-    <!-- Barva se bude přes JS měnit podle světlého/tmavého režimu, aby splynula s hlavičkou -->
     <meta name="theme-color" content="#005bb5" id="theme-color-meta">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
@@ -32,6 +31,41 @@
         <button id="add-break-btn">
             <span class="icon">☕</span> Přestávka
         </button>
+    </div>
+
+    <!-- Modální okno pro úpravu hodiny -->
+    <div id="edit-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3>Úprava hodiny</h3>
+            
+            <div class="form-group">
+                <label>Čas začátku</label>
+                <input type="time" id="edit-time">
+            </div>
+            <div class="form-group">
+                <label>Jméno žáka</label>
+                <input type="text" id="edit-name">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ročník</label>
+                    <input type="text" id="edit-rocnik">
+                </div>
+                <div class="form-group">
+                    <label>HN</label>
+                    <input type="text" id="edit-hn">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button id="btn-save" class="btn-primary">Uložit</button>
+                <button id="btn-cancel" class="btn-secondary">Zrušit</button>
+            </div>
+            <div class="modal-actions-danger">
+                <button id="btn-swap" class="btn-outline">🔄 Vyměnit žáka</button>
+                <button id="btn-delete" class="btn-danger">🗑 Smazat</button>
+            </div>
+        </div>
     </div>
     
     <script src="script.js"></script>

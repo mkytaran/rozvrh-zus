@@ -38,6 +38,7 @@ const defaultSchedule = {
 let schedule = JSON.parse(localStorage.getItem('zus_schedule')) || defaultSchedule;
 let currentDay = '';
 let swapSourceIndex = null;
+let editingIndex = null;
 
 const today = new Date().getDay();
 const dayMap = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Pátek', 'Sobota'];
@@ -84,59 +85,92 @@ function renderSchedule() {
                 <div class="end-time">${endTime}</div>
             </div>
             <div class="info-col">
-                <div class="student-name" contenteditable="true" onblur="updateField(${index}, 'name', this.innerText)">${lesson.name}</div>
+                <div class="student-name">${lesson.name}</div>
                 <div class="student-details">
-                    Roč: <span contenteditable="true" onblur="updateField(${index}, 'rocnik', this.innerText)">${lesson.rocnik || '-'}</span> | 
-                    HN: <span contenteditable="true" onblur="updateField(${index}, 'hn', this.innerText)">${lesson.hn || '-'}</span>
+                    Roč: <span>${lesson.rocnik || '-'}</span> | 
+                    HN: <span>${lesson.hn || '-'}</span>
                 </div>
             </div>
-            <div class="actions-col">
-                <button class="btn-swap ${swapSourceIndex === index ? 'active' : ''}" onclick="toggleSwap(${index})" title="Vyměnit">🔄</button>
-                <button onclick="deleteLesson(${index})" title="Smazat">❌</button>
-            </div>
         `;
+        
+        // Kliknutí na kartu
+        card.onclick = () => handleCardClick(index);
         container.appendChild(card);
     });
 }
 
-window.updateField = function(index, field, value) {
-    schedule[currentDay][index][field] = value.trim();
-    saveSchedule();
-}
-
-window.toggleSwap = function(index) {
-    if (swapSourceIndex === index) {
-        swapSourceIndex = null;
-    } else if (swapSourceIndex !== null) {
-        const dayData = schedule[currentDay];
-        
-        const tempName = dayData[index].name;
-        const tempRocnik = dayData[index].rocnik;
-        const tempHn = dayData[index].hn;
-        
-        dayData[index].name = dayData[swapSourceIndex].name;
-        dayData[index].rocnik = dayData[swapSourceIndex].rocnik;
-        dayData[index].hn = dayData[swapSourceIndex].hn;
-        
-        dayData[swapSourceIndex].name = tempName;
-        dayData[swapSourceIndex].rocnik = tempRocnik;
-        dayData[swapSourceIndex].hn = tempHn;
-        
-        swapSourceIndex = null;
-        saveSchedule();
-    } else {
-        swapSourceIndex = index;
+// Logika kliknutí na kartu
+function handleCardClick(index) {
+    // 1. Zpracování výměny
+    if (swapSourceIndex !== null) {
+        if (swapSourceIndex === index) {
+            swapSourceIndex = null; // Zrušení výměny kliknutím na sebe
+        } else {
+            const dayData = schedule[currentDay];
+            const tempName = dayData[index].name;
+            const tempRocnik = dayData[index].rocnik;
+            const tempHn = dayData[index].hn;
+            
+            dayData[index].name = dayData[swapSourceIndex].name;
+            dayData[index].rocnik = dayData[swapSourceIndex].rocnik;
+            dayData[index].hn = dayData[swapSourceIndex].hn;
+            
+            dayData[swapSourceIndex].name = tempName;
+            dayData[swapSourceIndex].rocnik = tempRocnik;
+            dayData[swapSourceIndex].hn = tempHn;
+            
+            swapSourceIndex = null;
+            saveSchedule();
+        }
+        renderSchedule();
+        return;
     }
-    renderSchedule();
+    
+    // 2. Otevření detailu hodiny
+    editingIndex = index;
+    const lesson = schedule[currentDay][index];
+    
+    document.getElementById('edit-time').value = lesson.time;
+    document.getElementById('edit-name').value = lesson.name;
+    document.getElementById('edit-rocnik').value = lesson.rocnik;
+    document.getElementById('edit-hn').value = lesson.hn;
+    
+    document.getElementById('edit-modal').classList.remove('hidden');
 }
 
-window.deleteLesson = function(index) {
-    if (confirm('Opravdu chcete tuto hodinu smazat?')) {
-        schedule[currentDay].splice(index, 1);
+// Obsluha modálního okna
+document.getElementById('btn-cancel').onclick = () => {
+    document.getElementById('edit-modal').classList.add('hidden');
+};
+
+document.getElementById('btn-save').onclick = () => {
+    if (editingIndex !== null) {
+        const dayData = schedule[currentDay];
+        dayData[editingIndex].time = document.getElementById('edit-time').value;
+        dayData[editingIndex].name = document.getElementById('edit-name').value.trim();
+        dayData[editingIndex].rocnik = document.getElementById('edit-rocnik').value.trim();
+        dayData[editingIndex].hn = document.getElementById('edit-hn').value.trim();
         saveSchedule();
         renderSchedule();
     }
-}
+    document.getElementById('edit-modal').classList.add('hidden');
+};
+
+document.getElementById('btn-delete').onclick = () => {
+    if (confirm('Opravdu chcete tuto hodinu smazat?')) {
+        schedule[currentDay].splice(editingIndex, 1);
+        saveSchedule();
+        renderSchedule();
+        document.getElementById('edit-modal').classList.add('hidden');
+    }
+};
+
+document.getElementById('btn-swap').onclick = () => {
+    swapSourceIndex = editingIndex;
+    document.getElementById('edit-modal').classList.add('hidden');
+    renderSchedule();
+};
+
 
 document.getElementById('add-lesson-btn').onclick = () => {
     const dayData = schedule[currentDay] || [];
@@ -152,13 +186,7 @@ document.getElementById('add-lesson-btn').onclick = () => {
     let nameInput = prompt("Jméno žáka:");
     if (nameInput === null) return;
 
-    dayData.push({
-        time: timeInput,
-        name: nameInput || "Nový žák",
-        rocnik: "",
-        hn: ""
-    });
-    
+    dayData.push({ time: timeInput, name: nameInput || "Nový žák", rocnik: "", hn: "" });
     saveSchedule();
     renderSchedule();
 };
@@ -173,9 +201,7 @@ document.getElementById('add-break-btn').onclick = () => {
     let mins = parseInt(duration);
     if (isNaN(mins)) return;
 
-    const dayData = schedule[currentDay];
-    
-    dayData.forEach(lesson => {
+    schedule[currentDay].forEach(lesson => {
         if (lesson.time >= targetTime) {
             lesson.time = addMinutes(lesson.time, mins);
         }
@@ -185,21 +211,18 @@ document.getElementById('add-break-btn').onclick = () => {
     renderSchedule();
 };
 
-// DYNAMICKÁ BARVA SYSTÉMOVÉ LIŠTY (STATUS BAR)
 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 const metaThemeColor = document.getElementById('theme-color-meta');
 
 function updateThemeColor() {
     if (darkModeMediaQuery.matches) {
-        // V tmavém režimu má hlavička barvu #1e1e1e (tmavě šedá)
         metaThemeColor.setAttribute('content', '#1e1e1e');
     } else {
-        // Ve světlém režimu má hlavička barvu #005bb5 (primární modrá)
         metaThemeColor.setAttribute('content', '#005bb5');
     }
 }
 darkModeMediaQuery.addEventListener('change', updateThemeColor);
-updateThemeColor(); // Spustit hned při načtení
+updateThemeColor();
 
 if (!schedule['Pondělí']) schedule['Pondělí'] = [];
 renderTabs();

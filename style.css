@@ -9,6 +9,7 @@
     --swap-active: #e3f2fd;
     --card-shadow: 0 4px 12px rgba(0,0,0,0.06);
     --btn-hover: #f5f5f5;
+    --modal-bg: rgba(0,0,0,0.5);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,11 +19,12 @@
         --text-color: #e4e6eb;
         --text-muted: #a0a0a0;
         --primary-color: #66b3ff;
-        --header-bg: #1e1e1e; /* V tmavém režimu je hlavička spíše do šeda */
+        --header-bg: #1e1e1e; 
         --border-color: #333333;
         --swap-active: #132b45;
         --card-shadow: 0 4px 12px rgba(0,0,0,0.3);
         --btn-hover: #2a2a2a;
+        --modal-bg: rgba(0,0,0,0.7);
     }
 }
 
@@ -47,75 +49,39 @@ header {
 }
 
 @media (prefers-color-scheme: dark) {
-    header {
-        border-bottom: 1px solid var(--border-color);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
+    header { border-bottom: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 }
 
-h1 {
-    margin: 0 0 1rem 0;
-    font-size: 1.4rem;
-    text-align: center;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-}
+h1 { margin: 0 0 1rem 0; font-size: 1.4rem; text-align: center; font-weight: 700; letter-spacing: 0.5px; }
 
-.day-selector {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.4rem;
-    padding: 0 0.5rem;
-}
+.day-selector { display: flex; justify-content: space-between; gap: 0.4rem; padding: 0 0.5rem; }
 
 .day-selector button {
-    flex: 1;
-    padding: 0.6rem 0;
-    border: none;
-    border-radius: 20px;
-    background-color: rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s;
+    flex: 1; padding: 0.6rem 0; border: none; border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.9);
+    font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
 }
 
 .day-selector button.active {
-    background-color: #ffffff;
-    color: #005bb5;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    background-color: #ffffff; color: #005bb5; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 @media (prefers-color-scheme: dark) {
-    .day-selector button {
-        background-color: var(--bg-color);
-        color: var(--text-muted);
-    }
-    .day-selector button.active {
-        background-color: var(--primary-color);
-        color: #121212;
-    }
+    .day-selector button { background-color: var(--bg-color); color: var(--text-muted); }
+    .day-selector button.active { background-color: var(--primary-color); color: #121212; }
 }
 
-#schedule-container {
-    padding: 1rem 0.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
+#schedule-container { padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
 
 .lesson-card {
     background-color: var(--surface-color);
-    padding: 0.8rem;
-    border-radius: 12px;
-    box-shadow: var(--card-shadow);
-    border: none;
-    border-left: 6px solid var(--primary-color);
-    display: flex;
-    align-items: center;
-    transition: transform 0.2s, box-shadow 0.2s;
+    padding: 0.8rem; border-radius: 12px; box-shadow: var(--card-shadow);
+    border: none; border-left: 6px solid var(--primary-color);
+    display: flex; align-items: center; transition: transform 0.1s, box-shadow 0.2s, background-color 0.2s;
+    cursor: pointer;
 }
+
+.lesson-card:active { transform: scale(0.98); background-color: var(--btn-hover); }
 
 .lesson-card.swap-mode {
     border-left: 6px dashed var(--primary-color);
@@ -124,119 +90,71 @@ h1 {
 }
 
 .time-col {
-    font-weight: 800;
-    margin-right: 0.8rem;
-    text-align: right;
-    min-width: 48px;
-    font-size: 1.05rem;
-    color: var(--primary-color);
+    font-weight: 800; margin-right: 1rem; text-align: right;
+    min-width: 48px; font-size: 1.05rem; color: var(--primary-color);
 }
 
-.time-col .end-time {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    margin-top: 3px;
-}
+.time-col .end-time { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-top: 3px; }
 
-.info-col {
-    flex: 1;
-    min-width: 0;
-}
+.info-col { flex: 1; min-width: 0; }
 
 .student-name {
-    font-size: 1.15rem;
-    font-weight: 700;
-    margin: 0 0 0.3rem 0;
-    outline: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 2px 4px;
-    margin-left: -4px;
-    border-radius: 4px;
-    transition: background 0.2s;
+    font-size: 1.15rem; font-weight: 700; margin: 0 0 0.3rem 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-.student-details {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin: 0;
-}
-
-.student-details span {
-    padding: 2px 4px;
-    border-radius: 4px;
-    transition: background 0.2s;
-}
-
-[contenteditable="true"]:focus {
-    background: var(--bg-color);
-    outline: 1px solid var(--primary-color);
-    white-space: normal;
-}
-
-.actions-col {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-left: 0.5rem;
-    width: 44px;
-}
-
-.actions-col button {
-    background: var(--bg-color);
-    border: none;
-    color: var(--text-color);
-    border-radius: 8px;
-    padding: 0.5rem 0;
-    cursor: pointer;
-    font-size: 1rem;
-    width: 100%;
-    transition: background-color 0.2s;
-}
-
-.actions-col button:active {
-    background-color: var(--border-color);
-}
-
-.btn-swap.active {
-    background-color: var(--primary-color);
-    color: white;
-}
+.student-details { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
 
 .bottom-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: var(--surface-color);
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
-    display: flex;
-    z-index: 20;
-    padding-bottom: env(safe-area-inset-bottom);
+    position: fixed; bottom: 0; left: 0; width: 100%;
+    background-color: var(--surface-color); box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+    display: flex; z-index: 20; padding-bottom: env(safe-area-inset-bottom);
 }
 
 .bottom-bar button {
-    flex: 1;
-    padding: 1.2rem 0;
-    border: none;
-    background: transparent;
-    color: var(--primary-color);
-    font-weight: 700;
-    font-size: 1.05rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: background-color 0.2s;
+    flex: 1; padding: 1.2rem 0; border: none; background: transparent;
+    color: var(--primary-color); font-weight: 700; font-size: 1.05rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
 }
+.bottom-bar button:first-child { border-right: 1px solid var(--border-color); }
+.bottom-bar button:active { background-color: var(--btn-hover); }
 
-.bottom-bar button:first-child {
-    border-right: 1px solid var(--border-color);
+/* Modální okno */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--modal-bg); backdrop-filter: blur(2px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 100; opacity: 1; transition: opacity 0.2s;
 }
+.modal-overlay.hidden { display: none; opacity: 0; }
 
-.bottom-bar button:active {
-    background-color: var(--btn-hover);
+.modal {
+    background: var(--surface-color); width: 90%; max-width: 400px;
+    border-radius: 16px; padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    animation: slideUp 0.2s ease-out;
 }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal h3 { margin: 0 0 1.2rem 0; color: var(--text-color); font-size: 1.3rem; }
+
+.form-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
+.form-row { display: flex; gap: 1rem; }
+.form-row .form-group { flex: 1; }
+
+.modal label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.4rem; }
+.modal input {
+    padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);
+    background: var(--bg-color); color: var(--text-color); font-size: 1rem; outline: none;
+}
+.modal input:focus { border-color: var(--primary-color); }
+
+.modal-actions { display: flex; gap: 0.8rem; margin-top: 0.5rem; }
+.modal-actions button { flex: 1; padding: 0.9rem; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; font-size: 1rem; }
+.btn-primary { background: var(--primary-color); color: #fff; }
+.btn-secondary { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color) !important; }
+
+.modal-actions-danger { display: flex; gap: 0.8rem; margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border-color); }
+.modal-actions-danger button { flex: 1; padding: 0.8rem; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; background: transparent; }
+.btn-outline { color: var(--primary-color); border: 1px solid var(--primary-color) !important; }
+.btn-danger { color: #d32f2f; border: 1px solid #d32f2f !important; }
