@@ -180,3 +180,87 @@ h1 { margin: 0 0 1rem 0; font-size: 1.4rem; text-align: center; font-weight: 700
 .slide-from-left {
     animation: slideFromLeft 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
+
+/* --- STAV: OMLUVENÝ ŽÁK --- */
+.lesson-card.absent {
+    background: #181818 !important;
+    border-color: #262626 !important;
+    border-left: 4px solid #3a4550 !important; /* utlumený neutrální proužek */
+    opacity: 0.45;
+}
+
+.lesson-card.absent .student-name {
+    color: #777777 !important;
+    text-decoration: line-through; /* decentní přeškrtnutí */
+}
+
+.lesson-card.absent .time-col,
+.lesson-card.absent .student-details,
+.lesson-card.absent .end-time {
+    color: #555555 !important;
+}
+
+/* --- KONTEJNER PRO PŘEKRYTÍ KARET --- */
+.lesson-card-wrapper {
+    position: relative;
+    margin-bottom: 0.6rem;
+}
+
+/* Omluvená podkladová karta pod záskokem */
+.lesson-card.has-substitute {
+    margin-bottom: 0;
+    opacity: 0.35 !important;
+    transform: scale(0.97);
+    transform-origin: top left;
+}
+
+/* Nasunutá karta záskoku */
+.substitute-badge-card {
+    position: relative;
+    margin-top: -1.6rem;
+    margin-left: 1.5rem;
+    background: #1e2638;
+    border: 1.5px solid #4d88ff;
+    border-left: 5px solid #4d88ff;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+    animation: slideInSub 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideInSub {
+    from {
+        transform: translateX(40px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.substitute-badge-card .sub-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #78a9ff;
+    font-weight: bold;
+}
+
+.substitute-badge-card .sub-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.substitute-badge-card .sub-tag {
+    font-size: 0.75rem;
+    background: #283754;
+    color: #90b8ff;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}

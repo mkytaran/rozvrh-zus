@@ -145,15 +145,10 @@ function renderTabs() {
     });
 }
 
-// --- VYLEPŠENÉ: Vykreslování rozvrhu s animací ---
 function renderSchedule(animDir = '') {
     const container = document.getElementById('schedule-container');
-    
-    // Trik: Odebrání tříd a vynucené překreslení (reflow), aby animace běžela znovu
     container.classList.remove('slide-from-right', 'slide-from-left');
     void container.offsetWidth; 
-    
-    // Přidání správné animace podle směru
     if (animDir === 'right') container.classList.add('slide-from-right');
     if (animDir === 'left') container.classList.add('slide-from-left');
 
@@ -164,8 +159,14 @@ function renderSchedule(animDir = '') {
     
     dayData.forEach((lesson, index) => {
         const endTime = addMinutes(lesson.time, 45);
+        const hasSub = lesson.absent && lesson.substitute;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'lesson-card-wrapper';
+
+        // Původní karta žáka
         const card = document.createElement('div');
-        card.className = `lesson-card ${swapSourceIndex === index ? 'swap-mode' : ''}`;
+        card.className = `lesson-card ${swapSourceIndex === index ? 'swap-mode' : ''} ${lesson.absent ? 'absent' : ''} ${hasSub ? 'has-substitute' : ''}`;
         
         card.innerHTML = `
             <div class="time-col">
@@ -180,9 +181,48 @@ function renderSchedule(animDir = '') {
                 </div>
             </div>
         `;
-        
         card.onclick = () => handleCardClick(index);
-        container.appendChild(card);
+        wrapper.appendChild(card);
+
+        // Nasunutá karta záskoku
+        if (hasSub) {
+            const subCard = document.createElement('div');
+            subCard.className = 'substitute-badge-card';
+            subCard.innerHTML = `
+                <div>
+                    <div class="sub-title">↳ Záskok v ${lesson.time}</div>
+                    <div class="sub-name">${lesson.substitute}</div>
+                </div>
+                <div class="sub-tag">Zástup</div>
+            `;
+            subCard.onclick = () => handleCardClick(index);
+            wrapper.appendChild(subCard);
+        }
+
+        container.appendChild(wrapper);
+    });
+}
+
+// --- Pomocná funkce: Naplnění výběru žáků pro záskok ---
+function populateSubstituteSelect(currentLessonStudent) {
+    const select = document.getElementById('substitute-select');
+    if (!select) return;
+    select.innerHTML = '<option value="">-- Vyberte stálého žáka --</option>';
+    
+    const allStudents = new Set();
+    for (let day in schedule) {
+        (schedule[day] || []).forEach(l => {
+            if (l.name && l.name !== currentLessonStudent) {
+                allStudents.add(l.name);
+            }
+        });
+    }
+    
+    Array.from(allStudents).sort().forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
     });
 }
 
@@ -218,6 +258,33 @@ function handleCardClick(index) {
     document.getElementById('edit-name').value = lesson.name;
     document.getElementById('edit-rocnik').value = lesson.rocnik;
     document.getElementById('edit-hn').value = lesson.hn;
+    const editAbsentCheckbox = document.getElementById('edit-absent');
+    const subSection = document.getElementById('substitute-section');
+    const subCustom = document.getElementById('substitute-custom');
+    const subSelect = document.getElementById('substitute-select');
+
+    populateSubstituteSelect(lesson.name);
+
+    editAbsentCheckbox.checked = !!lesson.absent;
+    subCustom.value = lesson.substitute || '';
+    subSelect.value = '';
+
+    const toggleSubVisibility = () => {
+        subSection.style.display = editAbsentCheckbox.checked ? 'block' : 'none';
+    };
+    editAbsentCheckbox.onchange = toggleSubVisibility;
+    toggleSubVisibility();
+
+    document.getElementById('btn-clear-sub').onclick = () => {
+        subCustom.value = '';
+        subSelect.value = '';
+    };
+
+    subSelect.onchange = () => {
+        if (subSelect.value) {
+            subCustom.value = subSelect.value;
+        }
+    };
     document.getElementById('edit-modal').classList.remove('hidden');
 }
 
@@ -230,6 +297,11 @@ document.getElementById('btn-save').onclick = () => {
         dayData[editingIndex].name = document.getElementById('edit-name').value.trim();
         dayData[editingIndex].rocnik = document.getElementById('edit-rocnik').value.trim();
         dayData[editingIndex].hn = document.getElementById('edit-hn').value.trim();
+        const isAbsent = document.getElementById('edit-absent').checked;
+        dayData[editingIndex].absent = isAbsent;
+
+        const subVal = document.getElementById('substitute-custom').value.trim();
+        dayData[editingIndex].substitute = (isAbsent && subVal) ? subVal : '';
         saveSchedule();
         renderSchedule();
     }
