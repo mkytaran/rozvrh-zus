@@ -10,7 +10,7 @@ if (!appPin || appPin === "null" || appPin === "") {
     }
 }
 
-// --- 2. Bezpečná prázdná struktura (na GitHubu nejsou žádná jména) ---
+// --- 2. Bezpečná prázdná kostra ---
 const defaultSchedule = {
   "Pondělí": [],
   "Úterý": [],
@@ -90,7 +90,7 @@ document.getElementById('btn-sync').onclick = () => {
     fetchCloudSchedule(false);
 };
 
-// --- 5. Pomocné funkce: Čas, Pohlaví, Kytarový akord ---
+// --- 5. Pomocné funkce: Čas, Pohlaví, Zvuk, Omluvenky ---
 function addMinutes(timeStr, mins) {
     if (!timeStr || !timeStr.includes(':')) return "00:00";
     let [h, m] = timeStr.split(':').map(Number);
@@ -138,8 +138,69 @@ function playGuitarChord() {
             osc.stop(startTime + 3.0);
         });
     } catch (e) {
-        console.log("Audio čeká na první interakci uživatele.");
+        console.log("Audio čeká na první interakci.");
     }
+}
+
+// --- LOGIKA KONTROLY DAT OMLUVENKY ---
+// Vrátí datum pro daný den v aktuálním týdnu (s časem 00:00:00)
+function getDateForDayInCurrentWeek(targetDayName) {
+    const dayIndices = { 'Pondělí': 1, 'Úterý': 2, 'Středa': 3, 'Čtvrtek': 4, 'Pátek': 5 };
+    const targetIdx = dayIndices[targetDayName] || 1;
+    
+    const now = new Date();
+    const currentWeekDay = now.getDay() === 0 ? 7 : now.getDay(); // 1 = Po, 7 = Ne
+    const diff = targetIdx - currentWeekDay;
+    
+    const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
+    targetDate.setHours(0, 0, 0, 0);
+    return targetDate;
+}
+
+// Převede český řetězec data ("15.9." nebo "15.9.2026") na Date objekt
+function parseSingleDate(str) {
+    if (!str) return null;
+    const parts = str.trim().split('.').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+    if (parts.length < 2) return null;
+    
+    const day = parts[0];
+    const month = parts[1] - 1;
+    const year = parts.length >= 3 ? (parts[2] < 100 ? 2000 + parts[2] : parts[2]) : new Date().getFullYear();
+    
+    const d = new Date(year, month, day);
+    d.setHours(0, 0, 0, 0);
+    return isNaN(d.getTime()) ? null : d;
+}
+
+// Zjistí, zda je žák platně omluven pro konkrétní den v tomto týdnu
+function isLessonAbsentThisWeek(lesson, dayName) {
+    if (!lesson.absent) return false;
+    // Pokud je zaškrtnuto "Omluven", ale není vyplněno datum, považujeme za omluveného
+    if (!lesson.absentDate || !lesson.absentDate.trim()) return true;
+
+    const targetDate = getDateForDayInCurrentWeek(dayName);
+    const dateStr = lesson.absentDate.trim();
+
+    // Rozsah s pomlčkou (např. "10.9. - 24.9.")
+    if (dateStr.includes('-')) {
+        const [startPart, endPart] = dateStr.split('-');
+        const startDate = parseSingleDate(startPart);
+        const endDate = parseSingleDate(endPart);
+
+        if (startDate && endDate) {
+            return targetDate >= startDate && targetDate <= endDate;
+        } else if (endDate) {
+            return targetDate <= endDate;
+        }
+    }
+
+    // Jedno datum (např. "15.9.")
+    const singleDate = parseSingleDate(dateStr);
+    if (singleDate) {
+        return targetDate.getTime() === singleDate.getTime();
+    }
+
+    return true;
 }
 
 // --- 6. Vykreslování rozvrhu ---
@@ -180,7 +241,9 @@ function renderSchedule(animDir = '') {
         const endMins = startMins + 45;
         const endTime = addMinutes(lesson.time, 45);
 
-        const hasSub = lesson.absent && lesson.substitute;
+        // Automatická kontrola platnosti omluvenky pro aktuální týden
+        const isAbsentNow = isLessonAbsentThisWeek(lesson, currentDay);
+        const hasSub = isAbsentNow && lesson.substitute;
         const isPrivate = lesson.isPrivate || (lesson.name && lesson.name.toLowerCase().includes('soukr'));
         const isEnsemble = lesson.ensemble || (lesson.name && lesson.name.toLowerCase().includes('kytarový soubor'));
 
@@ -231,7 +294,7 @@ function renderSchedule(animDir = '') {
         wrapper.className = 'lesson-card-wrapper';
 
         const card = document.createElement('div');
-        card.className = `lesson-card ${swapSourceIndex === index ? 'swap-mode' : ''} ${lesson.absent ? 'absent' : ''} ${hasSub ? 'has-substitute' : ''} ${stripeClass} ${timeStatusClass}`;
+        card.className = `lesson-card ${swapSourceIndex === index ? 'swap-mode' : ''} ${isAbsentNow ? 'absent' : ''} ${hasSub ? 'has-substitute' : ''} ${stripeClass} ${timeStatusClass}`;
 
         if (timeStatusClass === 'current-lesson') {
             card.style.opacity = (1 - (progressPercent / 100) * 0.45).toFixed(2);
@@ -255,7 +318,13 @@ function renderSchedule(animDir = '') {
         }
 
         const genderClass = getGenderClass(lesson.name);
-        const absentBadge = lesson.absent ? `<span class="badge-absent">Omluvenka</span>` : '';
+        
+        // Štítek omluvenky včetně data (pokud je zadáno)
+        let absentBadge = '';
+        if (isAbsentNow) {
+            const dateNotice = lesson.absentDate ? ` (${lesson.absentDate})` : '';
+            absentBadge = `<span class="badge-absent">Omluvenka${dateNotice}</span>`;
+        }
 
         card.innerHTML = `
             <div class="time-col">
@@ -387,7 +456,10 @@ function handleCardClick(index) {
 
     document.getElementById('edit-ensemble').checked = !!lesson.ensemble;
 
+    // Omluvenky, datum omluvenky a záskok
     const editAbsentCheckbox = document.getElementById('edit-absent');
+    const absentDateContainer = document.getElementById('absent-date-container');
+    const editAbsentDateInput = document.getElementById('edit-absent-date');
     const subSection = document.getElementById('substitute-section');
     const subCustom = document.getElementById('substitute-custom');
     const subSelect = document.getElementById('substitute-select');
@@ -395,14 +467,18 @@ function handleCardClick(index) {
     populateSubstituteSelect(lesson.name);
 
     editAbsentCheckbox.checked = !!lesson.absent;
+    editAbsentDateInput.value = lesson.absentDate || '';
     subCustom.value = lesson.substitute || '';
     subSelect.value = '';
 
-    const toggleSubVisibility = () => {
-        subSection.style.display = editAbsentCheckbox.checked ? 'block' : 'none';
+    const toggleAbsentViews = () => {
+        const isAbs = editAbsentCheckbox.checked;
+        if (absentDateContainer) absentDateContainer.style.display = isAbs ? 'block' : 'none';
+        if (subSection) subSection.style.display = isAbs ? 'block' : 'none';
     };
-    editAbsentCheckbox.onchange = toggleSubVisibility;
-    toggleSubVisibility();
+
+    editAbsentCheckbox.onchange = toggleAbsentViews;
+    toggleAbsentViews();
 
     document.getElementById('btn-clear-sub').onclick = () => {
         subCustom.value = '';
@@ -462,8 +538,10 @@ document.getElementById('btn-save').onclick = () => {
             }
         }
 
+        // Uložení stavu a data omluvenky
         const isAbsent = document.getElementById('edit-absent').checked;
         dayData[editingIndex].absent = isAbsent;
+        dayData[editingIndex].absentDate = isAbsent ? document.getElementById('edit-absent-date').value.trim() : '';
 
         const subVal = document.getElementById('substitute-custom').value.trim();
         dayData[editingIndex].substitute = (isAbsent && subVal) ? subVal : '';
@@ -500,7 +578,7 @@ document.getElementById('add-lesson-btn').onclick = () => {
     let nameInput = prompt("Jméno žáka / Název hodiny:");
     if (nameInput === null) return;
 
-    dayData.push({ time: timeInput, name: nameInput || "Nový žák", rocnik: "", hn: "", ensemble: false, notes: "" });
+    dayData.push({ time: timeInput, name: nameInput || "Nový žák", rocnik: "", hn: "", ensemble: false, notes: "", absent: false, absentDate: "" });
     saveSchedule();
     renderSchedule();
 };
@@ -556,7 +634,7 @@ document.addEventListener('touchend', e => {
     }
 }, {passive: true});
 
-// --- Start: Vykreslení z paměti a tiché stažení z tabulky ---
+// --- Start: Vykreslení z paměti a stažení z tabulky ---
 renderTabs();
 renderSchedule();
 fetchCloudSchedule(true);

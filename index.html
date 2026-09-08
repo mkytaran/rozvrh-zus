@@ -103,9 +103,18 @@
                 <textarea id="edit-notes" rows="4" placeholder="Co probíráme, skladby, technika, úkoly, kontakt..." style="width: 100%; padding: 0.6rem; background: #181d28; color: #e2e8f0; border: 1px solid #2d3d5a; border-radius: 6px; box-sizing: border-box; font-family: inherit; resize: vertical;"></textarea>
             </div>
 
-            <div style="margin: 0.8rem 0; display: flex; align-items: center; gap: 0.6rem;">
-                <input type="checkbox" id="edit-absent" style="width: 1.2rem; height: 1.2rem; cursor: pointer;">
-                <label for="edit-absent" style="cursor: pointer; font-weight: bold;">Omluven / nepřijde</label>
+            <div style="margin: 0.8rem 0;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <input type="checkbox" id="edit-absent" style="width: 1.2rem; height: 1.2rem; cursor: pointer;">
+                    <label for="edit-absent" style="cursor: pointer; font-weight: bold;">Omluven / nepřijde</label>
+                </div>
+                <!-- Nové pole pro datum/rozsah omluvenky -->
+                <div id="absent-date-container" style="display: none; margin-top: 0.5rem; margin-left: 1.8rem;">
+                    <label for="edit-absent-date" style="font-size: 0.8rem; color: #aaa; display: block; margin-bottom: 0.2rem;">
+                    Datum nebo rozsah (např. 15.9. nebo 10.9. - 24.9.):
+                    </label>
+                    <input type="text" id="edit-absent-date" placeholder="např. 15.9. nebo 10.9. - 24.9." style="width: 100%; padding: 0.45rem; background: #121212; color: #fff; border: 1px solid #444; border-radius: 6px; box-sizing: border-box; font-size: 0.85rem;">
+                </div>
             </div>
 
             <!-- Sekce pro záskok -->
@@ -133,7 +142,7 @@
         </div>
     </div>
     
-    <script src="script.js?v=4.2"></script>
+    <script src="script.js?v=4.3"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
