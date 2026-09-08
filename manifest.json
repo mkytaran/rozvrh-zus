@@ -1,8 +1,10 @@
 {
-  "name": "Rozvrh ZUŠ Kytara",
+  "id": "./",
+  "name": "Rozvrh ZUŠ Kytara 2026",
   "short_name": "Rozvrh",
-  "description": "Aplikace pro správu rozvrhu učitele kytary",
+  "description": "Rozvrh hodin a deníček výuky kytary",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#121212",

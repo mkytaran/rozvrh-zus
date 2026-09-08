@@ -5,10 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Rozvrh ZUŠ Kytara 2026</title>
     <meta name="theme-color" content="#121212" id="theme-color-meta">
-    <link rel="manifest" href="manifest.json?v=1.4">
+
+    <!-- iOS Safari meta tagy -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Rozvrh">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <link rel="manifest" href="manifest.json?v=2.0">
     <link rel="stylesheet" href="style.css?v=2.7">
 </head>
 <body>
+    <!-- Instalační banner pro Android i iOS -->
+    <div id="pwa-install-banner" class="pwa-banner hidden">
+        <div id="pwa-android-prompt" class="pwa-prompt-content hidden">
+            <span>Nainstalovat aplikaci na plochu?</span>
+            <button id="pwa-install-btn" class="pwa-action-btn">Instalovat</button>
+            <button id="pwa-dismiss-btn" class="pwa-close-btn">&times;</button>
+        </div>
+        <div id="pwa-ios-prompt" class="pwa-prompt-content hidden">
+            <span>Pro instalaci na iPhone klepněte na <strong>Sdílet</strong> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> a zvolte <strong>Přidat na plochu</strong>.</span>
+            <button id="pwa-ios-dismiss-btn" class="pwa-close-btn">&times;</button>
+        </div>
+    </div>
+
     <header>
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 0.5rem;">
             <h1>Můj rozvrh 2026</h1>
@@ -56,14 +76,19 @@
                 <label>Jméno žáka / Název hodiny</label>
                 <input type="text" id="edit-name">
             </div>
+
             <!-- Výběr skupiny pro Kytarový soubor -->
             <div id="ensemble-group-selector" style="display: none; margin: 0.6rem 0; padding: 0.6rem; background: #1a1e29; border-radius: 6px; border: 1px solid #2a354d;">
                 <label style="font-size: 0.85rem; color: #94a3b8; font-weight: bold; display: block; margin-bottom: 0.4rem;">Skupina souboru:</label>
                 <div style="display: flex; gap: 1rem;">
-                <label style="display: flex; align-items: center; gap: 0.4rem; color: #c084fc; cursor: pointer; font-size: 0.9rem; font-weight: bold;">
-                <input type="radio" name="ensemble-tier" value="younger" id="ensemble-younger" style="accent-color: #c084fc;">Mladší</label>
-                <label style="display: flex; align-items: center; gap: 0.4rem; color: #ffd166; cursor: pointer; font-size: 0.9rem; font-weight: bold;">
-                <input type="radio" name="ensemble-tier" value="older" id="ensemble-older" style="accent-color: #ffd166;">Starší</label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; color: #c084fc; cursor: pointer; font-size: 0.9rem; font-weight: bold;">
+                        <input type="radio" name="ensemble-tier" value="younger" id="ensemble-younger" style="accent-color: #c084fc;">
+                        Mladší
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; color: #ffd166; cursor: pointer; font-size: 0.9rem; font-weight: bold;">
+                        <input type="radio" name="ensemble-tier" value="older" id="ensemble-older" style="accent-color: #ffd166;">
+                        Starší
+                    </label>
                 </div>
             </div>
 
@@ -75,7 +100,7 @@
                 </label>
             </div>
 
-            <!-- Standardní pole ZUŠ (skryjí se u soukromé hodiny) -->
+            <!-- Standardní pole ZUŠ -->
             <div id="standard-zus-fields">
                 <div class="form-row">
                     <div class="form-group">
@@ -97,27 +122,28 @@
                 </div>
             </div>
 
-            <!-- Speciální pole pouze pro Soukromou hodinu -->
+            <!-- Pole pro Soukromou hodinu -->
             <div id="private-lesson-fields" style="display: none; margin: 0.6rem 0;">
                 <label style="font-size: 0.85rem; color: #93c5fd; font-weight: bold;">Zápisník a poznámky k výuce:</label>
                 <textarea id="edit-notes" rows="4" placeholder="Co probíráme, skladby, technika, úkoly, kontakt..." style="width: 100%; padding: 0.6rem; background: #181d28; color: #e2e8f0; border: 1px solid #2d3d5a; border-radius: 6px; box-sizing: border-box; font-family: inherit; resize: vertical;"></textarea>
             </div>
 
+            <!-- Omluvenka s datem -->
             <div style="margin: 0.8rem 0;">
                 <div style="display: flex; align-items: center; gap: 0.6rem;">
                     <input type="checkbox" id="edit-absent" style="width: 1.2rem; height: 1.2rem; cursor: pointer;">
                     <label for="edit-absent" style="cursor: pointer; font-weight: bold;">Omluven / nepřijde</label>
                 </div>
-                <!-- Nové pole pro datum/rozsah omluvenky -->
                 <div id="absent-date-container" style="display: none; margin-top: 0.5rem; margin-left: 1.8rem;">
                     <label for="edit-absent-date" style="font-size: 0.8rem; color: #aaa; display: block; margin-bottom: 0.2rem;">
-                    Datum nebo rozsah (např. 15.9. nebo 10.9. - 24.9.):
+                        Datum nebo rozsah (např. 15.9. nebo 10.9. - 24.9.):
                     </label>
-                    <input type="text" id="edit-absent-date" placeholder="např. 15.9. nebo 10.9. - 24.9." style="width: 100%; padding: 0.45rem; background: #121212; color: #fff; border: 1px solid #444; border-radius: 6px; box-sizing: border-box; font-size: 0.85rem;">
+                    <input type="text" id="edit-absent-date" placeholder="např. 15.9. nebo 10.9. - 24.9." 
+                           style="width: 100%; padding: 0.45rem; background: #121212; color: #fff; border: 1px solid #444; border-radius: 6px; box-sizing: border-box; font-size: 0.85rem;">
                 </div>
             </div>
 
-            <!-- Sekce pro záskok -->
+            <!-- Záskok -->
             <div id="substitute-section" style="margin: 0.8rem 0; padding: 0.8rem; background: #1f242b; border-radius: 8px; border: 1px dashed #3a4550;">
                 <div style="font-weight: bold; margin-bottom: 0.5rem; color: #78a9ff; font-size: 0.9rem;">
                     ➕ Záskok na tuto hodinu
@@ -146,7 +172,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js');
+                navigator.serviceWorker.register('./sw.js?v=2.0');
             });
         }
     </script>
