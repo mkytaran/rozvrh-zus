@@ -634,68 +634,6 @@ document.addEventListener('touchend', e => {
     }
 }, {passive: true});
 
-// --- 9. Správa PWA instalace (Android & iOS) ---
-(function setupPWAInstallation() {
-    // Ověření, zda již aplikace běží nainstalovaná na ploše
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    if (isStandalone) return;
-
-    // Ověření, zda uživatel banner v minulosti nezavřel (uloženo na 14 dní)
-    const dismissedUntil = localStorage.getItem('pwa_dismissed_until');
-    if (dismissedUntil && Date.now() < Number(dismissedUntil)) return;
-
-    const banner = document.getElementById('pwa-install-banner');
-    const androidPrompt = document.getElementById('pwa-android-prompt');
-    const iosPrompt = document.getElementById('pwa-ios-prompt');
-    const installBtn = document.getElementById('pwa-install-btn');
-    const dismissBtn = document.getElementById('pwa-dismiss-btn');
-    const iosDismissBtn = document.getElementById('pwa-ios-dismiss-btn');
-
-    const hideBanner = () => {
-        if (banner) banner.classList.add('hidden');
-        localStorage.setItem('pwa_dismissed_until', String(Date.now() + 14 * 24 * 60 * 60 * 1000));
-    };
-
-    if (dismissBtn) dismissBtn.onclick = hideBanner;
-    if (iosDismissBtn) iosDismissBtn.onclick = hideBanner;
-
-    // Detekce iOS Safari (mimo Chrome/Firefox na iOS)
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIos = /iphone|ipad|ipod/.test(userAgent);
-    const isSafari = isIos && userAgent.includes('safari') && !userAgent.includes('crios') && !userAgent.includes('fxios');
-
-    // Android: odchycení události pro nativní instalaci
-    let deferredPrompt = null;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        if (banner && androidPrompt) {
-            banner.classList.remove('hidden');
-            androidPrompt.classList.remove('hidden');
-        }
-    });
-
-    if (installBtn) {
-        installBtn.onclick = async () => {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            if (outcome === 'accepted') {
-                if (banner) banner.classList.add('hidden');
-            }
-        };
-    }
-
-    // iOS: Zobrazení instrukcí pouze v Safari
-    if (isSafari && !isStandalone) {
-        if (banner && iosPrompt) {
-            banner.classList.remove('hidden');
-            iosPrompt.classList.remove('hidden');
-        }
-    }
-})();
-
 // --- Start: Vykreslení z paměti a stažení z tabulky ---
 renderTabs();
 renderSchedule();
