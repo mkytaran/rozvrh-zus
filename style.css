@@ -264,3 +264,122 @@ h1 { margin: 0 0 1rem 0; font-size: 1.4rem; text-align: center; font-weight: 700
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
 }
+
+/* Zlatý proužek pro Kytarový soubor a jeho žáky */
+.lesson-card.ensemble-card {
+    border-left: 4px solid #d4af37 !important;
+}
+
+/* Ztlumený proužek, když je souborový žák omluven */
+.lesson-card.ensemble-card.absent {
+    border-left: 4px solid #665522 !important;
+}
+
+/* Textový odznáček */
+.ensemble-badge {
+    color: #d4af37;
+    font-weight: 600;
+}
+
+/* --- BAREVNÉ TÓNY JMEN --- */
+.student-name.gender-girl {
+    color: #fca5a5 !important; /* Jemně červená / lososová */
+}
+.student-name.gender-boy {
+    color: #93c5fd !important; /* Jemně modrá */
+}
+
+/* --- SPECIFICKÉ PROUŽKY --- */
+/* 1. Starší soubor (5.+ ročník) - Zlatý */
+.lesson-card.ensemble-gold {
+    border-left: 5px solid #d4af37 !important;
+}
+
+/* 2. Mladší soubor (1.-4. ročník s HN) - Fialový / Purpurový */
+.lesson-card.ensemble-purple {
+    border-left: 5px solid #a855f7 !important;
+}
+
+/* 3. Soukromá hodina - Tmavší ocelově modrá */
+.lesson-card.private-card {
+    border-left: 5px solid #1d4ed8 !important;
+    background: linear-gradient(90deg, rgba(29, 78, 216, 0.12) 0%, rgba(20, 24, 33, 0.95) 100%) !important;
+}
+
+/* Zápisník / poznámky soukromé hodiny */
+.private-notes-preview {
+    margin-top: 0.35rem;
+    padding: 0.3rem 0.5rem;
+    background: rgba(15, 23, 42, 0.6);
+    border-left: 2px solid #3b82f6;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    color: #cbd5e1;
+    white-space: pre-wrap;
+    line-height: 1.3;
+}
+
+/* --- ŠTÍTEK OMLUVENKA (Žádné přeškrtávání) --- */
+/* --- STAV: OMLUVENÝ ŽÁK --- */
+.lesson-card.absent {
+    background: #181818 !important;
+    border-color: #262626 !important;
+    border-left: 4px solid #3a4550 !important;
+    opacity: 0.55 !important;
+}
+
+/* Zrušení přeškrtnutí a zachování čitelného jména */
+.lesson-card.absent .student-name {
+    color: #8e8e8e !important;
+    text-decoration: none !important; /* ZRUŠENO ŠKRTÁNÍ */
+}
+
+.lesson-card.absent .time-col,
+.lesson-card.absent .student-details,
+.lesson-card.absent .end-time {
+    color: #555555 !important;
+}
+.badge-absent {
+    display: inline-block;
+    background: #3f1d1d;
+    color: #f87171;
+    border: 1px solid #7f1d1d;
+    font-size: 0.72rem;
+    font-weight: bold;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+}
+
+/* --- ČASOVÝ STAV HODIN (Minulost vs Právě probíhá) --- */
+.lesson-card.past-lesson {
+    opacity: 0.42 !important;
+    filter: grayscale(0.25);
+}
+
+.lesson-card.current-lesson {
+    position: relative;
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
+    border-top: 1px solid rgba(147, 197, 253, 0.4);
+}
+
+/* Plynulý odpočet uvnitř probíhající hodiny */
+.lesson-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    transition: width 1s linear;
+    border-radius: 0 0 0 8px;
+}
+
+/* Barevné tónování názvu Kytarového souboru podle skupiny */
+.ensemble-title-younger {
+    color: #c084fc !important; /* Fialová pro mladší */
+}
+
+.ensemble-title-older {
+    color: #ffd166 !important; /* Zlatá pro starší */
+}

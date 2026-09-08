@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rozvrh ZUŠ Kytara</title>
+    <title>Rozvrh ZUŠ Kytara 2026</title>
     <meta name="theme-color" content="#121212" id="theme-color-meta">
-    <link rel="manifest" href="manifest.json?v=1.3">
-    <link rel="stylesheet" href="style.css?v=1.6">
+    <link rel="manifest" href="manifest.json?v=1.4">
+    <link rel="stylesheet" href="style.css?v=2.7">
 </head>
 <body>
     <header>
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 0.5rem;">
-            <h1>Můj rozvrh</h1>
+            <h1>Můj rozvrh 2026</h1>
             <button id="btn-sync" style="background: transparent; border: none; color: var(--text-color, inherit); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center;" title="Synchronizovat">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                <path d="M3 3v5h5"></path>
-                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
-                <path d="M16 21v-5h5"></path>
+                    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                    <path d="M3 3v5h5"></path>
+                    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
+                    <path d="M16 21v-5h5"></path>
                 </svg>
             </button>
         </div>
@@ -43,6 +43,7 @@
         </button>
     </div>
 
+    <!-- Modální okno úprav -->
     <div id="edit-modal" class="modal-overlay hidden">
         <div class="modal">
             <h3>Úprava hodiny</h3>
@@ -52,29 +53,66 @@
                 <input type="time" id="edit-time">
             </div>
             <div class="form-group">
-                <label>Jméno žáka</label>
+                <label>Jméno žáka / Název hodiny</label>
                 <input type="text" id="edit-name">
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Ročník</label>
-                    <input type="text" id="edit-rocnik">
+            <!-- Výběr skupiny pro Kytarový soubor -->
+            <div id="ensemble-group-selector" style="display: none; margin: 0.6rem 0; padding: 0.6rem; background: #1a1e29; border-radius: 6px; border: 1px solid #2a354d;">
+                <label style="font-size: 0.85rem; color: #94a3b8; font-weight: bold; display: block; margin-bottom: 0.4rem;">Skupina souboru:</label>
+                <div style="display: flex; gap: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.4rem; color: #c084fc; cursor: pointer; font-size: 0.9rem; font-weight: bold;">
+                <input type="radio" name="ensemble-tier" value="younger" id="ensemble-younger" style="accent-color: #c084fc;">Mladší</label>
+                <label style="display: flex; align-items: center; gap: 0.4rem; color: #ffd166; cursor: pointer; font-size: 0.9rem; font-weight: bold;">
+                <input type="radio" name="ensemble-tier" value="older" id="ensemble-older" style="accent-color: #ffd166;">Starší</label>
                 </div>
-                <div class="form-group">
-                    <label>HN</label>
-                    <input type="text" id="edit-hn">
+            </div>
+
+            <!-- Přepínač pro soukromou hodinu -->
+            <div style="margin: 0.4rem 0 0.8rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="edit-private" style="width: 1.1rem; height: 1.1rem; accent-color: #3b82f6; cursor: pointer;">
+                <label for="edit-private" style="cursor: pointer; font-size: 0.88rem; color: #93c5fd; font-weight: bold;">
+                    🔒 Soukromá hodina (mimo systém)
+                </label>
+            </div>
+
+            <!-- Standardní pole ZUŠ (skryjí se u soukromé hodiny) -->
+            <div id="standard-zus-fields">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ročník</label>
+                        <input type="text" id="edit-rocnik" placeholder="např. 2, 2. př, 5">
+                    </div>
+                    
+                    <div class="form-group" id="group-hn">
+                        <label>HN</label>
+                        <input type="text" id="edit-hn" placeholder="např. Po 14:30">
+                    </div>
                 </div>
+
+                <div style="margin: 0.5rem 0 0.8rem 0;">
+                    <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; color: #ffd166; font-size: 0.88rem;">
+                        <input type="checkbox" id="edit-ensemble" style="width: 1.15rem; height: 1.15rem; accent-color: #ffd166; cursor: pointer;">
+                        🎸 Kytarový soubor
+                    </label>
+                </div>
+            </div>
+
+            <!-- Speciální pole pouze pro Soukromou hodinu -->
+            <div id="private-lesson-fields" style="display: none; margin: 0.6rem 0;">
+                <label style="font-size: 0.85rem; color: #93c5fd; font-weight: bold;">Zápisník a poznámky k výuce:</label>
+                <textarea id="edit-notes" rows="4" placeholder="Co probíráme, skladby, technika, úkoly, kontakt..." style="width: 100%; padding: 0.6rem; background: #181d28; color: #e2e8f0; border: 1px solid #2d3d5a; border-radius: 6px; box-sizing: border-box; font-family: inherit; resize: vertical;"></textarea>
             </div>
 
             <div style="margin: 0.8rem 0; display: flex; align-items: center; gap: 0.6rem;">
                 <input type="checkbox" id="edit-absent" style="width: 1.2rem; height: 1.2rem; cursor: pointer;">
                 <label for="edit-absent" style="cursor: pointer; font-weight: bold;">Omluven / nepřijde</label>
             </div>
-            <!-- Sekce pro záskok (zobrazí se, jen když je žák omluven) -->
+
+            <!-- Sekce pro záskok -->
             <div id="substitute-section" style="margin: 0.8rem 0; padding: 0.8rem; background: #1f242b; border-radius: 8px; border: 1px dashed #3a4550;">
-                <div style="font-weight: bold; margin-bottom: 0.5rem; color: #78a9ff; font-size: 0.9rem;"> ➕ Záskok na tuto hodinu
+                <div style="font-weight: bold; margin-bottom: 0.5rem; color: #78a9ff; font-size: 0.9rem;">
+                    ➕ Záskok na tuto hodinu
                 </div>
-    
                 <label style="font-size: 0.8rem; color: #888;">Vybrat ze stálých žáků:</label>
                 <select id="substitute-select" style="width: 100%; padding: 0.5rem; margin-bottom: 0.6rem; background: #121212; color: white; border: 1px solid #333; border-radius: 6px;"></select>
 
@@ -95,7 +133,7 @@
         </div>
     </div>
     
-    <script src="script.js?v=2.1"></script>
+    <script src="script.js?v=4.2"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
