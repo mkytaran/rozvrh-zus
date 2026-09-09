@@ -203,16 +203,38 @@ function isLessonAbsentThisWeek(lesson, dayName) {
     return true;
 }
 
-// --- 6. Vykreslování rozvrhu ---
+// --- Vykreslování tlačítek dnů včetně aktuálních dat ---
 function renderTabs() {
+    const dayShortMap = {
+        'Pondělí': 'Po',
+        'Úterý': 'Út',
+        'Středa': 'St',
+        'Čtvrtek': 'Čt',
+        'Pátek': 'Pá'
+    };
+
     document.querySelectorAll('.day-selector button').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.day === currentDay);
+        const dayName = btn.dataset.day;
+        btn.classList.toggle('active', dayName === currentDay);
+
+        // Zjistíme přesné datum pro daný den v aktuálním týdnu
+        const dayDate = getDateForDayInCurrentWeek(dayName);
+        const dayNum = dayDate.getDate();
+        const monthNum = dayDate.getMonth() + 1;
+        const shortLabel = dayShortMap[dayName] || dayName.slice(0, 2);
+
+        // Dvouřádkové zobrazení: Zkratka dne nahoře, datum dole
+        btn.innerHTML = `
+            <span class="tab-day-name">${shortLabel}</span>
+            <span class="tab-day-date">${dayNum}.${monthNum}.</span>
+        `;
+
         btn.onclick = () => {
             const oldIndex = workDays.indexOf(currentDay);
-            const newIndex = workDays.indexOf(btn.dataset.day);
+            const newIndex = workDays.indexOf(dayName);
             let animDir = newIndex > oldIndex ? 'right' : (newIndex < oldIndex ? 'left' : '');
 
-            currentDay = btn.dataset.day;
+            currentDay = dayName;
             swapSourceIndex = null;
             renderTabs();
             renderSchedule(animDir);
