@@ -1,212 +1,319 @@
-:root {
-    color-scheme: light dark;
-}
+/* =========================================================
+   1. BAREVNÝ SYSTÉM (LIGHT & DARK THEME)
+   ========================================================= */
 
 :root {
-    --bg-color: #f0f4f8;
-    --surface-color: #ffffff;
-    --text-color: #1a1a1a;
-    --text-muted: #666666;
-    --primary-color: #005bb5;
-    --header-bg: linear-gradient(135deg, #005bb5, #004488);
-    --border-color: #e0e0e0;
-    --swap-active: #e3f2fd;
-    --card-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    --btn-hover: #f5f5f5;
-    --modal-bg: rgba(0,0,0,0.5);
+    color-scheme: light dark;
+
+    /* SVĚTLÝ REŽIM (Čistý, moderní, pastelový) */
+    --bg-page: #f1f5f9;
+    --bg-card: #ffffff;
+    --border-card: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --tab-bg: #e2e8f0;
+    --tab-text: #475569;
+    --tab-active-bg: #2563eb;
+    --tab-active-text: #ffffff;
+    --tab-active-date: #bfdbfe;
+
+    /* Omluvení žáci ve světlém režimu */
+    --absent-bg: #f8fafc;
+    --absent-border: #cbd5e1;
+    --absent-stripe: #94a3b8;
+    --absent-text: #94a3b8;
+
+    /* Proužky a stavy */
+    --stripe-default: #3b82f6;
+    --stripe-private: #1d4ed8;
+    --private-bg: #eff6ff;
+    --stripe-gold: #d97706;
+    --stripe-purple: #9333ea;
+    --gender-girl: #e11d48;
+    --gender-boy: #2563eb;
+
+    /* Modál a spodní lišta */
+    --modal-bg: #ffffff;
+    --modal-overlay: rgba(15, 23, 42, 0.6);
+    --input-bg: #f8fafc;
+    --input-border: #cbd5e1;
+    --bottom-bar-bg: rgba(255, 255, 255, 0.9);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg-color: #121212;
-        --surface-color: #1e1e1e;
-        --text-color: #e4e6eb;
-        --text-muted: #a0a0a0;
-        --primary-color: #66b3ff;
-        --header-bg: #1e1e1e; 
-        --border-color: #333333;
-        --swap-active: #132b45;
-        --card-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        --btn-hover: #2a2a2a;
-        --modal-bg: rgba(0,0,0,0.7);
+        /* TMAVÝ REŽIM */
+        --bg-page: #121212;
+        --bg-card: #1a1e26;
+        --border-card: #28303f;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --tab-bg: #1e2430;
+        --tab-text: #94a3b8;
+        --tab-active-bg: #0b1120;          /* Tmavší pozadí aktuálního dne */
+        --tab-active-text: #ffffff;
+        --tab-active-date: #60a5fa;         /* Zářivě čitelné datum */
+
+        /* Omluvení žáci v tmavém režimu */
+        --absent-bg: #14171d;
+        --absent-border: #242a36;
+        --absent-stripe: #334155;
+        --absent-text: #64748b;
+
+        /* Proužky a stavy */
+        --stripe-default: #3b82f6;
+        --stripe-private: #2563eb;
+        --private-bg: rgba(30, 58, 138, 0.2);
+        --stripe-gold: #ffd166;
+        --stripe-purple: #c084fc;
+        --gender-girl: #fca5a5;
+        --gender-boy: #93c5fd;
+
+        /* Modál a spodní lišta */
+        --modal-bg: #1c222e;
+        --modal-overlay: rgba(0, 0, 0, 0.75);
+        --input-bg: #12151c;
+        --input-border: #2e384d;
+        --bottom-bar-bg: rgba(18, 18, 18, 0.92);
     }
 }
 
-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    font-family: system-ui, -apple-system, sans-serif;
+/* =========================================================
+   2. ZÁKLADNÍ STRUKTURA
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    padding-bottom: 80px; 
-    transition: background-color 0.3s, color 0.3s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    padding-bottom: 5.5rem;
+    overflow-x: hidden;
 }
 
 header {
-    background: var(--header-bg);
-    color: #ffffff;
-    padding: 1rem 0.5rem;
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-card);
     position: sticky;
     top: 0;
-    z-index: 10;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    z-index: 100;
+    padding-top: 0.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-    header { border-bottom: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+h1 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    padding-left: 0.5rem;
 }
 
-h1 { margin: 0 0 1rem 0; font-size: 1.4rem; text-align: center; font-weight: 700; letter-spacing: 0.5px; }
+/* =========================================================
+   3. HORNÍ ZÁLOŽKY DNŮ (Po, Út, St, Čt, Pá)
+   ========================================================= */
 
-.day-selector { display: flex; justify-content: space-between; gap: 0.4rem; padding: 0 0.5rem; }
+.day-selector {
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.5rem 0.6rem 0.6rem;
+}
 
 .day-selector button {
-    flex: 1; padding: 0.6rem 0; border: none; border-radius: 20px;
-    background-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.9);
-    font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.45rem 0.2rem;
+    background: var(--tab-bg);
+    color: var(--tab-text);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
 }
 
 .day-selector button.active {
-    background-color: #ffffff; color: #005bb5; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    background: var(--tab-active-bg) !important;
+    color: var(--tab-active-text) !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-@media (prefers-color-scheme: dark) {
-    .day-selector button { background-color: var(--bg-color); color: var(--text-muted); }
-    .day-selector button.active { background-color: var(--primary-color); color: #121212; }
+.tab-day-name {
+    font-weight: 700;
+    font-size: 0.88rem;
 }
 
-#schedule-container { padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.tab-day-date {
+    font-size: 0.72rem;
+    font-weight: 500;
+    margin-top: 2px;
+    opacity: 0.85;
+}
+
+.day-selector button.active .tab-day-date {
+    color: var(--tab-active-date) !important;
+    font-weight: 600;
+    opacity: 1;
+}
+
+/* =========================================================
+   4. SEZNAM HODIN A KARTIČKY
+   ========================================================= */
+
+main#schedule-container {
+    padding: 0.8rem;
+}
+
+.lesson-card-wrapper {
+    position: relative;
+    margin-bottom: 0.65rem;
+}
 
 .lesson-card {
-    background-color: var(--surface-color);
-    padding: 0.8rem; border-radius: 12px; box-shadow: var(--card-shadow);
-    border: none; border-left: 6px solid var(--primary-color);
-    display: flex; align-items: center; transition: transform 0.1s, box-shadow 0.2s, background-color 0.2s;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-left: 5px solid var(--stripe-default);
+    border-radius: 10px;
+    padding: 0.75rem 0.85rem;
+    display: flex;
+    align-items: center;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s ease, opacity 0.2s ease;
 }
 
-.lesson-card:active { transform: scale(0.98); background-color: var(--btn-hover); }
+.lesson-card:active {
+    transform: scale(0.99);
+}
 
 .lesson-card.swap-mode {
-    border-left: 6px dashed var(--primary-color);
-    background-color: var(--swap-active);
-    transform: scale(1.02);
+    outline: 2px dashed #f59e0b;
+    animation: pulseBorder 1.2s infinite;
+}
+
+@keyframes pulseBorder {
+    0%, 100% { outline-color: #f59e0b; }
+    50% { outline-color: transparent; }
 }
 
 .time-col {
-    font-weight: 800; margin-right: 1rem; text-align: right;
-    min-width: 48px; font-size: 1.05rem; color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.05rem;
+    min-width: 4rem;
+    line-height: 1.2;
 }
 
-.time-col .end-time { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-top: 3px; }
+.end-time {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
 
-.info-col { flex: 1; min-width: 0; }
+.info-col {
+    margin-left: 0.8rem;
+    flex: 1;
+}
 
 .student-name {
-    font-size: 1.15rem; font-weight: 700; margin: 0 0 0.3rem 0;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.25;
 }
 
-.student-details { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
-
-.bottom-bar {
-    position: fixed; bottom: 0; left: 0; width: 100%;
-    background-color: var(--surface-color); box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
-    display: flex; z-index: 20; padding-bottom: env(safe-area-inset-bottom);
+.student-name.gender-girl {
+    color: var(--gender-girl) !important;
 }
 
-.bottom-bar button {
-    flex: 1; padding: 1.2rem 0; border: none; background: transparent;
-    color: var(--primary-color); font-weight: 700; font-size: 1.05rem;
-    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-}
-.bottom-bar button:first-child { border-right: 1px solid var(--border-color); }
-.bottom-bar button:active { background-color: var(--btn-hover); }
-
-/* Modální okno */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--modal-bg); backdrop-filter: blur(2px);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 100; opacity: 1; transition: opacity 0.2s;
-}
-.modal-overlay.hidden { display: none; opacity: 0; }
-
-.modal {
-    background: var(--surface-color); width: 90%; max-width: 400px;
-    border-radius: 16px; padding: 1.5rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    animation: slideUp 0.2s ease-out;
-}
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-.modal h3 { margin: 0 0 1.2rem 0; color: var(--text-color); font-size: 1.3rem; }
-
-.form-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
-.form-row { display: flex; gap: 0.5rem; } /* Zmenšená mezera z 1rem na 0.5rem */
-.form-row .form-group { flex: 1; min-width: 0; } /* min-width: 0 zabrání roztažení flexboxu */
-
-.modal label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.4rem; }
-.modal input {
-    width: 100%; /* Donutí input držet se v hranicích rodiče */
-    box-sizing: border-box; /* Zabrání tomu, aby padding zvětšil celkovou šířku */
-    padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);
-    background: var(--bg-color); color: var(--text-color); font-size: 1rem; outline: none;
-}
-.modal input:focus { border-color: var(--primary-color); }
-
-.modal-actions { display: flex; gap: 0.8rem; margin-top: 0.5rem; }
-.modal-actions button { flex: 1; padding: 0.9rem; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; font-size: 1rem; }
-.btn-primary { background: var(--primary-color); color: #fff; }
-.btn-secondary { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color) !important; }
-
-.modal-actions-danger { display: flex; gap: 0.8rem; margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border-color); }
-.modal-actions-danger button { flex: 1; padding: 0.8rem; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; background: transparent; }
-.btn-outline { color: var(--primary-color); border: 1px solid var(--primary-color) !important; }
-.btn-danger { color: #d32f2f; border: 1px solid #d32f2f !important; }
-
-/* --- ANIMACE PRO PŘECHODY DNŮ --- */
-@keyframes slideFromRight {
-    from { transform: translateX(60px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-@keyframes slideFromLeft {
-    from { transform: translateX(-60px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-.slide-from-right {
-    animation: slideFromRight 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-.slide-from-left {
-    animation: slideFromLeft 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+.student-name.gender-boy {
+    color: var(--gender-boy) !important;
 }
 
-/* --- STAV: OMLUVENÝ ŽÁK --- */
+.student-details {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.2rem;
+}
+
+/* =========================================================
+   5. SPECIFICKÉ PROUŽKY A HODINY
+   ========================================================= */
+
+/* Kytarový soubor: Starší (zlatá) a Mladší (purpurová) */
+.lesson-card.ensemble-gold {
+    border-left-color: var(--stripe-gold) !important;
+}
+.ensemble-title-older {
+    color: var(--stripe-gold) !important;
+}
+
+.lesson-card.ensemble-purple {
+    border-left-color: var(--stripe-purple) !important;
+}
+.ensemble-title-younger {
+    color: var(--stripe-purple) !important;
+}
+
+/* Soukromá hodina */
+.lesson-card.private-card {
+    border-left-color: var(--stripe-private) !important;
+    background: var(--private-bg) !important;
+}
+
+.private-notes-preview {
+    margin-top: 0.35rem;
+    padding: 0.35rem 0.5rem;
+    background: rgba(15, 23, 42, 0.4);
+    border-left: 2px solid var(--stripe-private);
+    border-radius: 4px;
+    font-size: 0.78rem;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    line-height: 1.3;
+}
+
+/* =========================================================
+   6. STAV OMLUVY A ZÁSKOK
+   ========================================================= */
+
 .lesson-card.absent {
-    background: #181818 !important;
-    border-color: #262626 !important;
-    border-left: 4px solid #3a4550 !important; /* utlumený neutrální proužek */
-    opacity: 0.45;
+    background: var(--absent-bg) !important;
+    border-color: var(--absent-border) !important;
+    border-left: 4px solid var(--absent-stripe) !important;
+    opacity: 0.65 !important;
 }
 
 .lesson-card.absent .student-name {
-    color: #777777 !important;
-    text-decoration: line-through; /* decentní přeškrtnutí */
+    color: var(--absent-text) !important;
+    text-decoration: none !important;
 }
 
 .lesson-card.absent .time-col,
 .lesson-card.absent .student-details,
 .lesson-card.absent .end-time {
-    color: #555555 !important;
+    color: var(--absent-text) !important;
 }
 
-/* --- KONTEJNER PRO PŘEKRYTÍ KARET --- */
-.lesson-card-wrapper {
-    position: relative;
-    margin-bottom: 0.6rem;
+.badge-absent {
+    display: inline-block;
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
 }
 
-/* Omluvená podkladová karta pod záskokem */
+/* Karta překrytá záskokem */
 .lesson-card.has-substitute {
     margin-bottom: 0;
     opacity: 0.35 !important;
@@ -214,17 +321,17 @@ h1 { margin: 0 0 1rem 0; font-size: 1.4rem; text-align: center; font-weight: 700
     transform-origin: top left;
 }
 
-/* Nasunutá karta záskoku */
+/* Nasunutý záskok */
 .substitute-badge-card {
     position: relative;
     margin-top: -1.6rem;
     margin-left: 1.5rem;
-    background: #1e2638;
-    border: 1.5px solid #4d88ff;
-    border-left: 5px solid #4d88ff;
+    background: var(--bg-card);
+    border: 1.5px solid #3b82f6;
+    border-left: 5px solid #3b82f6;
     border-radius: 8px;
     padding: 0.6rem 0.8rem;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -233,126 +340,36 @@ h1 { margin: 0 0 1rem 0; font-size: 1.4rem; text-align: center; font-weight: 700
 }
 
 @keyframes slideInSub {
-    from {
-        transform: translateX(40px);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+    from { transform: translateX(35px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
 
 .substitute-badge-card .sub-title {
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #78a9ff;
+    color: #3b82f6;
     font-weight: bold;
 }
 
 .substitute-badge-card .sub-name {
     font-size: 1rem;
     font-weight: bold;
-    color: #ffffff;
 }
 
 .substitute-badge-card .sub-tag {
     font-size: 0.75rem;
-    background: #283754;
-    color: #90b8ff;
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
-}
-
-/* Zlatý proužek pro Kytarový soubor a jeho žáky */
-.lesson-card.ensemble-card {
-    border-left: 4px solid #d4af37 !important;
-}
-
-/* Ztlumený proužek, když je souborový žák omluven */
-.lesson-card.ensemble-card.absent {
-    border-left: 4px solid #665522 !important;
-}
-
-/* Textový odznáček */
-.ensemble-badge {
-    color: #d4af37;
     font-weight: 600;
 }
 
-/* --- BAREVNÉ TÓNY JMEN --- */
-.student-name.gender-girl {
-    color: #fca5a5 !important; /* Jemně červená / lososová */
-}
-.student-name.gender-boy {
-    color: #93c5fd !important; /* Jemně modrá */
-}
+/* =========================================================
+   7. ČASOVÝ STAV HODIN (Proběhlé vs Právě probíhá)
+   ========================================================= */
 
-/* --- SPECIFICKÉ PROUŽKY --- */
-/* 1. Starší soubor (5.+ ročník) - Zlatý */
-.lesson-card.ensemble-gold {
-    border-left: 5px solid #d4af37 !important;
-}
-
-/* 2. Mladší soubor (1.-4. ročník s HN) - Fialový / Purpurový */
-.lesson-card.ensemble-purple {
-    border-left: 5px solid #a855f7 !important;
-}
-
-/* 3. Soukromá hodina - Tmavší ocelově modrá */
-.lesson-card.private-card {
-    border-left: 5px solid #1d4ed8 !important;
-    background: linear-gradient(90deg, rgba(29, 78, 216, 0.12) 0%, rgba(20, 24, 33, 0.95) 100%) !important;
-}
-
-/* Zápisník / poznámky soukromé hodiny */
-.private-notes-preview {
-    margin-top: 0.35rem;
-    padding: 0.3rem 0.5rem;
-    background: rgba(15, 23, 42, 0.6);
-    border-left: 2px solid #3b82f6;
-    border-radius: 4px;
-    font-size: 0.78rem;
-    color: #cbd5e1;
-    white-space: pre-wrap;
-    line-height: 1.3;
-}
-
-/* --- ŠTÍTEK OMLUVENKA (Žádné přeškrtávání) --- */
-/* --- STAV: OMLUVENÝ ŽÁK --- */
-.lesson-card.absent {
-    background: #181818 !important;
-    border-color: #262626 !important;
-    border-left: 4px solid #3a4550 !important;
-    opacity: 0.55 !important;
-}
-
-/* Zrušení přeškrtnutí a zachování čitelného jména */
-.lesson-card.absent .student-name {
-    color: #8e8e8e !important;
-    text-decoration: none !important; /* ZRUŠENO ŠKRTÁNÍ */
-}
-
-.lesson-card.absent .time-col,
-.lesson-card.absent .student-details,
-.lesson-card.absent .end-time {
-    color: #555555 !important;
-}
-.badge-absent {
-    display: inline-block;
-    background: #3f1d1d;
-    color: #f87171;
-    border: 1px solid #7f1d1d;
-    font-size: 0.72rem;
-    font-weight: bold;
-    padding: 0.1rem 0.4rem;
-    border-radius: 4px;
-    margin-left: 0.4rem;
-    vertical-align: middle;
-}
-
-/* --- ČASOVÝ STAV HODIN (Minulost vs Právě probíhá) --- */
 .lesson-card.past-lesson {
     opacity: 0.42 !important;
     filter: grayscale(0.25);
@@ -364,7 +381,6 @@ h1 { margin: 0 0 1rem 0; font-size: 1.4rem; text-align: center; font-weight: 700
     border-top: 1px solid rgba(147, 197, 253, 0.4);
 }
 
-/* Plynulý odpočet uvnitř probíhající hodiny */
 .lesson-progress-bar {
     position: absolute;
     bottom: 0;
@@ -372,41 +388,155 @@ h1 { margin: 0 0 1rem 0; font-size: 1.4rem; text-align: center; font-weight: 700
     height: 3px;
     background: linear-gradient(90deg, #3b82f6, #60a5fa);
     transition: width 1s linear;
-    border-radius: 0 0 0 8px;
 }
 
-/* Barevné tónování názvu Kytarového souboru podle skupiny */
-.ensemble-title-younger {
-    color: #c084fc !important; /* Fialová pro mladší */
-}
+/* =========================================================
+   8. SPODNÍ LIŠTA TLAČÍTEK
+   ========================================================= */
 
-.ensemble-title-older {
-    color: #ffd166 !important; /* Zlatá pro starší */
-}
-
-/* --- ZOBRAZENÍ DATA V ZÁLOŽKÁCH DNŮ --- */
-.day-selector button {
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bottom-bar-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border-card);
     display: flex;
-    flex-direction: column;
+    padding: 0.6rem 0.8rem;
+    gap: 0.6rem;
+    z-index: 100;
+}
+
+.bottom-bar button {
+    flex: 1;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.35rem 0.2rem;
-    line-height: 1.15;
+    gap: 0.4rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-card);
 }
 
-.tab-day-name {
-    font-weight: 700;
+/* =========================================================
+   9. MODÁLNÍ OKNO A FORMULÁŘ
+   ========================================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--modal-overlay);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 1000;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal {
+    background: var(--modal-bg);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 440px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.25rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.modal h3 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.form-group {
+    margin-bottom: 0.8rem;
+}
+
+.form-group label {
+    display: block;
     font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.3rem;
 }
 
-.tab-day-date {
-    font-size: 0.7rem;
-    opacity: 0.75;
-    font-weight: 400;
-    margin-top: 2px;
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.55rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
 }
 
-.day-selector button.active .tab-day-date {
-    opacity: 1;
-    color: #ffd166; /* Jemné zvýraznění data u aktivního dne */
+.form-row {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+}
+
+.modal-actions button,
+.modal-actions-danger button {
+    flex: 1;
+    padding: 0.65rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary { background: #2563eb; color: #fff; }
+.btn-secondary { background: var(--tab-bg); color: var(--text-primary); }
+.modal-actions-danger { display: flex; gap: 0.6rem; margin-top: 0.6rem; }
+.btn-outline { background: transparent; border: 1px solid var(--border-card) !important; color: var(--text-primary); }
+.btn-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3) !important; }
+
+/* =========================================================
+   10. PŘECHODOVÉ ANIMACE DNÍ (SWIPE)
+   ========================================================= */
+
+.slide-from-right {
+    animation: slideRight 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.slide-from-left {
+    animation: slideLeft 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideRight {
+    from { opacity: 0; transform: translateX(35px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideLeft {
+    from { opacity: 0; transform: translateX(-35px); }
+    to { opacity: 1; transform: translateX(0); }
 }
