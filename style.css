@@ -103,23 +103,147 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
-    padding-top: 0.5rem;
+    padding-top: 0.3rem;
 }
 
 h1 {
     font-size: 1.25rem;
     font-weight: 700;
-    padding-left: 0.5rem;
 }
 
 /* =========================================================
-   3. HORNÍ ZÁLOŽKY DNŮ (Po, Út, St, Čt, Pá)
+   3. HORNÍ LIŠTA A TÝDENNÍ NAVIGACE (STEPPER)
+   ========================================================= */
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.3rem 0.8rem;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background: var(--tab-bg);
+}
+
+.btn-chip {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.btn-chip:active {
+    transform: scale(0.94);
+}
+
+.btn-chip.hidden {
+    display: none;
+}
+
+.week-stepper-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.15rem 0.7rem 0.45rem;
+    position: relative;
+}
+
+.btn-nav {
+    background: var(--tab-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-card);
+    border-radius: 8px;
+    width: 2.2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-nav:active {
+    background: var(--border-card);
+    transform: scale(0.92);
+}
+
+.week-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0.2rem 0.8rem;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+    user-select: none;
+}
+
+.week-display:hover, .week-display:focus {
+    background: var(--tab-bg);
+    outline: none;
+}
+
+.week-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.dropdown-chevron {
+    color: var(--text-secondary);
+}
+
+.week-range {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 1px;
+}
+
+.visually-hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+}
+
+/* =========================================================
+   4. HORNÍ ZÁLOŽKY DNŮ (Po, Út, St, Čt, Pá)
    ========================================================= */
 
 .day-selector {
     display: flex;
     gap: 0.4rem;
-    padding: 0.5rem 0.6rem 0.6rem;
+    padding: 0.3rem 0.6rem 0.6rem;
 }
 
 .day-selector button {
@@ -163,7 +287,7 @@ h1 {
 }
 
 /* =========================================================
-   4. SEZNAM HODIN A KARTIČKY
+   5. SEZNAM HODIN A KARTIČKY
    ========================================================= */
 
 main#schedule-container {
@@ -242,10 +366,9 @@ main#schedule-container {
 }
 
 /* =========================================================
-   5. SPECIFICKÉ PROUŽKY A HODINY
+   6. SPECIFICKÉ PROUŽKY A HODINY
    ========================================================= */
 
-/* Kytarový soubor: Starší (zlatá) a Mladší (purpurová) */
 .lesson-card.ensemble-gold {
     border-left-color: var(--stripe-gold) !important;
 }
@@ -260,7 +383,6 @@ main#schedule-container {
     color: var(--stripe-purple) !important;
 }
 
-/* Soukromá hodina */
 .lesson-card.private-card {
     border-left-color: var(--stripe-private) !important;
     background: var(--private-bg) !important;
@@ -279,7 +401,7 @@ main#schedule-container {
 }
 
 /* =========================================================
-   6. STAV OMLUVY A ZÁSKOK
+   7. STAV OMLUVY A ZÁSKOK
    ========================================================= */
 
 .lesson-card.absent {
@@ -313,7 +435,6 @@ main#schedule-container {
     vertical-align: middle;
 }
 
-/* Karta překrytá záskokem */
 .lesson-card.has-substitute {
     margin-bottom: 0;
     opacity: 0.35 !important;
@@ -321,7 +442,6 @@ main#schedule-container {
     transform-origin: top left;
 }
 
-/* Nasunutý záskok */
 .substitute-badge-card {
     position: relative;
     margin-top: -1.6rem;
@@ -367,7 +487,7 @@ main#schedule-container {
 }
 
 /* =========================================================
-   7. ČASOVÝ STAV HODIN (Proběhlé vs Právě probíhá)
+   8. ČASOVÝ STAV HODIN (Proběhlé vs Právě probíhá)
    ========================================================= */
 
 .lesson-card.past-lesson {
@@ -391,7 +511,7 @@ main#schedule-container {
 }
 
 /* =========================================================
-   8. SPODNÍ LIŠTA TLAČÍTEK
+   9. SPODNÍ LIŠTA TLAČÍTEK
    ========================================================= */
 
 .bottom-bar {
@@ -426,7 +546,7 @@ main#schedule-container {
 }
 
 /* =========================================================
-   9. MODÁLNÍ OKNO A FORMULÁŘ
+   10. MODÁLNÍ OKNO A FORMULÁŘ
    ========================================================= */
 
 .modal-overlay {
@@ -520,7 +640,7 @@ main#schedule-container {
 .btn-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3) !important; }
 
 /* =========================================================
-   10. PŘECHODOVÉ ANIMACE DNÍ (SWIPE)
+   11. PŘECHODOVÉ ANIMACE DNÍ (SWIPE)
    ========================================================= */
 
 .slide-from-right {
