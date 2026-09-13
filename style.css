@@ -359,12 +359,17 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     transform: rotateY(0deg);
 }
 
-/* --- EFEKT OHNUTÉHO PAPÍROVÉHO RŮŽKU (DOG-EAR) --- */
+/* =========================================================
+   PŘESNÝ MATEMATICKÝ OHNUTÝ RŮŽEK (DOG-EAR 45°)
+   ========================================================= */
+
+/* 1. Odříznutí pravého horního rohu lícové karty pod přesným úhlem 45° */
 .lesson-card-wrapper.has-note .flip-card-front {
     position: relative;
     clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
 }
 
+/* 2. Samotný přehnutý trojúhelník sedící přesně v rohu (0,0 -> 100%,100% -> 0,100%) */
 .lesson-card-wrapper.has-note .flip-card-front::after {
     content: '';
     position: absolute;
@@ -372,28 +377,37 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     right: 0;
     width: 24px;
     height: 24px;
-    background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(255, 255, 255, 0.4) 55%, var(--border-card) 60%);
-    box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.35);
-    border-bottom-left-radius: 4px;
+    /* Trojúhelník v levém dolním rohu čtverce 24x24px lícuje s linií řezu */
+    clip-path: polygon(0 0, 100% 100%, 0 100%);
+    /* Realistický 3D přechod ohnutého papíru s vrženým stínem */
+    background: linear-gradient(225deg, rgba(255, 255, 255, 0.55) 0%, rgba(200, 210, 225, 0.75) 45%, rgba(0, 0, 0, 0.4) 100%);
+    box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.35);
+    border-bottom-left-radius: 3px;
     pointer-events: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, filter 0.2s ease;
 }
 
+/* Tónování pro koncerty (vínová/rubínová) */
 .event-concert-wrapper.has-note .flip-card-front::after {
-    background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.3) 50%, #f43f5e 55%, #be123c 100%);
+    background: linear-gradient(225deg, #fecdd3 0%, #f43f5e 50%, #881337 100%);
 }
 
+/* Tónování pro porady (tyrkysová/petrolejová) */
 .event-meeting-wrapper.has-note .flip-card-front::after {
-    background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.3) 50%, #2dd4bf 55%, #0f766e 100%);
+    background: linear-gradient(225deg, #ccfbf1 0%, #14b8a6 50%, #134e4a 100%);
 }
 
+/* Zvýraznění při najetí myší nebo stisknutí */
 .lesson-card-wrapper.has-note:hover .flip-card-front::after,
 .lesson-card-wrapper.has-note:active .flip-card-front::after {
-    transform: scale(1.15);
-    box-shadow: -3px 3px 8px rgba(0, 0, 0, 0.45);
+    transform: scale(1.12);
+    filter: brightness(1.1);
 }
 
-/* Rub karty: Plynule roste podle obsahu bez odsunu okolních prvků */
+/* =========================================================
+   RUB KARTY (PLNÁ VÝŠKA PODLE TEXTU BEZ ODSUNUTÍ OKOLÍ)
+   ========================================================= */
+
 .flip-card-back {
     position: absolute;
     top: 0;
