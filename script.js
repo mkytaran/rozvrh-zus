@@ -262,7 +262,6 @@ function renderTabs() {
     });
 }
 
-// Obsluha otočení karty (3D Flip)
 function toggleCardFlip(wrapperElement) {
     const isFlipped = wrapperElement.classList.contains('flipped');
 
@@ -422,7 +421,7 @@ function renderSchedule(animDir = '') {
 
         flipInner.appendChild(cardFront);
 
-        // RUBOVÁ STRANA KARTY (POUZE PRO AKCE S POZNÁMKOU)
+        // RUBOVÁ STRANA KARTY
         if (isEvent && hasNotes) {
             const cardBack = document.createElement('div');
             cardBack.className = 'flip-card-back';
@@ -1052,7 +1051,7 @@ setInterval(() => {
     if (weekOffset === 0) renderSchedule();
 }, 60000);
 
-// --- 11. Správa témat (Světlý / Tmavý režim) ---
+// --- 11. Robustní správa motivu (Světlý / Tmavý) ---
 function initTheme() {
     const btnTheme = document.getElementById('btn-theme');
     const sunIcon = document.getElementById('icon-theme-sun');
@@ -1060,32 +1059,37 @@ function initTheme() {
     const themeMeta = document.getElementById('theme-color-meta');
 
     function applyTheme(theme) {
-        document.documentElement.classList.remove('theme-dark', 'theme-light');
-        document.documentElement.classList.add(theme === 'dark' ? 'theme-dark' : 'theme-light');
-        localStorage.setItem('zus_theme', theme);
-
+        const root = document.documentElement;
         if (theme === 'dark') {
+            root.classList.remove('theme-light');
+            root.classList.add('theme-dark');
             if (sunIcon) sunIcon.style.display = 'block';
             if (moonIcon) moonIcon.style.display = 'none';
             if (themeMeta) themeMeta.content = '#121212';
         } else {
+            root.classList.remove('theme-dark');
+            root.classList.add('theme-light');
             if (sunIcon) sunIcon.style.display = 'none';
             if (moonIcon) moonIcon.style.display = 'block';
             if (themeMeta) themeMeta.content = '#f1f5f9';
         }
+        localStorage.setItem('zus_theme', theme);
     }
 
-    // Zjistíme aktuální nastavení
-    const savedTheme = localStorage.getItem('zus_theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-    applyTheme(initialTheme);
+    // Zjistíme existující téma
+    let currentTheme = localStorage.getItem('zus_theme');
+    if (!currentTheme) {
+        const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        currentTheme = systemPrefersDark ? 'dark' : 'light';
+    }
+    applyTheme(currentTheme);
 
     if (btnTheme) {
-        btnTheme.onclick = () => {
+        btnTheme.onclick = (e) => {
+            e.preventDefault();
             if (navigator.vibrate) navigator.vibrate(30);
-            const isCurrentDark = document.documentElement.classList.contains('theme-dark');
-            applyTheme(isCurrentDark ? 'light' : 'dark');
+            const isDark = document.documentElement.classList.contains('theme-dark');
+            applyTheme(isDark ? 'light' : 'dark');
         };
     }
 }

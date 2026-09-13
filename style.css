@@ -1,10 +1,10 @@
 /* =========================================================
-   1. BAREVNÝ SYSTÉM (SVĚTLÝ & TMAVÝ REŽIM)
+   1. BAREVNÝ SYSTÉM (ROBUSTNÍ PŘEPÍNÁNÍ LIGHT & DARK)
    ========================================================= */
 
-/* Výchozí světlý režim */
+/* A) VÝCHOZÍ SVĚTLÝ REŽIM */
 :root,
-:root.theme-light {
+html.theme-light {
     color-scheme: light;
 
     --bg-page: #f1f5f9;
@@ -18,7 +18,7 @@
     --tab-active-text: #ffffff;
     --tab-active-date: #bfdbfe;
 
-    /* Omluvení žáci ve světlém režimu */
+    /* Omluvení žáci */
     --absent-bg: #f8fafc;
     --absent-border: #cbd5e1;
     --absent-stripe: #94a3b8;
@@ -49,52 +49,7 @@
     --bottom-bar-bg: rgba(255, 255, 255, 0.94);
 }
 
-/* Explicitní tmavý režim i systémový fallback */
-:root.theme-dark {
-    color-scheme: dark;
-
-    --bg-page: #121212;
-    --bg-card: #1a1e26;
-    --border-card: #28303f;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --tab-bg: #1e2430;
-    --tab-text: #94a3b8;
-    --tab-active-bg: #0b1120;
-    --tab-active-text: #ffffff;
-    --tab-active-date: #60a5fa;
-
-    /* Omluvení žáci v tmavém režimu */
-    --absent-bg: #14171d;
-    --absent-border: #242a36;
-    --absent-stripe: #334155;
-    --absent-text: #64748b;
-
-    /* Proužky a stavy */
-    --stripe-default: #3b82f6;
-    --stripe-private: #2563eb;
-    --private-bg: rgba(30, 58, 138, 0.2);
-    --stripe-gold: #ffd166;
-    --stripe-purple: #c084fc;
-    --gender-girl: #fca5a5;
-    --gender-boy: #93c5fd;
-
-    /* Pracovní akce */
-    --stripe-concert: #f43f5e;
-    --bg-concert: linear-gradient(90deg, rgba(244, 63, 94, 0.15) 0%, #1a1e26 100%);
-    --title-concert: #fb7185;
-    --stripe-meeting: #14b8a6;
-    --bg-meeting: linear-gradient(90deg, rgba(20, 184, 166, 0.15) 0%, #1a1e26 100%);
-    --title-meeting: #2dd4bf;
-
-    /* Modál a spodní lišta */
-    --modal-bg: #1c222e;
-    --modal-overlay: rgba(0, 0, 0, 0.75);
-    --input-bg: #12151c;
-    --input-border: #2e384d;
-    --bottom-bar-bg: rgba(18, 18, 18, 0.94);
-}
-
+/* B) AUTOMATICKÝ TMAVÝ PODLE SYSTÉMU (POKUD NENÍ RUČNĚ VYNUCEN LIGHT) */
 @media (prefers-color-scheme: dark) {
     :root:not(.theme-light) {
         color-scheme: dark;
@@ -136,6 +91,48 @@
         --input-border: #2e384d;
         --bottom-bar-bg: rgba(18, 18, 18, 0.94);
     }
+}
+
+/* C) RUČNĚ VYNUCENÝ TMAVÝ REŽIM (PŘEBIJE VŠECHNO) */
+html.theme-dark {
+    color-scheme: dark !important;
+
+    --bg-page: #121212 !important;
+    --bg-card: #1a1e26 !important;
+    --border-card: #28303f !important;
+    --text-primary: #f8fafc !important;
+    --text-secondary: #94a3b8 !important;
+    --tab-bg: #1e2430 !important;
+    --tab-text: #94a3b8 !important;
+    --tab-active-bg: #0b1120 !important;
+    --tab-active-text: #ffffff !important;
+    --tab-active-date: #60a5fa !important;
+
+    --absent-bg: #14171d !important;
+    --absent-border: #242a36 !important;
+    --absent-stripe: #334155 !important;
+    --absent-text: #64748b !important;
+
+    --stripe-default: #3b82f6 !important;
+    --stripe-private: #2563eb !important;
+    --private-bg: rgba(30, 58, 138, 0.2) !important;
+    --stripe-gold: #ffd166 !important;
+    --stripe-purple: #c084fc !important;
+    --gender-girl: #fca5a5 !important;
+    --gender-boy: #93c5fd !important;
+
+    --stripe-concert: #f43f5e !important;
+    --bg-concert: linear-gradient(90deg, rgba(244, 63, 94, 0.15) 0%, #1a1e26 100%) !important;
+    --title-concert: #fb7185 !important;
+    --stripe-meeting: #14b8a6 !important;
+    --bg-meeting: linear-gradient(90deg, rgba(20, 184, 166, 0.15) 0%, #1a1e26 100%) !important;
+    --title-meeting: #2dd4bf !important;
+
+    --modal-bg: #1c222e !important;
+    --modal-overlay: rgba(0, 0, 0, 0.75) !important;
+    --input-bg: #12151c !important;
+    --input-border: #2e384d !important;
+    --bottom-bar-bg: rgba(18, 18, 18, 0.94) !important;
 }
 
 /* =========================================================
@@ -209,6 +206,11 @@ h1 {
 
 .btn-icon:active {
     transform: scale(0.92);
+}
+
+.theme-icon {
+    display: block;
+    pointer-events: none;
 }
 
 .btn-chip {
@@ -361,7 +363,6 @@ main#schedule-container {
     padding: 0.8rem;
 }
 
-/* Plynulá tranzice 0.4s pro jemné rozostření okolních prvků */
 header, 
 .bottom-bar, 
 .lesson-card-wrapper {
@@ -376,7 +377,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     pointer-events: none;
 }
 
-/* 3D Kontejner karty */
 .lesson-card-wrapper {
     position: relative;
     margin-bottom: 0.65rem;
@@ -398,7 +398,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     transform: rotateY(180deg);
 }
 
-/* Líc a Rub */
 .flip-card-front, 
 .flip-card-back {
     -webkit-backface-visibility: hidden;
@@ -410,17 +409,12 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     transform: rotateY(0deg);
 }
 
-/* =========================================================
-   PŘESNÝ MATEMATICKÝ OHNUTÝ RŮŽEK (DOG-EAR 45°)
-   ========================================================= */
-
-/* 1. Odříznutí pravého horního rohu lícové karty pod přesným úhlem 45° */
+/* OHNUTÝ RŮŽEK 45° */
 .lesson-card-wrapper.has-note .flip-card-front {
     position: relative;
     clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
 }
 
-/* 2. Samotný přehnutý trojúhelník sedící přesně v rohu (0,0 -> 100%,100% -> 0,100%) */
 .lesson-card-wrapper.has-note .flip-card-front::after {
     content: '';
     position: absolute;
@@ -436,12 +430,10 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-/* Tónování pro koncerty (vínová/rubínová) */
 .event-concert-wrapper.has-note .flip-card-front::after {
     background: linear-gradient(225deg, #fecdd3 0%, #f43f5e 50%, #881337 100%);
 }
 
-/* Tónování pro porady (tyrkysová/petrolejová) */
 .event-meeting-wrapper.has-note .flip-card-front::after {
     background: linear-gradient(225deg, #ccfbf1 0%, #14b8a6 50%, #134e4a 100%);
 }
@@ -452,10 +444,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     filter: brightness(1.1);
 }
 
-/* =========================================================
-   RUB KARTY (PLNÁ VÝŠKA PODLE TEXTU BEZ ODSUNUTÍ OKOLÍ)
-   ========================================================= */
-
+/* RUB KARTY */
 .flip-card-back {
     position: absolute;
     top: 0;
@@ -536,7 +525,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     font-weight: 500;
 }
 
-/* Lícová strana (standardní karta) */
+/* LÍC KARTY */
 .lesson-card {
     background: var(--bg-card);
     border: 1px solid var(--border-card);
@@ -548,7 +537,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: transform 0.15s ease, opacity 0.2s ease;
+    transition: transform 0.15s ease, opacity 0.2s ease, background-color 0.2s ease;
 }
 
 .lesson-card:active {
@@ -604,7 +593,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 }
 
 /* =========================================================
-   6. SPECIFICKÉ PROUŽKY A PRACOVNÍ AKCE
+   6. SPECIFICKÉ PROUŽKY A HODINY
    ========================================================= */
 
 .lesson-card.ensemble-gold {
@@ -638,7 +627,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     line-height: 1.3;
 }
 
-/* Pracovní akce: Koncerty */
+/* Akce */
 .lesson-card.event-concert {
     border-left-color: var(--stripe-concert) !important;
     background: var(--bg-concert) !important;
@@ -647,7 +636,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     color: var(--title-concert) !important;
 }
 
-/* Pracovní akce: Porady */
 .lesson-card.event-meeting {
     border-left-color: var(--stripe-meeting) !important;
     background: var(--bg-meeting) !important;
@@ -684,11 +672,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     opacity: 0.65 !important;
 }
 
-.lesson-card.absent .student-name {
-    color: var(--absent-text) !important;
-    text-decoration: none !important;
-}
-
+.lesson-card.absent .student-name,
 .lesson-card.absent .time-col,
 .lesson-card.absent .student-details,
 .lesson-card.absent .end-time {
@@ -760,7 +744,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 }
 
 /* =========================================================
-   8. ČASOVÝ STAV HODIN (Proběhlé vs Právě probíhá)
+   8. ČASOVÝ STAV HODIN
    ========================================================= */
 
 .lesson-card.past-lesson {
@@ -821,7 +805,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 }
 
 /* =========================================================
-   10. MODÁLNÍ OKNO A FORMULÁŘ (TEXTAREA NA PLNOU ŠÍŘKU)
+   10. MODÁLNÍ OKNO
    ========================================================= */
 
 .modal-overlay {
@@ -907,7 +891,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     box-sizing: border-box;
 }
 
-/* Plná šířka pro textarea poznámek */
 #private-lesson-fields {
     width: 100%;
     box-sizing: border-box;
