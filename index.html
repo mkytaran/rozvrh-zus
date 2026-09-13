@@ -12,6 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="Rozvrh">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
+    <!-- Čisté odkazy bez verzovacích parametrů ?v=... -->
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -218,14 +219,14 @@
     
     <script src="script.js"></script>
     <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').then((reg) => {
-                // Při každém otevření aplikace zkontroluje, zda na GitHubu není novější sw.js
-                reg.update();
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then((reg) => {
+                    // Automaticky zkontroluje a stáhne novou verzi z GitHubu
+                    reg.update();
+                });
             });
-        });
-    }
+        }
     </script>
 </body>
 </html>

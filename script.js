@@ -360,26 +360,12 @@ function renderSchedule(animDir = '') {
             }
         }
 
-        const wrapper = document.createElement('div');
-        wrapper.className = `lesson-card-wrapper ${wrapperExtraClass}`;
-
-        const flipInner = document.createElement('div');
-        flipInner.className = 'flip-card-inner';
-
-        // --- LÍCOVÁ STRANA KARTY ---
-        const cardFront = document.createElement('div');
-        cardFront.className = `flip-card-front lesson-card ${swapSourceIndex === index ? 'swap-mode' : ''} ${isAbsent ? 'absent' : ''} ${hasSub ? 'has-substitute' : ''} ${stripeClass} ${timeStatusClass}`;
-
-        if (timeStatusClass === 'current-lesson') {
-            cardFront.style.opacity = (1 - (progressPercent / 100) * 0.45).toFixed(2);
-        }
-
         let detailsHtml = '';
         if (isEvent) {
             const chipClass = lesson.eventKind === 'concert' ? 'concert' : 'meeting';
-            const chipText = lesson.eventKind === 'concert' ? '🎻 Koncert' : '📋 Porada';
-            const flipHint = hasNotes ? `<span class="flip-indicator-icon">🔄 poznámka</span>` : '';
-            detailsHtml = `<span class="event-chip ${chipClass}">${chipText}</span><span>${lesson.notes ? (lesson.notes.slice(0, 36) + (lesson.notes.length > 36 ? '…' : '')) : ''}</span>${flipHint}`;
+            const chipText = lesson.eventKind === 'concert' ? '🎻 Koncert / Akce' : '📋 Porada / Školení';
+            // Lícová strana je čistá - žádný text poznámky ani nápis, pouze štítek akce
+            detailsHtml = `<span class="event-chip ${chipClass}">${chipText}</span>`;
         } else if (isPrivate) {
             detailsHtml = `<span style="color: #60a5fa; font-weight: 500;">Soukromá lekce</span>`;
             if (lesson.notes) detailsHtml += `<div class="private-notes-preview">📝 ${lesson.notes}</div>`;
@@ -395,6 +381,22 @@ function renderSchedule(animDir = '') {
         }
 
         const absentBadge = isAbsent ? `<span class="badge-absent">Omluvenka${lesson.absentDate ? ` (${lesson.absentDate})` : ''}</span>` : '';
+
+        // Pokud má akce poznámku, přidáme třídu has-note pro aktivaci ohnutého růžku
+        const noteFlagClass = (isEvent && hasNotes) ? 'has-note' : '';
+        const wrapper = document.createElement('div');
+        wrapper.className = `lesson-card-wrapper ${wrapperExtraClass} ${noteFlagClass}`;
+
+        const flipInner = document.createElement('div');
+        flipInner.className = 'flip-card-inner';
+
+        // --- LÍCOVÁ STRANA KARTY ---
+        const cardFront = document.createElement('div');
+        cardFront.className = `flip-card-front lesson-card ${swapSourceIndex === index ? 'swap-mode' : ''} ${isAbsent ? 'absent' : ''} ${hasSub ? 'has-substitute' : ''} ${stripeClass} ${timeStatusClass}`;
+
+        if (timeStatusClass === 'current-lesson') {
+            cardFront.style.opacity = (1 - (progressPercent / 100) * 0.45).toFixed(2);
+        }
 
         cardFront.innerHTML = `
             <div class="time-col">

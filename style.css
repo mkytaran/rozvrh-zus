@@ -359,7 +359,41 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     transform: rotateY(0deg);
 }
 
-/* Rub karty: plynule se přizpůsobí délce textu bez odsunutí okolí */
+/* --- EFEKT OHNUTÉHO PAPÍROVÉHO RŮŽKU (DOG-EAR) --- */
+.lesson-card-wrapper.has-note .flip-card-front {
+    position: relative;
+    clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
+}
+
+.lesson-card-wrapper.has-note .flip-card-front::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.25) 50%, rgba(255, 255, 255, 0.4) 55%, var(--border-card) 60%);
+    box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.35);
+    border-bottom-left-radius: 4px;
+    pointer-events: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.event-concert-wrapper.has-note .flip-card-front::after {
+    background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.3) 50%, #f43f5e 55%, #be123c 100%);
+}
+
+.event-meeting-wrapper.has-note .flip-card-front::after {
+    background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.3) 50%, #2dd4bf 55%, #0f766e 100%);
+}
+
+.lesson-card-wrapper.has-note:hover .flip-card-front::after,
+.lesson-card-wrapper.has-note:active .flip-card-front::after {
+    transform: scale(1.15);
+    box-shadow: -3px 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* Rub karty: Plynule roste podle obsahu bez odsunu okolních prvků */
 .flip-card-back {
     position: absolute;
     top: 0;
@@ -438,13 +472,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     color: var(--text-secondary);
     text-align: right;
     font-weight: 500;
-}
-
-.flip-indicator-icon {
-    margin-left: 0.4rem;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    opacity: 0.8;
 }
 
 /* Lícová strana (standardní karta) */
