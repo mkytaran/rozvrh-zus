@@ -303,18 +303,151 @@ h1 {
 }
 
 /* =========================================================
-   5. SEZNAM HODIN A KARTIČKY
+   5. SEZNAM HODIN, KARTIČKY A 3D FLIP EFEKT
    ========================================================= */
 
 main#schedule-container {
     padding: 0.8rem;
 }
 
+/* Plynulá tranzice 0.4s pro jemné rozostření okolních prvků */
+header, 
+.bottom-bar, 
+.lesson-card-wrapper {
+    transition: filter 0.4s ease, opacity 0.4s ease;
+}
+
+body.is-card-flipped-active header,
+body.is-card-flipped-active .bottom-bar,
+body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
+    filter: blur(4px);
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+/* 3D Kontejner karty */
 .lesson-card-wrapper {
     position: relative;
     margin-bottom: 0.65rem;
+    perspective: 1200px;
 }
 
+.lesson-card-wrapper.is-active-flipped {
+    z-index: 60;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.lesson-card-wrapper.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* Líc a Rub */
+.flip-card-front, 
+.flip-card-back {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 10px;
+}
+
+.flip-card-front {
+    transform: rotateY(0deg);
+}
+
+/* Rub karty: plynule se přizpůsobí délce textu bez odsunutí okolí */
+.flip-card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transform: rotateY(180deg);
+    background: var(--bg-card);
+    border: 1.5px solid var(--stripe-default);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+    padding: 0.9rem 1rem;
+    box-sizing: border-box;
+    cursor: pointer;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.event-concert-wrapper .flip-card-back {
+    border-color: var(--stripe-concert);
+    background: var(--bg-card);
+}
+.event-meeting-wrapper .flip-card-back {
+    border-color: var(--stripe-meeting);
+    background: var(--bg-card);
+}
+
+.flip-back-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-card);
+    padding-bottom: 0.45rem;
+    margin-bottom: 0.6rem;
+}
+
+.flip-back-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+}
+
+.flip-back-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-card-edit-mini {
+    background: transparent;
+    border: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 0.2rem;
+    color: var(--text-secondary);
+    border-radius: 4px;
+}
+.btn-card-edit-mini:hover {
+    color: var(--text-primary);
+}
+
+.flip-back-body {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex: 1;
+    margin-bottom: 0.5rem;
+}
+
+.flip-back-footer {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    text-align: right;
+    font-weight: 500;
+}
+
+.flip-indicator-icon {
+    margin-left: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
+
+/* Lícová strana (standardní karta) */
 .lesson-card {
     background: var(--bg-card);
     border: 1px solid var(--border-card);
@@ -597,7 +730,7 @@ main#schedule-container {
 }
 
 /* =========================================================
-   10. MODÁLNÍ OKNO A FORMULÁŘ
+   10. MODÁLNÍ OKNO A FORMULÁŘ (TEXTAREA NA PLNOU ŠÍŘKU)
    ========================================================= */
 
 .modal-overlay {
@@ -626,6 +759,7 @@ main#schedule-container {
     overflow-y: auto;
     padding: 1.25rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    box-sizing: border-box;
 }
 
 .type-switcher {
@@ -657,6 +791,8 @@ main#schedule-container {
 
 .form-group {
     margin-bottom: 0.8rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .form-group label, .form-sublabel {
@@ -668,8 +804,7 @@ main#schedule-container {
 }
 
 .form-group input,
-.form-group select,
-.form-group textarea {
+.form-group select {
     width: 100%;
     padding: 0.55rem;
     background: var(--input-bg);
@@ -678,6 +813,31 @@ main#schedule-container {
     border-radius: 6px;
     font-size: 0.95rem;
     font-family: inherit;
+    box-sizing: border-box;
+}
+
+/* Plná šířka pro textarea poznámek */
+#private-lesson-fields {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0.8rem;
+}
+
+#private-lesson-fields textarea,
+#edit-notes {
+    width: 100% !important;
+    min-height: 110px;
+    display: block;
+    padding: 0.65rem 0.75rem;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    font-family: inherit;
+    resize: vertical;
+    box-sizing: border-box !important;
 }
 
 .form-row {
@@ -712,6 +872,7 @@ main#schedule-container {
     border-radius: 8px;
     padding: 0.75rem;
     margin: 0.7rem 0;
+    box-sizing: border-box;
 }
 
 .radio-row {

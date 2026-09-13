@@ -12,8 +12,8 @@
     <meta name="apple-mobile-web-app-title" content="Rozvrh">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-    <link rel="manifest" href="manifest.json?v=2.2">
-    <link rel="stylesheet" href="style.css?v=4.1">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
@@ -174,7 +174,7 @@
                 </div>
             </div>
 
-            <!-- Zápisník a poznámky (pro soukromé hodiny i akce) -->
+            <!-- Zápisník a poznámky (zabírá celou šířku modálu) -->
             <div id="private-lesson-fields" style="display: none;">
                 <label for="edit-notes" id="label-edit-notes" class="form-sublabel">Zápisník a poznámky k výuce:</label>
                 <textarea id="edit-notes" rows="4" placeholder="Skladby, technika, program, kontakt..."></textarea>
@@ -216,13 +216,16 @@
         </div>
     </div>
     
-    <script src="script.js?v=5.6"></script>
+    <script src="script.js"></script>
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=2.2');
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').then((reg) => {
+                // Při každém otevření aplikace zkontroluje, zda na GitHubu není novější sw.js
+                reg.update();
             });
-        }
+        });
+    }
     </script>
 </body>
 </html>
