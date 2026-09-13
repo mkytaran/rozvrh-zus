@@ -219,14 +219,42 @@
     
     <script src="script.js"></script>
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then((reg) => {
-                    // Automaticky zkontroluje a stáhne novou verzi z GitHubu
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').then((reg) => {
+                // 1. Zkontroluje aktualizaci ihned po otevření
+                reg.update();
+
+                // 2. Kontroluje aktualizace automaticky každých 30 minut, pokud je appka otevřená
+                setInterval(() => {
                     reg.update();
+                }, 30 * 60 * 1000);
+
+                // 3. Pokud je detekován nový Service Worker, automaticky aktivujeme
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    if (newWorker) {
+                        newWorker.addEventListener('statechange', () => {
+                            // Když se nový kód doinstaloval a starý už běžel -> reloadneme stránku
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log("Nová verze stažena, přenačítám aplikaci...");
+                                window.location.reload();
+                            }
+                        });
+                    }
                 });
             });
-        }
+        });
+
+        // Zajistí, že když nový SW převezme řízení (clients.claim), stránka se synchronizuje
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                refreshing = true;
+                window.location.reload();
+            }
+        });
+    }
     </script>
 </body>
 </html>
