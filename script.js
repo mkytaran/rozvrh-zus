@@ -266,7 +266,6 @@ function renderTabs() {
 function toggleCardFlip(wrapperElement) {
     const isFlipped = wrapperElement.classList.contains('flipped');
 
-    // Zavřeme všechny ostatní otočené karty
     document.querySelectorAll('.lesson-card-wrapper.flipped').forEach(el => {
         if (el !== wrapperElement) {
             el.classList.remove('flipped', 'is-active-flipped');
@@ -364,7 +363,6 @@ function renderSchedule(animDir = '') {
         if (isEvent) {
             const chipClass = lesson.eventKind === 'concert' ? 'concert' : 'meeting';
             const chipText = lesson.eventKind === 'concert' ? '🎻 Koncert / Akce' : '📋 Porada / Školení';
-            // Lícová strana je čistá - žádný text poznámky ani nápis, pouze štítek akce
             detailsHtml = `<span class="event-chip ${chipClass}">${chipText}</span>`;
         } else if (isPrivate) {
             detailsHtml = `<span style="color: #60a5fa; font-weight: 500;">Soukromá lekce</span>`;
@@ -381,8 +379,6 @@ function renderSchedule(animDir = '') {
         }
 
         const absentBadge = isAbsent ? `<span class="badge-absent">Omluvenka${lesson.absentDate ? ` (${lesson.absentDate})` : ''}</span>` : '';
-
-        // Pokud má akce poznámku, přidáme třídu has-note pro aktivaci ohnutého růžku
         const noteFlagClass = (isEvent && hasNotes) ? 'has-note' : '';
         const wrapper = document.createElement('div');
         wrapper.className = `lesson-card-wrapper ${wrapperExtraClass} ${noteFlagClass}`;
@@ -390,7 +386,7 @@ function renderSchedule(animDir = '') {
         const flipInner = document.createElement('div');
         flipInner.className = 'flip-card-inner';
 
-        // --- LÍCOVÁ STRANA KARTY ---
+        // LÍCOVÁ STRANA KARTY
         const cardFront = document.createElement('div');
         cardFront.className = `flip-card-front lesson-card ${swapSourceIndex === index ? 'swap-mode' : ''} ${isAbsent ? 'absent' : ''} ${hasSub ? 'has-substitute' : ''} ${stripeClass} ${timeStatusClass}`;
 
@@ -426,7 +422,7 @@ function renderSchedule(animDir = '') {
 
         flipInner.appendChild(cardFront);
 
-        // --- RUBOVÁ STRANA KARTY (POUZE PRO AKCE S POZNÁMKOU) ---
+        // RUBOVÁ STRANA KARTY (POUZE PRO AKCE S POZNÁMKOU)
         if (isEvent && hasNotes) {
             const cardBack = document.createElement('div');
             cardBack.className = 'flip-card-back';
@@ -478,7 +474,6 @@ function renderSchedule(animDir = '') {
     });
 }
 
-// Kliknutí mimo otočenou kartu ji plynule otočí zpět a zruší rozostření
 document.addEventListener('click', (e) => {
     if (document.body.classList.contains('is-card-flipped-active')) {
         if (!e.target.closest('.lesson-card-wrapper.flipped')) {
@@ -1057,7 +1052,46 @@ setInterval(() => {
     if (weekOffset === 0) renderSchedule();
 }, 60000);
 
+// --- 11. Správa témat (Světlý / Tmavý režim) ---
+function initTheme() {
+    const btnTheme = document.getElementById('btn-theme');
+    const sunIcon = document.getElementById('icon-theme-sun');
+    const moonIcon = document.getElementById('icon-theme-moon');
+    const themeMeta = document.getElementById('theme-color-meta');
+
+    function applyTheme(theme) {
+        document.documentElement.classList.remove('theme-dark', 'theme-light');
+        document.documentElement.classList.add(theme === 'dark' ? 'theme-dark' : 'theme-light');
+        localStorage.setItem('zus_theme', theme);
+
+        if (theme === 'dark') {
+            if (sunIcon) sunIcon.style.display = 'block';
+            if (moonIcon) moonIcon.style.display = 'none';
+            if (themeMeta) themeMeta.content = '#121212';
+        } else {
+            if (sunIcon) sunIcon.style.display = 'none';
+            if (moonIcon) moonIcon.style.display = 'block';
+            if (themeMeta) themeMeta.content = '#f1f5f9';
+        }
+    }
+
+    // Zjistíme aktuální nastavení
+    const savedTheme = localStorage.getItem('zus_theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    applyTheme(initialTheme);
+
+    if (btnTheme) {
+        btnTheme.onclick = () => {
+            if (navigator.vibrate) navigator.vibrate(30);
+            const isCurrentDark = document.documentElement.classList.contains('theme-dark');
+            applyTheme(isCurrentDark ? 'light' : 'dark');
+        };
+    }
+}
+
 // Inicializace
+initTheme();
 updateWeekStepperUI();
 renderTabs();
 renderSchedule();
