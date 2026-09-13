@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
     <link rel="manifest" href="manifest.json?v=2.2">
-    <link rel="stylesheet" href="style.css?v=4.0">
+    <link rel="stylesheet" href="style.css?v=4.1">
 </head>
 <body>
     <header>
@@ -83,6 +83,24 @@
             <div id="modal-type-switcher" class="type-switcher">
                 <button type="button" id="type-btn-lesson" class="type-btn active">Výuka žáka</button>
                 <button type="button" id="type-btn-event" class="type-btn">Pracovní akce</button>
+            </div>
+
+            <!-- Výběr dne pro běžnou výuku žáka (v rámci týdne) -->
+            <div class="form-group" id="group-day-select">
+                <label for="edit-day">Den v týdnu</label>
+                <select id="edit-day">
+                    <option value="Pondělí">Pondělí</option>
+                    <option value="Úterý">Úterý</option>
+                    <option value="Středa">Středa</option>
+                    <option value="Čtvrtek">Čtvrtek</option>
+                    <option value="Pátek">Pátek</option>
+                </select>
+            </div>
+
+            <!-- Plné datum pro akce (umožňuje přesun do libovolného týdne v roce) -->
+            <div class="form-group" id="group-event-date" style="display: none;">
+                <label for="edit-event-date">Datum akce (lze vybrat libovolný týden/měsíc)</label>
+                <input type="date" id="edit-event-date">
             </div>
 
             <div class="form-row">
@@ -198,7 +216,7 @@
         </div>
     </div>
     
-    <script src="script.js?v=5.5"></script>
+    <script src="script.js?v=5.6"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

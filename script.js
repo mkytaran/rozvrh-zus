@@ -46,7 +46,8 @@ let currentDay = (systemNow.getDay() >= 1 && systemNow.getDay() <= 5) ? dayMap[s
 
 let swapSourceIndex = null;
 let editingIndex = null;
-let editingEventId = null; // Pokud upravujeme jednorázovou akci
+let editingEventId = null; // Pokud upravujeme existující akci
+let editingEventOldIso = null; // Původní ISO týden akce před případným přesunem
 let currentModalMode = 'lesson'; // 'lesson' | 'event'
 let playedChordForTime = null;
 
@@ -75,6 +76,13 @@ function getDateForDay(targetDayName, offsetWeeks = weekOffset) {
     const date = new Date(monday);
     date.setDate(monday.getDate() + (dayIndices[targetDayName] || 0));
     return date;
+}
+
+function formatDateToInput(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
 }
 
 function addMinutes(timeStr, mins) {
@@ -456,6 +464,8 @@ function setModalMode(mode) {
     const labelName = document.getElementById('label-edit-name');
     const privFields = document.getElementById('private-lesson-fields');
     const labelNotes = document.getElementById('label-edit-notes');
+    const groupDaySelect = document.getElementById('group-day-select');
+    const groupEventDate = document.getElementById('group-event-date');
 
     if (mode === 'event') {
         btnEvent.classList.add('active');
@@ -468,6 +478,10 @@ function setModalMode(mode) {
         labelName.textContent = 'Název akce / Porady:';
         privFields.style.display = 'block';
         labelNotes.textContent = 'Podrobnosti / Místo / Program:';
+
+        // U akcí zobrazíme nativní výběr celého data (umožňuje i jiný týden)
+        if (groupDaySelect) groupDaySelect.style.display = 'none';
+        if (groupEventDate) groupEventDate.style.display = 'block';
     } else {
         btnLesson.classList.add('active');
         btnEvent.classList.remove('active');
@@ -479,6 +493,10 @@ function setModalMode(mode) {
         labelName.textContent = 'Jméno žáka / Název hodiny:';
         privFields.style.display = document.getElementById('edit-private').checked ? 'block' : 'none';
         labelNotes.textContent = 'Zápisník a poznámky k výuce:';
+
+        // U výuky žáků stačí přepínání dnů v týdnu
+        if (groupDaySelect) groupDaySelect.style.display = 'block';
+        if (groupEventDate) groupEventDate.style.display = 'none';
     }
 }
 
@@ -533,10 +551,24 @@ function handleCardClick(index) {
     }
 
     const lesson = effectiveLessons[index];
+    const daySelect = document.getElementById('edit-day');
+    if (daySelect) daySelect.value = currentDay;
+
+    // Nastavíme datum pro případnou editaci akce
+    const eventDateInput = document.getElementById('edit-event-date');
+    if (eventDateInput) {
+        const currentSelectedDate = getDateForDay(currentDay, weekOffset);
+        eventDateInput.value = formatDateToInput(currentSelectedDate);
+    }
 
     if (lesson.isEvent) {
         editingIndex = null;
         editingEventId = lesson.id;
+        
+        // Zapamatujeme si aktuální ISO týden, abychom z něj mohli akci smazat, pokud se přesune
+        const activeMonday = getMonday(new Date(), weekOffset);
+        editingEventOldIso = getISOWeekKey(activeMonday);
+
         setModalMode('event');
         document.getElementById('edit-time').value = lesson.time;
         document.getElementById('edit-event-end').value = lesson.endTime || '';
@@ -551,6 +583,7 @@ function handleCardClick(index) {
     } else {
         editingIndex = index;
         editingEventId = null;
+        editingEventOldIso = null;
         setModalMode('lesson');
         document.getElementById('btn-swap').style.display = 'block';
 
@@ -627,11 +660,7 @@ function handleCardClick(index) {
 document.getElementById('btn-cancel').onclick = () => document.getElementById('edit-modal').classList.add('hidden');
 
 document.getElementById('btn-save').onclick = () => {
-    const activeMonday = getMonday(new Date(), weekOffset);
-    const isoKey = getISOWeekKey(activeMonday);
-    if (!weekOverrides[isoKey]) weekOverrides[isoKey] = {};
-
-    // 1. Ukládání pracovní akce (Koncert / Porada)
+    // 1. Ukládání pracovní akce (Koncert / Porada) s možností přesunu na jiné datum v libovolném týdnu
     if (currentModalMode === 'event') {
         const timeVal = document.getElementById('edit-time').value;
         const endVal = document.getElementById('edit-event-end').value || addMinutes(timeVal, 60);
@@ -639,37 +668,61 @@ document.getElementById('btn-save').onclick = () => {
         const kindVal = document.getElementById('event-meeting').checked ? 'meeting' : 'concert';
         const notesVal = document.getElementById('edit-notes').value.trim();
 
-        if (!weekOverrides[isoKey].extraEvents) weekOverrides[isoKey].extraEvents = [];
-
-        if (editingEventId) {
-            // Editace existující akce
-            const evIdx = weekOverrides[isoKey].extraEvents.findIndex(e => e.id === editingEventId);
-            if (evIdx !== -1) {
-                weekOverrides[isoKey].extraEvents[evIdx] = {
-                    id: editingEventId,
-                    day: currentDay,
-                    time: timeVal,
-                    endTime: endVal,
-                    name: nameVal,
-                    isEvent: true,
-                    eventKind: kindVal,
-                    notes: notesVal
-                };
-            }
+        // Vyhodnocení cílového data a jeho ISO týdne
+        const chosenDateStr = document.getElementById('edit-event-date').value;
+        let targetDate;
+        if (chosenDateStr) {
+            const [y, m, d] = chosenDateStr.split('-').map(Number);
+            targetDate = new Date(y, m - 1, d);
         } else {
-            // Vytvoření nové akce
-            weekOverrides[isoKey].extraEvents.push({
-                id: 'ev_' + Date.now(),
-                day: currentDay,
-                time: timeVal,
-                endTime: endVal,
-                name: nameVal,
-                isEvent: true,
-                eventKind: kindVal,
-                notes: notesVal
-            });
+            targetDate = getDateForDay(currentDay, weekOffset);
         }
 
+        const targetDayName = dayMap[targetDate.getDay()];
+        const targetIsoKey = getISOWeekKey(targetDate);
+
+        // Pokud upravujeme stávající akci a její týden se změnil, odstraníme ji z původního týdne
+        if (editingEventId && editingEventOldIso && editingEventOldIso !== targetIsoKey) {
+            if (weekOverrides[editingEventOldIso] && weekOverrides[editingEventOldIso].extraEvents) {
+                weekOverrides[editingEventOldIso].extraEvents = weekOverrides[editingEventOldIso].extraEvents.filter(e => e.id !== editingEventId);
+            }
+        }
+
+        if (!weekOverrides[targetIsoKey]) weekOverrides[targetIsoKey] = {};
+        if (!weekOverrides[targetIsoKey].extraEvents) weekOverrides[targetIsoKey].extraEvents = [];
+
+        const finalEventId = editingEventId || ('ev_' + Date.now());
+        const eventObject = {
+            id: finalEventId,
+            day: targetDayName,
+            time: timeVal,
+            endTime: endVal,
+            name: nameVal,
+            isEvent: true,
+            eventKind: kindVal,
+            notes: notesVal
+        };
+
+        const existingIdx = weekOverrides[targetIsoKey].extraEvents.findIndex(e => e.id === finalEventId);
+        if (existingIdx !== -1) {
+            weekOverrides[targetIsoKey].extraEvents[existingIdx] = eventObject;
+        } else {
+            weekOverrides[targetIsoKey].extraEvents.push(eventObject);
+        }
+
+        // Vypočítáme nový weekOffset cílového data, abychom aplikaci rovnou přepnuli na nové datum
+        const now = new Date();
+        const currMonday = getMonday(now, 0);
+        const targetMonday = getMonday(targetDate, 0);
+        const newOffset = Math.round((targetMonday - currMonday) / (7 * 24 * 60 * 60 * 1000));
+
+        weekOffset = newOffset;
+        if (workDays.includes(targetDayName)) {
+            currentDay = targetDayName;
+        }
+
+        updateWeekStepperUI();
+        renderTabs();
         saveSchedule();
         renderSchedule();
         document.getElementById('edit-modal').classList.add('hidden');
@@ -677,6 +730,12 @@ document.getElementById('btn-save').onclick = () => {
     }
 
     // 2. Ukládání standardní výuky žáka
+    const activeMonday = getMonday(new Date(), weekOffset);
+    const isoKey = getISOWeekKey(activeMonday);
+    if (!weekOverrides[isoKey]) weekOverrides[isoKey] = {};
+
+    const targetDay = document.getElementById('edit-day') ? document.getElementById('edit-day').value : currentDay;
+
     if (editingIndex !== null) {
         const isPriv = document.getElementById('edit-private').checked;
         const newTime = document.getElementById('edit-time').value;
@@ -694,7 +753,19 @@ document.getElementById('btn-save').onclick = () => {
 
         let privateNotePayload = null;
         const masterLessons = masterSchedule[currentDay] || [];
-        if (masterLessons[editingIndex]) {
+
+        if (targetDay !== currentDay && masterLessons[editingIndex]) {
+            const movedLesson = masterLessons.splice(editingIndex, 1)[0];
+            movedLesson.time = newTime;
+            movedLesson.name = newName;
+            movedLesson.isPrivate = isPriv;
+
+            if (!masterSchedule[targetDay]) masterSchedule[targetDay] = [];
+            masterSchedule[targetDay].push(movedLesson);
+
+            currentDay = targetDay;
+            renderTabs();
+        } else if (masterLessons[editingIndex]) {
             masterLessons[editingIndex].time = newTime;
             masterLessons[editingIndex].name = newName;
             masterLessons[editingIndex].isPrivate = isPriv;
@@ -736,7 +807,7 @@ document.getElementById('btn-delete').onclick = () => {
     if (editingEventId) {
         if (confirm('Opravdu chcete tuto akci smazat?')) {
             const activeMonday = getMonday(new Date(), weekOffset);
-            const isoKey = getISOWeekKey(activeMonday);
+            const isoKey = editingEventOldIso || getISOWeekKey(activeMonday);
             if (weekOverrides[isoKey] && weekOverrides[isoKey].extraEvents) {
                 weekOverrides[isoKey].extraEvents = weekOverrides[isoKey].extraEvents.filter(e => e.id !== editingEventId);
                 saveSchedule();
@@ -759,8 +830,12 @@ document.getElementById('btn-delete').onclick = () => {
 document.getElementById('add-lesson-btn').onclick = () => {
     editingIndex = null;
     editingEventId = null;
+    editingEventOldIso = null;
     setModalMode('lesson');
     document.getElementById('btn-swap').style.display = 'none';
+
+    const daySelect = document.getElementById('edit-day');
+    if (daySelect) daySelect.value = currentDay;
 
     const list = masterSchedule[currentDay] || [];
     let defaultTime = "13:00";
@@ -784,8 +859,13 @@ document.getElementById('add-lesson-btn').onclick = () => {
 document.getElementById('add-event-btn').onclick = () => {
     editingIndex = null;
     editingEventId = null;
+    editingEventOldIso = null;
     setModalMode('event');
     document.getElementById('btn-swap').style.display = 'none';
+
+    const currentSelectedDate = getDateForDay(currentDay, weekOffset);
+    const eventDateInput = document.getElementById('edit-event-date');
+    if (eventDateInput) eventDateInput.value = formatDateToInput(currentSelectedDate);
 
     document.getElementById('edit-time').value = "18:00";
     document.getElementById('edit-event-end').value = "19:30";
