@@ -32,12 +32,20 @@
     --gender-girl: #e11d48;
     --gender-boy: #2563eb;
 
+    /* Pracovní akce */
+    --stripe-concert: #be123c;
+    --bg-concert: linear-gradient(90deg, rgba(190, 18, 60, 0.08) 0%, #ffffff 100%);
+    --title-concert: #e11d48;
+    --stripe-meeting: #0f766e;
+    --bg-meeting: linear-gradient(90deg, rgba(15, 118, 110, 0.08) 0%, #ffffff 100%);
+    --title-meeting: #0d9488;
+
     /* Modál a spodní lišta */
     --modal-bg: #ffffff;
     --modal-overlay: rgba(15, 23, 42, 0.6);
     --input-bg: #f8fafc;
     --input-border: #cbd5e1;
-    --bottom-bar-bg: rgba(255, 255, 255, 0.9);
+    --bottom-bar-bg: rgba(255, 255, 255, 0.94);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -50,9 +58,9 @@
         --text-secondary: #94a3b8;
         --tab-bg: #1e2430;
         --tab-text: #94a3b8;
-        --tab-active-bg: #0b1120;          /* Tmavší pozadí aktuálního dne */
+        --tab-active-bg: #0b1120;
         --tab-active-text: #ffffff;
-        --tab-active-date: #60a5fa;         /* Zářivě čitelné datum */
+        --tab-active-date: #60a5fa;
 
         /* Omluvení žáci v tmavém režimu */
         --absent-bg: #14171d;
@@ -69,12 +77,20 @@
         --gender-girl: #fca5a5;
         --gender-boy: #93c5fd;
 
+        /* Pracovní akce */
+        --stripe-concert: #f43f5e;
+        --bg-concert: linear-gradient(90deg, rgba(244, 63, 94, 0.15) 0%, #1a1e26 100%);
+        --title-concert: #fb7185;
+        --stripe-meeting: #14b8a6;
+        --bg-meeting: linear-gradient(90deg, rgba(20, 184, 166, 0.15) 0%, #1a1e26 100%);
+        --title-meeting: #2dd4bf;
+
         /* Modál a spodní lišta */
         --modal-bg: #1c222e;
         --modal-overlay: rgba(0, 0, 0, 0.75);
         --input-bg: #12151c;
         --input-border: #2e384d;
-        --bottom-bar-bg: rgba(18, 18, 18, 0.92);
+        --bottom-bar-bg: rgba(18, 18, 18, 0.94);
     }
 }
 
@@ -330,7 +346,7 @@ main#schedule-container {
 .time-col {
     font-weight: 700;
     font-size: 1.05rem;
-    min-width: 4rem;
+    min-width: 4.2rem;
     line-height: 1.2;
 }
 
@@ -341,7 +357,7 @@ main#schedule-container {
 }
 
 .info-col {
-    margin-left: 0.8rem;
+    margin-left: 0.7rem;
     flex: 1;
 }
 
@@ -366,7 +382,7 @@ main#schedule-container {
 }
 
 /* =========================================================
-   6. SPECIFICKÉ PROUŽKY A HODINY
+   6. SPECIFICKÉ PROUŽKY A PRACOVNÍ AKCE
    ========================================================= */
 
 .lesson-card.ensemble-gold {
@@ -398,6 +414,41 @@ main#schedule-container {
     color: var(--text-primary);
     white-space: pre-wrap;
     line-height: 1.3;
+}
+
+/* Pracovní akce: Koncerty */
+.lesson-card.event-concert {
+    border-left-color: var(--stripe-concert) !important;
+    background: var(--bg-concert) !important;
+}
+.event-title-concert {
+    color: var(--title-concert) !important;
+}
+
+/* Pracovní akce: Porady */
+.lesson-card.event-meeting {
+    border-left-color: var(--stripe-meeting) !important;
+    background: var(--bg-meeting) !important;
+}
+.event-title-meeting {
+    color: var(--title-meeting) !important;
+}
+
+.event-chip {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-right: 0.4rem;
+}
+.event-chip.concert {
+    background: rgba(244, 63, 94, 0.2);
+    color: var(--title-concert);
+}
+.event-chip.meeting {
+    background: rgba(20, 184, 166, 0.2);
+    color: var(--title-meeting);
 }
 
 /* =========================================================
@@ -525,7 +576,7 @@ main#schedule-container {
     border-top: 1px solid var(--border-card);
     display: flex;
     padding: 0.6rem 0.8rem;
-    gap: 0.6rem;
+    gap: 0.5rem;
     z-index: 100;
 }
 
@@ -534,10 +585,10 @@ main#schedule-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.4rem;
-    padding: 0.75rem;
+    gap: 0.35rem;
+    padding: 0.7rem 0.3rem;
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     background: var(--bg-card);
@@ -577,16 +628,38 @@ main#schedule-container {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
-.modal h3 {
+.type-switcher {
+    display: flex;
+    gap: 0.5rem;
     margin-bottom: 1rem;
-    font-size: 1.2rem;
+    background: var(--tab-bg);
+    padding: 0.25rem;
+    border-radius: 8px;
+}
+
+.type-btn {
+    flex: 1;
+    padding: 0.45rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+}
+
+.type-btn.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .form-group {
     margin-bottom: 0.8rem;
 }
 
-.form-group label {
+.form-group label, .form-sublabel {
     display: block;
     font-size: 0.85rem;
     font-weight: 600;
@@ -614,6 +687,61 @@ main#schedule-container {
 
 .form-row .form-group {
     flex: 1;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.6rem 0;
+    cursor: pointer;
+}
+
+.checkbox-row input {
+    width: 1.15rem;
+    height: 1.15rem;
+    cursor: pointer;
+}
+
+.label-private { color: #60a5fa; font-weight: 600; font-size: 0.9rem; }
+.label-ensemble { color: #ffd166; font-weight: 600; font-size: 0.9rem; }
+
+.ensemble-tier-box, .event-tier-box, .substitute-box {
+    background: var(--tab-bg);
+    border: 1px solid var(--border-card);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin: 0.7rem 0;
+}
+
+.radio-row {
+    display: flex;
+    gap: 1.2rem;
+}
+
+.radio-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.radio-tag.younger { color: #c084fc; }
+.radio-tag.older { color: #ffd166; }
+.radio-tag.event-concert-tag { color: var(--title-concert); }
+.radio-tag.event-meeting-tag { color: var(--title-meeting); }
+
+.btn-clear-sub {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
 }
 
 .modal-actions {

@@ -6,18 +6,18 @@
     <title>Rozvrh ZUŠ Kytara 2026</title>
     <meta name="theme-color" content="#121212" id="theme-color-meta">
 
-    <!-- iOS Safari meta tagy -->
+    <!-- iOS Safari PWA meta tagy -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Rozvrh">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-    <link rel="manifest" href="manifest.json?v=2.1">
-    <link rel="stylesheet" href="style.css?v=3.5">
+    <link rel="manifest" href="manifest.json?v=2.2">
+    <link rel="stylesheet" href="style.css?v=4.0">
 </head>
 <body>
     <header>
-        <!-- Horní lišta: Název, Dnes a synchronizace -->
+        <!-- Horní lišta: Titulek, tlačítko Dnes a synchronizace -->
         <div class="header-top">
             <h1>Můj rozvrh 2026</h1>
             <div class="header-actions">
@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <!-- Týdenní navigátor: šipky + klikací název otevírající kalendář -->
+        <!-- Týdenní navigátor (Stepper + kalendář) -->
         <div class="week-stepper-container">
             <button id="week-prev" class="btn-nav" aria-label="Předchozí týden">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -44,18 +44,18 @@
                     <span id="week-label-title">Tento týden</span>
                     <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </div>
-                <div id="week-range-subtitle" class="week-range">14. 9. – 18. 9. 2026</div>
+                <div id="week-range-subtitle" class="week-range">--. --. – --. --. 2026</div>
             </div>
 
             <button id="week-next" class="btn-nav" aria-label="Následující týden">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
 
-            <!-- Skrytý kalendář pro rychlý skok na libovolné datum -->
+            <!-- Skrytý kalendář pro přímý skok na datum -->
             <input type="date" id="native-date-picker" class="visually-hidden" tabindex="-1" aria-hidden="true">
         </div>
 
-        <!-- Dny v týdnu (datum se doplňuje dynamicky) -->
+        <!-- Tlačítka dnů -->
         <nav class="day-selector" aria-label="Výběr dne v týdnu">
             <button data-day="Pondělí"><span class="tab-day-name">Po</span><span class="tab-day-date">-</span></button>
             <button data-day="Úterý"><span class="tab-day-name">Út</span><span class="tab-day-date">-</span></button>
@@ -66,53 +66,75 @@
     </header>
     
     <main id="schedule-container" role="region" aria-live="polite">
-        <!-- Hodiny se generují zde -->
+        <!-- Kartičky se generují dynamicky -->
     </main>
     
+    <!-- Spodní lišta se 3 akcemi -->
     <div class="bottom-bar">
-        <button id="add-lesson-btn">
-            <span class="icon">➕</span> Hodina
-        </button>
-        <button id="add-break-btn">
-            <span class="icon">☕</span> Přestávka
-        </button>
+        <button id="add-lesson-btn"><span class="icon">➕</span> Hodina</button>
+        <button id="add-event-btn"><span class="icon">📅</span> Akce / Porada</button>
+        <button id="add-break-btn"><span class="icon">☕</span> Přestávka</button>
     </div>
 
-    <!-- Modální okno úprav -->
+    <!-- Modální okno úprav a zadávání -->
     <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
         <div class="modal">
-            <h3>Úprava hodiny</h3>
-            
-            <div class="form-group">
-                <label for="edit-time">Čas začátku</label>
-                <input type="time" id="edit-time">
+            <!-- Přepínač: Výuka žáka vs Pracovní akce -->
+            <div id="modal-type-switcher" class="type-switcher">
+                <button type="button" id="type-btn-lesson" class="type-btn active">Výuka žáka</button>
+                <button type="button" id="type-btn-event" class="type-btn">Pracovní akce</button>
             </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="edit-time">Začátek</label>
+                    <input type="time" id="edit-time">
+                </div>
+                <div class="form-group" id="group-end-time" style="display: none;">
+                    <label for="edit-event-end">Konec akce</label>
+                    <input type="time" id="edit-event-end">
+                </div>
+            </div>
+
             <div class="form-group">
-                <label for="edit-name">Jméno žáka / Název hodiny</label>
+                <label for="edit-name" id="label-edit-name">Jméno žáka / Název hodiny</label>
                 <input type="text" id="edit-name">
             </div>
 
+            <!-- Pole specifická pro akce (Koncert vs Porada) -->
+            <div id="event-specific-fields" class="event-tier-box" style="display: none;">
+                <label class="form-sublabel">Druh pracovní události:</label>
+                <div class="radio-row">
+                    <label class="radio-tag event-concert-tag">
+                        <input type="radio" name="event-kind" value="concert" id="event-concert" checked>
+                        🎻 Koncert / Vystoupení
+                    </label>
+                    <label class="radio-tag event-meeting-tag">
+                        <input type="radio" name="event-kind" value="meeting" id="event-meeting">
+                        📋 Porada / Školení
+                    </label>
+                </div>
+            </div>
+
             <!-- Výběr skupiny pro Kytarový soubor -->
-            <div id="ensemble-group-selector" style="display: none; margin: 0.6rem 0; padding: 0.6rem; background: var(--tab-bg, #1a1e29); border-radius: 6px; border: 1px solid var(--border-card, #2a354d);">
-                <label style="font-size: 0.85rem; color: var(--text-secondary, #94a3b8); font-weight: bold; display: block; margin-bottom: 0.4rem;">Skupina souboru:</label>
-                <div style="display: flex; gap: 1rem;">
-                    <label style="display: flex; align-items: center; gap: 0.4rem; color: #c084fc; cursor: pointer; font-size: 0.9rem; font-weight: bold;">
-                        <input type="radio" name="ensemble-tier" value="younger" id="ensemble-younger" style="accent-color: #c084fc;">
+            <div id="ensemble-group-selector" class="ensemble-tier-box" style="display: none;">
+                <label class="form-sublabel">Skupina souboru:</label>
+                <div class="radio-row">
+                    <label class="radio-tag younger">
+                        <input type="radio" name="ensemble-tier" value="younger" id="ensemble-younger">
                         Mladší
                     </label>
-                    <label style="display: flex; align-items: center; gap: 0.4rem; color: #ffd166; cursor: pointer; font-size: 0.9rem; font-weight: bold;">
-                        <input type="radio" name="ensemble-tier" value="older" id="ensemble-older" style="accent-color: #ffd166;">
+                    <label class="radio-tag older">
+                        <input type="radio" name="ensemble-tier" value="older" id="ensemble-older">
                         Starší
                     </label>
                 </div>
             </div>
 
             <!-- Přepínač pro soukromou hodinu -->
-            <div style="margin: 0.4rem 0 0.8rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                <input type="checkbox" id="edit-private" style="width: 1.1rem; height: 1.1rem; accent-color: #3b82f6; cursor: pointer;">
-                <label for="edit-private" style="cursor: pointer; font-size: 0.88rem; color: #60a5fa; font-weight: bold;">
-                    🔒 Soukromá hodina (mimo systém)
-                </label>
+            <div class="checkbox-row" id="row-private-toggle">
+                <input type="checkbox" id="edit-private">
+                <label for="edit-private" class="label-private">🔒 Soukromá hodina (mimo systém)</label>
             </div>
 
             <!-- Standardní pole ZUŠ -->
@@ -122,56 +144,49 @@
                         <label for="edit-rocnik">Ročník</label>
                         <input type="text" id="edit-rocnik" placeholder="např. 2, 2. př, 5">
                     </div>
-                    
                     <div class="form-group" id="group-hn">
                         <label for="edit-hn">HN</label>
                         <input type="text" id="edit-hn" placeholder="např. Po 14:30">
                     </div>
                 </div>
 
-                <div style="margin: 0.5rem 0 0.8rem 0;">
-                    <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; color: #ffd166; font-size: 0.88rem; font-weight: 600;">
-                        <input type="checkbox" id="edit-ensemble" style="width: 1.15rem; height: 1.15rem; accent-color: #ffd166; cursor: pointer;">
-                        🎸 Kytarový soubor
-                    </label>
+                <div class="checkbox-row">
+                    <input type="checkbox" id="edit-ensemble">
+                    <label for="edit-ensemble" class="label-ensemble">🎸 Kytarový soubor</label>
                 </div>
             </div>
 
-            <!-- Pole pro Soukromou hodinu -->
-            <div id="private-lesson-fields" style="display: none; margin: 0.6rem 0;">
-                <label for="edit-notes" style="font-size: 0.85rem; color: #60a5fa; font-weight: bold;">Zápisník a poznámky k výuce:</label>
-                <textarea id="edit-notes" rows="4" placeholder="Co probíráme, skladby, technika, úkoly, kontakt..." style="width: 100%; padding: 0.6rem; background: var(--input-bg, #181d28); color: var(--text-primary, #e2e8f0); border: 1px solid var(--input-border, #2d3d5a); border-radius: 6px; box-sizing: border-box; font-family: inherit; resize: vertical;"></textarea>
+            <!-- Zápisník a poznámky (pro soukromé hodiny i akce) -->
+            <div id="private-lesson-fields" style="display: none;">
+                <label for="edit-notes" id="label-edit-notes" class="form-sublabel">Zápisník a poznámky k výuce:</label>
+                <textarea id="edit-notes" rows="4" placeholder="Skladby, technika, program, kontakt..."></textarea>
             </div>
 
-            <!-- Omluvenka s datem -->
-            <div style="margin: 0.8rem 0;">
-                <div style="display: flex; align-items: center; gap: 0.6rem;">
-                    <input type="checkbox" id="edit-absent" style="width: 1.2rem; height: 1.2rem; cursor: pointer;">
-                    <label for="edit-absent" style="cursor: pointer; font-weight: bold;">Omluven / nepřijde</label>
+            <!-- Sekce omluvenky s termínem -->
+            <div class="absence-section" id="row-absent-section">
+                <div class="checkbox-row">
+                    <input type="checkbox" id="edit-absent">
+                    <label for="edit-absent"><strong>Omluven / nepřijde v tomto týdnu</strong></label>
                 </div>
-                <div id="absent-date-container" style="display: none; margin-top: 0.5rem; margin-left: 1.8rem;">
-                    <label for="edit-absent-date" style="font-size: 0.8rem; color: var(--text-secondary, #aaa); display: block; margin-bottom: 0.2rem;">
-                        Datum nebo rozsah (např. 15.9. nebo 10.9. - 24.9.):
-                    </label>
-                    <input type="text" id="edit-absent-date" placeholder="např. 15.9. nebo 10.9. - 24.9." 
-                           style="width: 100%; padding: 0.45rem; background: var(--input-bg, #121212); color: var(--text-primary, #fff); border: 1px solid var(--input-border, #444); border-radius: 6px; box-sizing: border-box; font-size: 0.85rem;">
+                <div id="absent-date-container" style="display: none; margin-top: 0.4rem;">
+                    <label for="edit-absent-date" class="form-sublabel">Datum nebo rozsah (např. 15.9. nebo 10.9. - 24.9.):</label>
+                    <input type="text" id="edit-absent-date" placeholder="např. 15.9.">
                 </div>
             </div>
 
-            <!-- Záskok -->
-            <div id="substitute-section" style="margin: 0.8rem 0; padding: 0.8rem; background: var(--tab-bg, #1f242b); border-radius: 8px; border: 1px dashed var(--border-card, #3a4550);">
-                <div style="font-weight: bold; margin-bottom: 0.5rem; color: #78a9ff; font-size: 0.9rem;">
-                    ➕ Záskok na tuto hodinu
-                </div>
-                <label for="substitute-select" style="font-size: 0.8rem; color: var(--text-secondary, #888);">Vybrat ze stálých žáků:</label>
-                <select id="substitute-select" style="width: 100%; padding: 0.5rem; margin-bottom: 0.6rem; background: var(--input-bg, #121212); color: var(--text-primary, white); border: 1px solid var(--input-border, #333); border-radius: 6px;"></select>
+            <!-- Sekce záskoku -->
+            <div id="substitute-section" class="substitute-box" style="display: none;">
+                <div class="substitute-box-title">➕ Záskok na tuto hodinu</div>
+                <label for="substitute-select" class="form-sublabel">Vybrat ze stálých žáků:</label>
+                <select id="substitute-select"></select>
 
-                <label for="substitute-custom" style="font-size: 0.8rem; color: var(--text-secondary, #888);">Nebo zadejte jiné jméno / činnost:</label>
-                <input type="text" id="substitute-custom" placeholder="např. Příležitostný žák, Cvičení..." style="width: 100%; padding: 0.5rem; margin-bottom: 0.6rem; background: var(--input-bg, #121212); color: var(--text-primary, white); border: 1px solid var(--input-border, #333); border-radius: 6px; box-sizing: border-box;">
+                <label for="substitute-custom" class="form-sublabel">Nebo zadejte jiné jméno / činnost:</label>
+                <input type="text" id="substitute-custom" placeholder="např. Příležitostný žák, Cvičení...">
 
-                <button type="button" id="btn-clear-sub" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.8rem; cursor: pointer;">Zrušit záskok</button>
+                <button type="button" id="btn-clear-sub" class="btn-clear-sub">Zrušit záskok</button>
             </div>
 
+            <!-- Akční tlačítka -->
             <div class="modal-actions">
                 <button id="btn-save" class="btn-primary">Uložit</button>
                 <button id="btn-cancel" class="btn-secondary">Zrušit</button>
@@ -183,11 +198,11 @@
         </div>
     </div>
     
-    <script src="script.js?v=5.0"></script>
+    <script src="script.js?v=5.5"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=2.1');
+                navigator.serviceWorker.register('./sw.js?v=2.2');
             });
         }
     </script>
