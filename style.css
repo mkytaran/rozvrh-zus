@@ -23,7 +23,7 @@ html.theme-light {
     --absent-stripe: #a8a29e;
     --absent-text: #a8a29e;
 
-    /* Žáci bez souboru proužek NEMAJÍ - transparent */
+    /* Žáci bez souboru proužek NEMAJÍ */
     --stripe-default: transparent;
     --stripe-private: #2563eb;
     --private-bg: #eff6ff;
@@ -32,7 +32,7 @@ html.theme-light {
     --gender-girl: #be123c;
     --gender-boy: #1d4ed8;
 
-    /* Pracovní události - zřetelný odlišný vizuál */
+    /* Pracovní události */
     --stripe-concert: #be123c;
     --bg-concert: #fff1f2;
     --border-concert: #fecdd3;
@@ -42,6 +42,11 @@ html.theme-light {
     --bg-meeting: #f0fdfa;
     --border-meeting: #99f6e4;
     --title-meeting: #0f766e;
+
+    /* Stav výměny */
+    --swap-pending-bg: #fffbeb;
+    --swap-pending-border: #fde68a;
+    --swap-pending-text: #b45309;
 
     --modal-bg: #faf8f5;
     --modal-overlay: rgba(28, 25, 23, 0.55);
@@ -88,6 +93,10 @@ html.theme-light {
         --border-meeting: rgba(20, 184, 166, 0.35);
         --title-meeting: #2dd4bf;
 
+        --swap-pending-bg: rgba(245, 158, 11, 0.15);
+        --swap-pending-border: rgba(245, 158, 11, 0.35);
+        --swap-pending-text: #fbbf24;
+
         --modal-bg: #1c222e;
         --modal-overlay: rgba(0, 0, 0, 0.75);
         --input-bg: #12151c;
@@ -132,6 +141,10 @@ html.theme-dark {
     --bg-meeting: rgba(15, 118, 110, 0.16) !important;
     --border-meeting: rgba(20, 184, 166, 0.35) !important;
     --title-meeting: #2dd4bf !important;
+
+    --swap-pending-bg: rgba(245, 158, 11, 0.15) !important;
+    --swap-pending-border: rgba(245, 158, 11, 0.35) !important;
+    --swap-pending-text: #fbbf24 !important;
 
     --modal-bg: #1c222e !important;
     --modal-overlay: rgba(0, 0, 0, 0.75) !important;
@@ -479,6 +492,17 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
 }
 
+.lesson-card-wrapper.has-note .flip-corner-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    z-index: 10;
+    cursor: pointer;
+    background: transparent;
+}
+
 .lesson-card-wrapper.has-note .flip-card-front::after {
     content: '';
     position: absolute;
@@ -503,7 +527,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 }
 
 .lesson-card-wrapper.has-note:hover .flip-card-front::after,
-.lesson-card-wrapper.has-note:active .flip-card-front::after {
+.lesson-card-wrapper.has-note .flip-corner-btn:hover ~ .flip-card-front::after {
     transform: scale(1.12);
     filter: brightness(1.1);
 }
@@ -563,14 +587,15 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 .btn-card-edit-mini {
     background: transparent;
     border: none;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    font-weight: 600;
     cursor: pointer;
-    padding: 0.2rem;
-    color: var(--text-secondary);
+    padding: 0.2rem 0.4rem;
+    color: #2563eb;
     border-radius: 4px;
 }
 .btn-card-edit-mini:hover {
-    color: var(--text-primary);
+    text-decoration: underline;
 }
 
 .note-history-chips {
@@ -622,13 +647,13 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 }
 
 /* =========================================================
-   LÍCOVÁ STRANA KARTY (HODINA VS UDÁLOST)
+   LÍCOVÁ STRANA KARTY (HODINA, UDÁLOST, VÝMĚNA)
    ========================================================= */
 
 .lesson-card {
     background: var(--bg-card);
     border: 1px solid var(--border-card);
-    border-left: 0; /* Žáci bez souboru nemají žádný barevný proužek */
+    border-left: 0;
     border-radius: 10px;
     padding: 0.75rem 0.85rem;
     display: flex;
@@ -644,13 +669,31 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 }
 
 .lesson-card.swap-mode {
-    outline: 2px dashed #f59e0b;
+    outline: 2.5px dashed #f59e0b;
     animation: pulseBorder 1.2s infinite;
 }
 
 @keyframes pulseBorder {
     0%, 100% { outline-color: #f59e0b; }
     50% { outline-color: transparent; }
+}
+
+/* KARTA VE STAVU VÝMĚNY (ČEKÁ NA SCHVÁLENÍ) */
+.lesson-card.swap-pending {
+    background: var(--swap-pending-bg) !important;
+    border: 1.5px dashed var(--swap-pending-border) !important;
+}
+
+.swap-badge {
+    display: inline-block;
+    background: rgba(245, 158, 11, 0.18);
+    color: var(--swap-pending-text);
+    border: 1px solid var(--swap-pending-border);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    margin-top: 0.25rem;
 }
 
 .time-col {
@@ -711,7 +754,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     background: var(--private-bg) !important;
 }
 
-/* VÝRAZNĚ ODLIŠENÉ KARTY AKCÍ */
+/* Karty akcí */
 .lesson-card.event-concert {
     border: 1.5px solid var(--border-concert) !important;
     border-left: 6px solid var(--stripe-concert) !important;
@@ -916,6 +959,65 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     box-sizing: border-box;
 }
 
+/* Schvalovací banner v modálu se dvěma akčními tlačítky */
+.swap-approval-banner {
+    background: var(--swap-pending-bg);
+    border: 1.5px solid var(--swap-pending-border);
+    border-radius: 8px;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.swap-approval-title {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--swap-pending-text);
+    line-height: 1.35;
+}
+
+.swap-approval-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+}
+
+.btn-approve-swap {
+    flex: 1;
+    background: #16a34a;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.55rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.btn-approve-swap:active {
+    background: #15803d;
+}
+
+.btn-cancel-swap {
+    flex: 1;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    padding: 0.55rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.btn-cancel-swap:active {
+    background: rgba(239, 68, 68, 0.25);
+}
+
 .type-switcher {
     display: flex;
     gap: 0.5rem;
@@ -1028,7 +1130,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     box-sizing: border-box;
 }
 
-/* Čistý, prostorný box pro záskok */
 .substitute-box {
     background: var(--tab-bg);
     border: 1.5px solid var(--border-card);

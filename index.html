@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Michal – Rozvrh 2026/27</title>
     
-    <!-- Meta tagy pro systémovou stavovou lištu -->
-    <meta name="theme-color" content="#1a1e26" id="theme-color-meta">
+    <!-- Systémové lišty pro Android i iOS -->
+    <meta name="theme-color" content="#faf8f5" media="(prefers-color-scheme: light)" id="theme-color-light">
+    <meta name="theme-color" content="#1a1e26" media="(prefers-color-scheme: dark)" id="theme-color-dark">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" id="apple-status-bar-meta">
     <meta name="apple-mobile-web-app-title" content="Rozvrh">
@@ -19,13 +21,15 @@
             const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
             document.documentElement.classList.add(theme === 'dark' ? 'theme-dark' : 'theme-light');
             
-            const meta = document.getElementById('theme-color-meta');
+            const metaLight = document.getElementById('theme-color-light');
+            const metaDark = document.getElementById('theme-color-dark');
             const appleMeta = document.getElementById('apple-status-bar-meta');
+
             if (theme === 'dark') {
-                if (meta) meta.content = '#1a1e26';
+                if (metaDark) metaDark.content = '#1a1e26';
                 if (appleMeta) appleMeta.content = 'black-translucent';
             } else {
-                if (meta) meta.content = '#faf8f5';
+                if (metaLight) metaLight.content = '#faf8f5';
                 if (appleMeta) appleMeta.content = 'default';
             }
         })();
@@ -224,7 +228,6 @@
                 </div>
             </div>
 
-            <!-- Vylepšená a přehledná sekce Záskoku -->
             <div id="substitute-section" class="substitute-box" style="display: none;">
                 <div class="substitute-box-title">Záskok na tuto hodinu</div>
                 
@@ -259,12 +262,10 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then((reg) => {
-                    // Pokaždé když aplikaci otevřeš, zkontroluje zda není na GitHubu nový sw.js
                     reg.update();
                 });
             });
 
-            // Když se Service Worker zaktualizuje, tiše zajistí soulad
             let refreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (!refreshing) {
