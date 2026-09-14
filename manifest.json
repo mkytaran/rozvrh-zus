@@ -1,14 +1,13 @@
 {
   "id": "./",
-  "name": "Rozvrh ZUŠ Kytara 2026",
+  "name": "Michal – Rozvrh 2026/27",
   "short_name": "Rozvrh",
   "description": "Rozvrh hodin a deníček výuky kytary",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#121212",
-  "theme_color": "#121212",
+  "background_color": "#1a1e26",
   "icons": [
     {
       "src": "icon-192.png",

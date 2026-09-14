@@ -1337,22 +1337,29 @@ setInterval(() => {
     if (weekOffset === 0) renderSchedule();
 }, 60000);
 
-// --- 12. Správa motivu a spolehlivé přebarvení systémové stavové lišty ---
+// --- 12. Třístavová správa motivu (Auto / Světlý / Tmavý) ---
 function initTheme() {
     const btnTheme = document.getElementById('btn-theme');
     const sunIcon = document.getElementById('icon-theme-sun');
     const moonIcon = document.getElementById('icon-theme-moon');
+    const autoIcon = document.getElementById('icon-theme-auto');
 
-    function updateSystemStatusBar(theme) {
-        const isDark = (theme === 'dark');
+    // Mód může být: 'auto' | 'light' | 'dark'
+    let currentMode = localStorage.getItem('zus_theme_mode') || 'auto';
+
+    function getSystemDark() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+
+    function updateStatusBar(isDark) {
         const targetColor = isDark ? '#1a1e26' : '#faf8f5';
 
-        // Odstraníme všechny existující meta tagy theme-color a vložíme čerstvý element
+        // Čistá výměna tagu pro okamžitou odezvu Androidu
         document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
-        const newMeta = document.createElement('meta');
-        newMeta.name = 'theme-color';
-        newMeta.content = targetColor;
-        document.head.appendChild(newMeta);
+        const meta = document.createElement('meta');
+        meta.name = 'theme-color';
+        meta.content = targetColor;
+        document.head.appendChild(meta);
 
         const appleMeta = document.getElementById('apple-status-bar-meta');
         if (appleMeta) {
@@ -1360,39 +1367,50 @@ function initTheme() {
         }
     }
 
-    function applyTheme(theme) {
-        const root = document.documentElement;
-        if (theme === 'dark') {
-            root.classList.remove('theme-light');
-            root.classList.add('theme-dark');
-            if (sunIcon) sunIcon.style.display = 'block';
-            if (moonIcon) moonIcon.style.display = 'none';
-        } else {
-            root.classList.remove('theme-dark');
-            root.classList.add('theme-light');
-            if (sunIcon) sunIcon.style.display = 'none';
-            if (moonIcon) moonIcon.style.display = 'block';
+    function renderTheme() {
+        const systemDark = getSystemDark();
+        const effectiveDark = (currentMode === 'auto') ? systemDark : (currentMode === 'dark');
+
+        document.documentElement.classList.remove('theme-dark', 'theme-light');
+        document.documentElement.classList.add(effectiveDark ? 'theme-dark' : 'theme-light');
+
+        // Nastavení ikony tlačítka podle zvoleného módu
+        if (sunIcon) sunIcon.style.display = (currentMode === 'light') ? 'block' : 'none';
+        if (moonIcon) moonIcon.style.display = (currentMode === 'dark') ? 'block' : 'none';
+        if (autoIcon) autoIcon.style.display = (currentMode === 'auto') ? 'block' : 'none';
+
+        if (btnTheme) {
+            btnTheme.title = `Motiv: ${currentMode === 'auto' ? 'Auto (podle telefonu)' : (currentMode === 'light' ? 'Světlý' : 'Tmavý')}`;
         }
 
-        updateSystemStatusBar(theme);
-        localStorage.setItem('zus_theme', theme);
+        updateStatusBar(effectiveDark);
     }
 
-    let currentTheme = localStorage.getItem('zus_theme');
-    if (!currentTheme) {
-        const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        currentTheme = systemPrefersDark ? 'dark' : 'light';
+    // Živý posluchač: pokud má uživatel 'auto' a telefon se večer přepne do tmy, rozvrh se ihned adaptuje
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (currentMode === 'auto') {
+                renderTheme();
+            }
+        });
     }
-    applyTheme(currentTheme);
 
+    // Cyklení režimů po klepnutí: auto -> light -> dark -> auto
     if (btnTheme) {
         btnTheme.onclick = (e) => {
             e.preventDefault();
             if (navigator.vibrate) navigator.vibrate(30);
-            const isDark = document.documentElement.classList.contains('theme-dark');
-            applyTheme(isDark ? 'light' : 'dark');
+
+            if (currentMode === 'auto') currentMode = 'light';
+            else if (currentMode === 'light') currentMode = 'dark';
+            else currentMode = 'auto';
+
+            localStorage.setItem('zus_theme_mode', currentMode);
+            renderTheme();
         };
     }
+
+    renderTheme();
 }
 
 // Start

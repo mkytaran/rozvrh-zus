@@ -5,33 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Michal – Rozvrh 2026/27</title>
     
-    <!-- Systémové lišty pro Android i iOS -->
-    <meta name="theme-color" content="#faf8f5" media="(prefers-color-scheme: light)" id="theme-color-light">
-    <meta name="theme-color" content="#1a1e26" media="(prefers-color-scheme: dark)" id="theme-color-dark">
-    
+    <!-- Dynamický status bar bez blokace manifestem -->
+    <meta name="theme-color" content="#1a1e26" id="theme-color-meta">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" id="apple-status-bar-meta">
     <meta name="apple-mobile-web-app-title" content="Rozvrh">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
+    <!-- Zamezení probliknutí před vykreslením -->
     <script>
         (function() {
-            const savedTheme = localStorage.getItem('zus_theme');
+            const savedTheme = localStorage.getItem('zus_theme_mode') || 'auto';
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-            document.documentElement.classList.add(theme === 'dark' ? 'theme-dark' : 'theme-light');
             
-            const metaLight = document.getElementById('theme-color-light');
-            const metaDark = document.getElementById('theme-color-dark');
-            const appleMeta = document.getElementById('apple-status-bar-meta');
+            let isDark = systemPrefersDark;
+            if (savedTheme === 'dark') isDark = true;
+            if (savedTheme === 'light') isDark = false;
 
-            if (theme === 'dark') {
-                if (metaDark) metaDark.content = '#1a1e26';
-                if (appleMeta) appleMeta.content = 'black-translucent';
-            } else {
-                if (metaLight) metaLight.content = '#faf8f5';
-                if (appleMeta) appleMeta.content = 'default';
-            }
+            document.documentElement.classList.add(isDark ? 'theme-dark' : 'theme-light');
+            
+            const meta = document.getElementById('theme-color-meta');
+            if (meta) meta.content = isDark ? '#1a1e26' : '#faf8f5';
         })();
     </script>
 
@@ -41,12 +35,14 @@
 <body>
     <header>
         <div class="header-top">
-            <h1>Michal – Rozvrh 2026/27</h1> 
+            <h1>Michal – Rozvrh 2026/27</h1>
             <div class="header-actions">
                 <button id="btn-today" class="btn-chip hidden" aria-label="Přejít na dnešek">Dnes</button>
                 
-                <button id="btn-theme" class="btn-icon" aria-label="Přepnout motiv" title="Přepnout světlý / tmavý režim">
-                    <svg id="icon-theme-sun" class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Třístavový přepínač motivu -->
+                <button id="btn-theme" class="btn-icon" aria-label="Přepnout motiv" title="Režim motivu (Auto / Světlý / Tmavý)">
+                    <!-- Ikona Slunce (Světlý) -->
+                    <svg id="icon-theme-sun" class="theme-icon" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"></circle>
                         <line x1="12" y1="1" x2="12" y2="3"></line>
                         <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -57,8 +53,15 @@
                         <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
                         <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                     </svg>
-                    <svg id="icon-theme-moon" class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                    <!-- Ikona Měsíce (Tmavý) -->
+                    <svg id="icon-theme-moon" class="theme-icon" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <!-- Ikona Displeje (Auto - podle telefonu) -->
+                    <svg id="icon-theme-auto" class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
                     </svg>
                 </button>
             </div>
