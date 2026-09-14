@@ -54,7 +54,7 @@ const dayMap = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Páte
 const systemNow = new Date();
 let currentDay = (systemNow.getDay() >= 1 && systemNow.getDay() <= 5) ? dayMap[systemNow.getDay()] : 'Pondělí';
 
-let swapSourceStudent = null;
+let swapSourceStudent = null; // Uchovává { day, originalIndex, slotKey, name, time }
 let editingIndex = null;
 let editingEventId = null;
 let editingEventOldIso = null;
@@ -233,7 +233,7 @@ function getEffectiveDayLessons(dayName) {
     return lessons.sort((a, b) => a.time.localeCompare(b.time));
 }
 
-// --- 7. Záložky dnů ---
+// --- 7. Záložky dnů a tečky ---
 function updateWeekStepperUI() {
     const monday = getMonday(new Date(), weekOffset);
     const friday = new Date(monday);
@@ -1134,6 +1134,7 @@ document.getElementById('btn-save').onclick = () => {
     document.getElementById('edit-modal').classList.add('hidden');
 };
 
+// Spuštění výměny žáka
 document.getElementById('btn-swap').onclick = () => {
     const effectiveLessons = getEffectiveDayLessons(currentDay);
     const lessonObj = effectiveLessons.find(l => !l.isEvent && l.originalIndex === editingIndex);
@@ -1337,84 +1338,7 @@ setInterval(() => {
     if (weekOffset === 0) renderSchedule();
 }, 60000);
 
-// --- 12. Třístavová správa motivu (Auto / Světlý / Tmavý) ---
-function initTheme() {
-    const btnTheme = document.getElementById('btn-theme');
-    const sunIcon = document.getElementById('icon-theme-sun');
-    const moonIcon = document.getElementById('icon-theme-moon');
-    const autoIcon = document.getElementById('icon-theme-auto');
-
-    // Mód může být: 'auto' | 'light' | 'dark'
-    let currentMode = localStorage.getItem('zus_theme_mode') || 'auto';
-
-    function getSystemDark() {
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-
-    function updateStatusBar(isDark) {
-        const targetColor = isDark ? '#1a1e26' : '#faf8f5';
-
-        // Čistá výměna tagu pro okamžitou odezvu Androidu
-        document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
-        const meta = document.createElement('meta');
-        meta.name = 'theme-color';
-        meta.content = targetColor;
-        document.head.appendChild(meta);
-
-        const appleMeta = document.getElementById('apple-status-bar-meta');
-        if (appleMeta) {
-            appleMeta.content = isDark ? 'black-translucent' : 'default';
-        }
-    }
-
-    function renderTheme() {
-        const systemDark = getSystemDark();
-        const effectiveDark = (currentMode === 'auto') ? systemDark : (currentMode === 'dark');
-
-        document.documentElement.classList.remove('theme-dark', 'theme-light');
-        document.documentElement.classList.add(effectiveDark ? 'theme-dark' : 'theme-light');
-
-        // Nastavení ikony tlačítka podle zvoleného módu
-        if (sunIcon) sunIcon.style.display = (currentMode === 'light') ? 'block' : 'none';
-        if (moonIcon) moonIcon.style.display = (currentMode === 'dark') ? 'block' : 'none';
-        if (autoIcon) autoIcon.style.display = (currentMode === 'auto') ? 'block' : 'none';
-
-        if (btnTheme) {
-            btnTheme.title = `Motiv: ${currentMode === 'auto' ? 'Auto (podle telefonu)' : (currentMode === 'light' ? 'Světlý' : 'Tmavý')}`;
-        }
-
-        updateStatusBar(effectiveDark);
-    }
-
-    // Živý posluchač: pokud má uživatel 'auto' a telefon se večer přepne do tmy, rozvrh se ihned adaptuje
-    if (window.matchMedia) {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-            if (currentMode === 'auto') {
-                renderTheme();
-            }
-        });
-    }
-
-    // Cyklení režimů po klepnutí: auto -> light -> dark -> auto
-    if (btnTheme) {
-        btnTheme.onclick = (e) => {
-            e.preventDefault();
-            if (navigator.vibrate) navigator.vibrate(30);
-
-            if (currentMode === 'auto') currentMode = 'light';
-            else if (currentMode === 'light') currentMode = 'dark';
-            else currentMode = 'auto';
-
-            localStorage.setItem('zus_theme_mode', currentMode);
-            renderTheme();
-        };
-    }
-
-    renderTheme();
-}
-
-// Start
-initTheme();
+// Spuštění
 updateWeekStepperUI();
 renderTabs();
 renderSchedule();
