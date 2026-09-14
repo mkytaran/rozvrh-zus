@@ -3,41 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Rozvrh ZUŠ Kytara 2026</title>
-    <meta name="theme-color" content="#121212" id="theme-color-meta">
+    <title>Michal - Rozvrh 2026/27</title>
+    
+    <meta name="theme-color" content="#1a1e26" id="theme-color-meta">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" id="apple-status-bar-meta">
+    <meta name="apple-mobile-web-app-title" content="Rozvrh">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-    <!-- Zamezení probliknutí nesprávného tématu před vykreslením DOMu -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem('zus_theme');
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
             document.documentElement.classList.add(theme === 'dark' ? 'theme-dark' : 'theme-light');
+            
             const meta = document.getElementById('theme-color-meta');
-            if (meta) meta.content = (theme === 'dark' ? '#121212' : '#f1f5f9');
+            const appleMeta = document.getElementById('apple-status-bar-meta');
+            if (theme === 'dark') {
+                if (meta) meta.content = '#1a1e26';
+                if (appleMeta) appleMeta.content = 'black-translucent';
+            } else {
+                if (meta) meta.content = '#f4f1ea';
+                if (appleMeta) appleMeta.content = 'default';
+            }
         })();
     </script>
-
-    <!-- iOS Safari PWA meta tagy -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Rozvrh">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <!-- Horní lišta: Titulek, tlačítko Dnes, přepínač tématu a synchronizace -->
         <div class="header-top">
-            <h1>Můj rozvrh 2026</h1>
+            <h1>Michal – Rozvrh 2026/27</h1>
             <div class="header-actions">
                 <button id="btn-today" class="btn-chip hidden" aria-label="Přejít na dnešek">Dnes</button>
                 
-                <!-- Tlačítko pro přepnutí světlého / tmavého režimu -->
                 <button id="btn-theme" class="btn-icon" aria-label="Přepnout motiv" title="Přepnout světlý / tmavý režim">
-                    <!-- Ikona slunce (pro přechod na světlý) -->
                     <svg id="icon-theme-sun" class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"></circle>
                         <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -49,24 +52,13 @@
                         <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
                         <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                     </svg>
-                    <!-- Ikona měsíce (pro přechod na tmavý) -->
                     <svg id="icon-theme-moon" class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                </button>
-
-                <button id="btn-sync" class="btn-icon" aria-label="Synchronizovat data" title="Synchronizovat">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                        <path d="M3 3v5h5"></path>
-                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
-                        <path d="M16 21v-5h5"></path>
                     </svg>
                 </button>
             </div>
         </div>
 
-        <!-- Týdenní navigátor (Stepper + kalendář) -->
         <div class="week-stepper-container">
             <button id="week-prev" class="btn-nav" aria-label="Předchozí týden">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -84,41 +76,54 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
 
-            <!-- Skrytý kalendář pro přímý skok na datum -->
             <input type="date" id="native-date-picker" class="visually-hidden" tabindex="-1" aria-hidden="true">
         </div>
 
-        <!-- Tlačítka dnů -->
         <nav class="day-selector" aria-label="Výběr dne v týdnu">
-            <button data-day="Pondělí"><span class="tab-day-name">Po</span><span class="tab-day-date">-</span></button>
-            <button data-day="Úterý"><span class="tab-day-name">Út</span><span class="tab-day-date">-</span></button>
-            <button data-day="Středa"><span class="tab-day-name">St</span><span class="tab-day-date">-</span></button>
-            <button data-day="Čtvrtek"><span class="tab-day-name">Čt</span><span class="tab-day-date">-</span></button>
-            <button data-day="Pátek"><span class="tab-day-name">Pá</span><span class="tab-day-date">-</span></button>
+            <button data-day="Pondělí">
+                <span class="tab-day-name">Po</span>
+                <span class="tab-day-date">-</span>
+                <span class="day-dots-container"></span>
+            </button>
+            <button data-day="Úterý">
+                <span class="tab-day-name">Út</span>
+                <span class="tab-day-date">-</span>
+                <span class="day-dots-container"></span>
+            </button>
+            <button data-day="Středa">
+                <span class="tab-day-name">St</span>
+                <span class="tab-day-date">-</span>
+                <span class="day-dots-container"></span>
+            </button>
+            <button data-day="Čtvrtek">
+                <span class="tab-day-name">Čt</span>
+                <span class="tab-day-date">-</span>
+                <span class="day-dots-container"></span>
+            </button>
+            <button data-day="Pátek">
+                <span class="tab-day-name">Pá</span>
+                <span class="tab-day-date">-</span>
+                <span class="day-dots-container"></span>
+            </button>
         </nav>
     </header>
     
     <main id="schedule-container" role="region" aria-live="polite">
-        <!-- Kartičky se generují dynamicky -->
     </main>
     
-    <!-- Spodní lišta se 3 akcemi -->
     <div class="bottom-bar">
         <button id="add-lesson-btn"><span class="icon">➕</span> Hodina</button>
-        <button id="add-event-btn"><span class="icon">📅</span> Akce / Porada</button>
+        <button id="add-event-btn"><span class="icon">🗓️</span> Událost</button>
         <button id="add-break-btn"><span class="icon">☕</span> Přestávka</button>
     </div>
 
-    <!-- Modální okno úprav a zadávání -->
     <div id="edit-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
         <div class="modal">
-            <!-- Přepínač: Výuka žáka vs Pracovní akce -->
             <div id="modal-type-switcher" class="type-switcher">
                 <button type="button" id="type-btn-lesson" class="type-btn active">Výuka žáka</button>
-                <button type="button" id="type-btn-event" class="type-btn">Pracovní akce</button>
+                <button type="button" id="type-btn-event" class="type-btn">Pracovní událost</button>
             </div>
 
-            <!-- Výběr dne pro běžnou výuku žáka (v rámci týdne) -->
             <div class="form-group" id="group-day-select">
                 <label for="edit-day">Den v týdnu</label>
                 <select id="edit-day">
@@ -130,7 +135,6 @@
                 </select>
             </div>
 
-            <!-- Plné datum pro akce (umožňuje přesun do libovolného týdne v roce) -->
             <div class="form-group" id="group-event-date" style="display: none;">
                 <label for="edit-event-date">Datum akce (lze vybrat libovolný týden/měsíc)</label>
                 <input type="date" id="edit-event-date">
@@ -152,7 +156,6 @@
                 <input type="text" id="edit-name">
             </div>
 
-            <!-- Pole specifická pro akce (Koncert vs Porada) -->
             <div id="event-specific-fields" class="event-tier-box" style="display: none;">
                 <label class="form-sublabel">Druh pracovní události:</label>
                 <div class="radio-row">
@@ -167,7 +170,6 @@
                 </div>
             </div>
 
-            <!-- Výběr skupiny pro Kytarový soubor -->
             <div id="ensemble-group-selector" class="ensemble-tier-box" style="display: none;">
                 <label class="form-sublabel">Skupina souboru:</label>
                 <div class="radio-row">
@@ -182,13 +184,11 @@
                 </div>
             </div>
 
-            <!-- Přepínač pro soukromou hodinu -->
             <div class="checkbox-row" id="row-private-toggle">
                 <input type="checkbox" id="edit-private">
-                <label for="edit-private" class="label-private">🔒 Soukromá hodina (mimo systém)</label>
+                <label for="edit-private" class="label-private">🔒 Soukromá hodina (mimo systém ZUŠ)</label>
             </div>
 
-            <!-- Standardní pole ZUŠ -->
             <div id="standard-zus-fields">
                 <div class="form-row">
                     <div class="form-group">
@@ -207,13 +207,11 @@
                 </div>
             </div>
 
-            <!-- Zápisník a poznámky (zabírá celou šířku modálu) -->
-            <div id="private-lesson-fields" style="display: none;">
+            <div id="private-lesson-fields">
                 <label for="edit-notes" id="label-edit-notes" class="form-sublabel">Zápisník a poznámky k výuce:</label>
-                <textarea id="edit-notes" rows="4" placeholder="Skladby, technika, program, kontakt..."></textarea>
+                <textarea id="edit-notes" rows="4" placeholder="Skladby, cvičení, program, kontakt..."></textarea>
             </div>
 
-            <!-- Sekce omluvenky s termínem -->
             <div class="absence-section" id="row-absent-section">
                 <div class="checkbox-row">
                     <input type="checkbox" id="edit-absent">
@@ -225,7 +223,6 @@
                 </div>
             </div>
 
-            <!-- Sekce záskoku -->
             <div id="substitute-section" class="substitute-box" style="display: none;">
                 <div class="substitute-box-title">➕ Záskok na tuto hodinu</div>
                 <label for="substitute-select" class="form-sublabel">Vybrat ze stálých žáků:</label>
@@ -237,7 +234,6 @@
                 <button type="button" id="btn-clear-sub" class="btn-clear-sub">Zrušit záskok</button>
             </div>
 
-            <!-- Akční tlačítka -->
             <div class="modal-actions">
                 <button id="btn-save" class="btn-primary">Uložit</button>
                 <button id="btn-cancel" class="btn-secondary">Zrušit</button>
