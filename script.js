@@ -54,7 +54,7 @@ const dayMap = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Páte
 const systemNow = new Date();
 let currentDay = (systemNow.getDay() >= 1 && systemNow.getDay() <= 5) ? dayMap[systemNow.getDay()] : 'Pondělí';
 
-let swapSourceStudent = null; // Uchovává { day, originalIndex, slotKey, name, time }
+let swapSourceStudent = null;
 let editingIndex = null;
 let editingEventId = null;
 let editingEventOldIso = null;
@@ -179,7 +179,7 @@ function playGuitarChord() {
     } catch (e) {}
 }
 
-// --- 6. Sloučení dat s mezidenní výměnou ---
+// --- 6. Sloučení dat pro daný den ---
 function getEffectiveDayLessons(dayName) {
     const activeMonday = getMonday(new Date(), weekOffset);
     const isoKey = getISOWeekKey(activeMonday);
@@ -212,7 +212,8 @@ function getEffectiveDayLessons(dayName) {
                 absentDate: absentDateVal,
                 substitute: substituteVal,
                 isPrivate: override.isPrivate !== undefined ? override.isPrivate : lesson.isPrivate,
-                notes: override.notes !== undefined ? override.notes : (lesson.notes || ''),
+                // Poznámka se váže k tomuto týdnu přes override (pokud není, je prázdná)
+                notes: override.notes !== undefined ? override.notes : '',
                 ensemble: override.ensemble !== undefined ? override.ensemble : lesson.ensemble,
                 ensembleGroup: override.ensembleGroup !== undefined ? override.ensembleGroup : lesson.ensembleGroup,
                 swapPendingWith: override.swapPendingWith || null
@@ -233,7 +234,7 @@ function getEffectiveDayLessons(dayName) {
     return lessons.sort((a, b) => a.time.localeCompare(b.time));
 }
 
-// --- 7. Záložky dnů a tečky ---
+// --- 7. Záložky dnů ---
 function updateWeekStepperUI() {
     const monday = getMonday(new Date(), weekOffset);
     const friday = new Date(monday);
@@ -385,9 +386,12 @@ function renderSchedule(animDir = '') {
             previousStudentEndMins = endMins;
         }
 
+        // =========================================================
+        // PŘÍSNÉ PRAVIDLO PRO OHNUTÝ ROH:
+        // Roh se ukáže VÝHRADNĚ tehdy, pokud má karta poznámku zapsanou v TOMTO týdnu!
+        // =========================================================
+        const hasCurrentWeekNote = !!(lesson.notes && lesson.notes.trim().length > 0);
         const studentHistory = (!isEvent && lesson.name && studentNotesHistory[lesson.name]) ? studentNotesHistory[lesson.name] : [];
-        const hasCurrentNotes = !!(lesson.notes && lesson.notes.trim().length > 0);
-        const hasAnyNotes = hasCurrentNotes || (studentHistory.length > 0);
 
         const isAbsent = !isEvent && !!lesson.isAbsentCalculated;
         const hasSub = isAbsent && lesson.substitute;
@@ -466,7 +470,7 @@ function renderSchedule(animDir = '') {
         }
 
         const absentBadge = isAbsent ? `<span class="badge-absent">Omluvenka${lesson.absentDate ? ` (${lesson.absentDate})` : ''}</span>` : '';
-        const noteFlagClass = hasAnyNotes ? 'has-note' : '';
+        const noteFlagClass = hasCurrentWeekNote ? 'has-note' : '';
         
         const isSwapSource = swapSourceStudent && (swapSourceStudent.slotKey === lesson.slotKey);
 
@@ -485,7 +489,7 @@ function renderSchedule(animDir = '') {
         }
 
         cardFront.innerHTML = `
-            ${hasAnyNotes ? '<div class="flip-corner-btn" title="Otočit na poznámky"></div>' : ''}
+            ${hasCurrentWeekNote ? '<div class="flip-corner-btn" title="Otočit na poznámky"></div>' : ''}
             <div class="time-col">
                 <div>${lesson.time}</div>
                 <div class="end-time">${endTime}</div>
@@ -514,31 +518,24 @@ function renderSchedule(animDir = '') {
 
         flipInner.appendChild(cardFront);
 
-        // RUBOVÁ STRANA KARTY
-        if (hasAnyNotes) {
+        // RUBOVÁ STRANA KARTY (zobrazuje se pouze, pokud je v tomto týdnu aktivní poznámka)
+        if (hasCurrentWeekNote) {
             const cardBack = document.createElement('div');
             cardBack.className = 'flip-card-back';
 
             let historyChipsHtml = '';
-            let initialText = '';
+            let initialText = lesson.notes;
 
             if (!isEvent) {
                 const currentDayHuman = formatDateHuman(getDateForDay(currentDay, weekOffset));
-                const timelineEntries = [];
+                const timelineEntries = [{ date: currentDayHuman, notes: lesson.notes }];
 
-                if (hasCurrentNotes) {
-                    timelineEntries.push({ date: currentDayHuman, notes: lesson.notes });
-                }
-
+                // Přidáme předchozí staré zápisy z historie
                 studentHistory.forEach(h => {
                     if (h.date !== currentDayHuman && h.notes) {
                         timelineEntries.push(h);
                     }
                 });
-
-                if (timelineEntries.length > 0) {
-                    initialText = timelineEntries[0].notes;
-                }
 
                 if (timelineEntries.length > 1) {
                     const chips = timelineEntries.map((entry, idx) => {
@@ -546,8 +543,6 @@ function renderSchedule(animDir = '') {
                     });
                     historyChipsHtml = `<div class="note-history-chips">${chips.join('')}</div>`;
                 }
-            } else {
-                initialText = lesson.notes || '';
             }
 
             cardBack.innerHTML = `
@@ -670,7 +665,7 @@ function fetchCloudSchedule(silent = true) {
         });
 }
 
-// --- 10. Modál úprav a mezidenní výměna žáků ---
+// --- 10. Modál úprav ---
 function setModalMode(mode) {
     currentModalMode = mode;
     const btnLesson = document.getElementById('type-btn-lesson');
@@ -739,9 +734,7 @@ function populateSubstituteSelect(currentLessonStudent) {
 function handleCardClick(index) {
     const effectiveLessons = getEffectiveDayLessons(currentDay);
 
-    // =========================================================
     // DOKONČENÍ VÝMĚNY (I MEZI RŮZNÝMI DNY)
-    // =========================================================
     if (swapSourceStudent !== null) {
         const lessonB = effectiveLessons[index];
         const src = swapSourceStudent;
@@ -798,9 +791,7 @@ function handleCardClick(index) {
         return;
     }
 
-    // =========================================================
-    // STANDARDNÍ OTEVŘENÍ KARTY PRO EDITACI
-    // =========================================================
+    // OTEVŘENÍ KARTY PRO EDITACI
     const lesson = effectiveLessons[index];
     const daySelect = document.getElementById('edit-day');
     if (daySelect) daySelect.value = currentDay;
@@ -862,7 +853,18 @@ function handleCardClick(index) {
         nameInput.value = lesson.name;
         document.getElementById('edit-rocnik').value = lesson.rocnik || '';
         document.getElementById('edit-hn').value = lesson.hn || '';
-        document.getElementById('edit-notes').value = lesson.notes || '';
+        
+        // Zápisník: načte poznámku tohoto týdne
+        const notesInput = document.getElementById('edit-notes');
+        notesInput.value = lesson.notes || '';
+
+        // Pokud je pole v tomto týdnu prázdné, ale existuje starší zápis v historii, nabídneme nápovědu
+        const historyList = studentNotesHistory[lesson.name] || [];
+        if (!lesson.notes && historyList.length > 0) {
+            notesInput.placeholder = `Poslední zápis (${historyList[0].date}): ${historyList[0].notes.slice(0, 40)}...`;
+        } else {
+            notesInput.placeholder = "Skladby, cvičení, program, kontakt...";
+        }
 
         const editPrivate = document.getElementById('edit-private');
         editPrivate.checked = !!lesson.isPrivate || (lesson.name && lesson.name.toLowerCase().includes('soukr'));
@@ -1077,9 +1079,11 @@ document.getElementById('btn-save').onclick = () => {
             notes: notesVal
         };
 
+        // UKLÁDÁNÍ HISTORIE:
+        const lessonDateHuman = formatDateHuman(getDateForDay(currentDay, weekOffset));
         let noteHistoryPayload = null;
+
         if (notesVal) {
-            const lessonDateHuman = formatDateHuman(getDateForDay(currentDay, weekOffset));
             noteHistoryPayload = {
                 date: lessonDateHuman,
                 student: newName,
@@ -1089,6 +1093,11 @@ document.getElementById('btn-save').onclick = () => {
             if (!studentNotesHistory[newName]) studentNotesHistory[newName] = [];
             studentNotesHistory[newName] = studentNotesHistory[newName].filter(h => h.date !== lessonDateHuman);
             studentNotesHistory[newName].unshift({ date: lessonDateHuman, notes: notesVal });
+        } else {
+            // Při smazání textu z tohoto týdne vymažeme zápis tohoto dne i z lokální historie
+            if (studentNotesHistory[newName]) {
+                studentNotesHistory[newName] = studentNotesHistory[newName].filter(h => h.date !== lessonDateHuman);
+            }
         }
 
         const masterLessons = masterSchedule[currentDay] || [];
@@ -1098,7 +1107,6 @@ document.getElementById('btn-save').onclick = () => {
             movedLesson.time = newTime;
             movedLesson.name = newName;
             movedLesson.isPrivate = isPriv;
-            movedLesson.notes = notesVal;
             movedLesson.absent = false;
 
             if (!masterSchedule[targetDay]) masterSchedule[targetDay] = [];
@@ -1110,7 +1118,6 @@ document.getElementById('btn-save').onclick = () => {
             masterLessons[editingIndex].time = newTime;
             masterLessons[editingIndex].name = newName;
             masterLessons[editingIndex].isPrivate = isPriv;
-            masterLessons[editingIndex].notes = notesVal;
             masterLessons[editingIndex].absent = false;
 
             if (isPriv) {
