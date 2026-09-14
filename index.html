@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Michal - Rozvrh 2026/27</title>
+    <title>Michal – Rozvrh 2026/27</title>
     
+    <!-- Meta tagy pro systémovou stavovou lištu -->
     <meta name="theme-color" content="#1a1e26" id="theme-color-meta">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" id="apple-status-bar-meta">
@@ -24,7 +25,7 @@
                 if (meta) meta.content = '#1a1e26';
                 if (appleMeta) appleMeta.content = 'black-translucent';
             } else {
-                if (meta) meta.content = '#f4f1ea';
+                if (meta) meta.content = '#faf8f5';
                 if (appleMeta) appleMeta.content = 'default';
             }
         })();
@@ -223,13 +224,21 @@
                 </div>
             </div>
 
+            <!-- Vylepšená a přehledná sekce Záskoku -->
             <div id="substitute-section" class="substitute-box" style="display: none;">
-                <div class="substitute-box-title">➕ Záskok na tuto hodinu</div>
-                <label for="substitute-select" class="form-sublabel">Vybrat ze stálých žáků:</label>
-                <select id="substitute-select"></select>
+                <div class="substitute-box-title">Záskok na tuto hodinu</div>
+                
+                <div class="form-group" style="margin-bottom: 0.6rem;">
+                    <label for="substitute-select" class="form-sublabel">Vybrat ze stálých žáků:</label>
+                    <select id="substitute-select" class="substitute-input"></select>
+                </div>
 
-                <label for="substitute-custom" class="form-sublabel">Nebo zadejte jiné jméno / činnost:</label>
-                <input type="text" id="substitute-custom" placeholder="např. Příležitostný žák, Cvičení...">
+                <div class="substitute-divider"><span>nebo</span></div>
+
+                <div class="form-group" style="margin-bottom: 0.5rem;">
+                    <label for="substitute-custom" class="form-sublabel">Zadat jiné jméno / činnost:</label>
+                    <input type="text" id="substitute-custom" class="substitute-input" placeholder="např. Jan Novák, Samostudium, Cvičení...">
+                </div>
 
                 <button type="button" id="btn-clear-sub" class="btn-clear-sub">Zrušit záskok</button>
             </div>

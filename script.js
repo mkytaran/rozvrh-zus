@@ -14,7 +14,7 @@ const defaultMaster = {
 
 let masterSchedule = defaultMaster;
 let weekOverrides = {};
-let studentNotesHistory = {}; // Globální cache historie zápisníku ze sheetu: { "Jméno Žáka": [ { date: "15. 9.", notes: "..." }, ... ] }
+let studentNotesHistory = {};
 
 (function loadLocalState() {
     const rawMaster = localStorage.getItem('zus_master_schedule') || localStorage.getItem('zus_schedule');
@@ -191,14 +191,18 @@ function getEffectiveDayLessons(dayName) {
         const key = `${dayName}_${lesson.time}`;
         const override = overrides[key] || {};
 
+        const isAbsentInWeek = (override.absent !== undefined) ? override.absent : false;
+        const absentDateVal = (override.absentDate !== undefined) ? override.absentDate : '';
+        const substituteVal = (override.substitute !== undefined) ? override.substitute : '';
+
         const merged = {
             ...lesson,
             name: override.name !== undefined ? override.name : lesson.name,
             rocnik: override.rocnik !== undefined ? override.rocnik : lesson.rocnik,
             hn: override.hn !== undefined ? override.hn : lesson.hn,
-            absent: override.absent !== undefined ? override.absent : lesson.absent,
-            absentDate: override.absentDate !== undefined ? override.absentDate : lesson.absentDate,
-            substitute: override.substitute !== undefined ? override.substitute : lesson.substitute,
+            absent: isAbsentInWeek,
+            absentDate: absentDateVal,
+            substitute: substituteVal,
             isPrivate: override.isPrivate !== undefined ? override.isPrivate : lesson.isPrivate,
             notes: override.notes !== undefined ? override.notes : (lesson.notes || ''),
             ensemble: override.ensemble !== undefined ? override.ensemble : lesson.ensemble,
@@ -264,7 +268,6 @@ function renderTabs() {
         if (nameSpan) nameSpan.textContent = dayShortNames[dayName] || dayName.slice(0, 2);
         if (dateSpan) dateSpan.textContent = `${dayDate.getDate()}.${dayDate.getMonth() + 1}.`;
 
-        // Analýza dne pro signalizační tečky (Omluvenka / Koncert / Porada)
         if (dotsContainer) {
             dotsContainer.innerHTML = '';
             const dayLessons = getEffectiveDayLessons(dayName);
@@ -314,7 +317,7 @@ function renderTabs() {
     });
 }
 
-// --- 8. Vykreslování rozvrhu (Přestávky + Dog-ear pro žáky + Historie zápisníku) ---
+// --- 8. Vykreslování rozvrhu s ošetřením duplicit v časové ose ---
 function toggleCardFlip(wrapperElement) {
     const isFlipped = wrapperElement.classList.contains('flipped');
 
@@ -361,7 +364,6 @@ function renderSchedule(animDir = '') {
         }
         const endMins = timeToMinutes(endTime);
 
-        // Vložení nenápadného textu přestávky POUZE mezi hodiny žáků (ne u akcí)
         if (!isEvent) {
             if (previousStudentEndMins !== null && startMins > previousStudentEndMins) {
                 const diffMins = startMins - previousStudentEndMins;
@@ -375,7 +377,6 @@ function renderSchedule(animDir = '') {
             previousStudentEndMins = endMins;
         }
 
-        // Zjištění existence poznámek (aktuální poznámka nebo starší zápisy v historii)
         const studentHistory = (!isEvent && lesson.name && studentNotesHistory[lesson.name]) ? studentNotesHistory[lesson.name] : [];
         const hasCurrentNotes = !!(lesson.notes && lesson.notes.trim().length > 0);
         const hasAnyNotes = hasCurrentNotes || (studentHistory.length > 0);
@@ -457,7 +458,7 @@ function renderSchedule(animDir = '') {
         const flipInner = document.createElement('div');
         flipInner.className = 'flip-card-inner';
 
-        // --- LÍCOVÁ STRANA KARTY ---
+        // LÍCOVÁ STRANA KARTY
         const cardFront = document.createElement('div');
         cardFront.className = `flip-card-front lesson-card ${swapSourceIndex === index ? 'swap-mode' : ''} ${isAbsent ? 'absent' : ''} ${hasSub ? 'has-substitute' : ''} ${stripeClass} ${timeStatusClass}`;
 
@@ -484,7 +485,6 @@ function renderSchedule(animDir = '') {
                 handleCardClick(index);
                 return;
             }
-            // Pokud má karta poznámku (akce i žák), otočí se na rub; jinak otevře editaci
             if (hasAnyNotes) {
                 toggleCardFlip(wrapper);
             } else {
@@ -494,32 +494,46 @@ function renderSchedule(animDir = '') {
 
         flipInner.appendChild(cardFront);
 
-        // --- RUBOVÁ STRANA KARTY (PRO AKCE I ŽÁKY S POZNÁMKOU) ---
+        // RUBOVÁ STRANA KARTY (Deduplikovaná časová osa)
         if (hasAnyNotes) {
             const cardBack = document.createElement('div');
             cardBack.className = 'flip-card-back';
 
-            // Sestavení záložek historie (čtverečky s daty)
             let historyChipsHtml = '';
+            let initialText = '';
+
             if (!isEvent) {
-                const chips = [];
-                // Aktuální poznámka tohoto týdne
+                const currentDayHuman = formatDateHuman(getDateForDay(currentDay, weekOffset));
+                const timelineEntries = [];
+
+                // 1. Záznam pro aktuální otevřenou lekci
                 if (hasCurrentNotes) {
-                    const thisDateStr = formatDateHuman(getDateForDay(currentDay, weekOffset));
-                    chips.push(`<button type="button" class="history-chip active" data-content="${encodeURIComponent(lesson.notes)}">${thisDateStr}</button>`);
+                    timelineEntries.push({
+                        date: currentDayHuman,
+                        notes: lesson.notes
+                    });
                 }
-                // Historické zápisy z Google tabulky
-                studentHistory.forEach((histItem, hIdx) => {
-                    const isActive = (!hasCurrentNotes && hIdx === 0);
-                    chips.push(`<button type="button" class="history-chip ${isActive ? 'active' : ''}" data-content="${encodeURIComponent(histItem.notes)}">${histItem.date}</button>`);
+
+                // 2. Historické záznamy (vynecháme duplikát dnešního dne)
+                studentHistory.forEach(h => {
+                    if (h.date !== currentDayHuman && h.notes) {
+                        timelineEntries.push(h);
+                    }
                 });
 
-                if (chips.length > 1) {
+                if (timelineEntries.length > 0) {
+                    initialText = timelineEntries[0].notes;
+                }
+
+                if (timelineEntries.length > 1) {
+                    const chips = timelineEntries.map((entry, idx) => {
+                        return `<button type="button" class="history-chip ${idx === 0 ? 'active' : ''}" data-content="${encodeURIComponent(entry.notes)}">${entry.date}</button>`;
+                    });
                     historyChipsHtml = `<div class="note-history-chips">${chips.join('')}</div>`;
                 }
+            } else {
+                initialText = lesson.notes || '';
             }
-
-            const initialText = hasCurrentNotes ? lesson.notes : (studentHistory.length > 0 ? studentHistory[0].notes : '');
 
             cardBack.innerHTML = `
                 <div>
@@ -535,7 +549,6 @@ function renderSchedule(animDir = '') {
                 <div class="flip-back-footer">Klepnutím otočit zpět ↩</div>
             `;
 
-            // Přepínání historie zápisů po klepnutí na čtvereček data
             cardBack.querySelectorAll('.history-chip').forEach(chipBtn => {
                 chipBtn.onclick = (e) => {
                     e.stopPropagation();
@@ -806,6 +819,10 @@ function handleCardClick(index) {
 
         document.getElementById('edit-ensemble').checked = !!lesson.ensemble;
 
+        const activeMonday = getMonday(new Date(), weekOffset);
+        const isoKey = getISOWeekKey(activeMonday);
+        const currentOverride = (weekOverrides[isoKey] && weekOverrides[isoKey][`${currentDay}_${lesson.time}`]) || {};
+
         const editAbsentCheckbox = document.getElementById('edit-absent');
         const absentDateContainer = document.getElementById('absent-date-container');
         const editAbsentDateInput = document.getElementById('edit-absent-date');
@@ -814,9 +831,11 @@ function handleCardClick(index) {
         const subSelect = document.getElementById('substitute-select');
 
         populateSubstituteSelect(lesson.name);
-        editAbsentCheckbox.checked = !!lesson.absent;
-        editAbsentDateInput.value = lesson.absentDate || '';
-        subCustom.value = lesson.substitute || '';
+
+        const isCurrentlyAbsent = !!lesson.isAbsentCalculated;
+        editAbsentCheckbox.checked = isCurrentlyAbsent;
+        editAbsentDateInput.value = currentOverride.absentDate || lesson.absentDate || '';
+        subCustom.value = currentOverride.substitute || lesson.substitute || '';
         subSelect.value = '';
 
         const toggleAbsent = () => {
@@ -831,7 +850,9 @@ function handleCardClick(index) {
             subCustom.value = '';
             subSelect.value = '';
         };
-        subSelect.onchange = () => { if (subSelect.value) subCustom.value = subSelect.value; };
+        subSelect.onchange = () => { 
+            if (subSelect.value) subCustom.value = subSelect.value; 
+        };
     }
 
     document.getElementById('edit-modal').classList.remove('hidden');
@@ -936,7 +957,6 @@ document.getElementById('btn-save').onclick = () => {
             };
 
             if (!studentNotesHistory[newName]) studentNotesHistory[newName] = [];
-            // Přidáme na začátek historie (pokud tam už není stejný zápis)
             studentNotesHistory[newName] = studentNotesHistory[newName].filter(h => h.date !== lessonDateHuman);
             studentNotesHistory[newName].unshift({ date: lessonDateHuman, notes: notesVal });
         }
@@ -949,6 +969,7 @@ document.getElementById('btn-save').onclick = () => {
             movedLesson.name = newName;
             movedLesson.isPrivate = isPriv;
             movedLesson.notes = notesVal;
+            movedLesson.absent = false;
 
             if (!masterSchedule[targetDay]) masterSchedule[targetDay] = [];
             masterSchedule[targetDay].push(movedLesson);
@@ -960,6 +981,7 @@ document.getElementById('btn-save').onclick = () => {
             masterLessons[editingIndex].name = newName;
             masterLessons[editingIndex].isPrivate = isPriv;
             masterLessons[editingIndex].notes = notesVal;
+            masterLessons[editingIndex].absent = false;
 
             if (isPriv) {
                 masterLessons[editingIndex].rocnik = '';
@@ -1042,7 +1064,7 @@ document.getElementById('add-lesson-btn').onclick = () => {
     document.getElementById('edit-modal').classList.remove('hidden');
 };
 
-// Spodní lišta: Přidat událost (koncert / porada)
+// Spodní lišta: Přidat událost
 document.getElementById('add-event-btn').onclick = () => {
     editingIndex = null;
     editingEventId = null;
@@ -1168,7 +1190,7 @@ setInterval(() => {
     if (weekOffset === 0) renderSchedule();
 }, 60000);
 
-// --- 12. Správa motivu a stavové lišty ---
+// --- 12. Správa motivu a systémové lišty ---
 function initTheme() {
     const btnTheme = document.getElementById('btn-theme');
     const sunIcon = document.getElementById('icon-theme-sun');
@@ -1176,7 +1198,7 @@ function initTheme() {
 
     function updateSystemStatusBar(theme) {
         const isDark = (theme === 'dark');
-        const targetColor = isDark ? '#1a1e26' : '#f5f2eb';
+        const targetColor = isDark ? '#1a1e26' : '#faf8f5';
 
         let meta = document.querySelector('meta[name="theme-color"]');
         if (!meta) {
