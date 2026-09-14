@@ -1,6 +1,5 @@
-const CACHE_NAME = 'zus-rozvrh-dynamic-cache';
+const CACHE_NAME = 'zus-app-cache';
 
-// Základní soubory pro offline instalaci
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -10,60 +9,62 @@ const PRECACHE_ASSETS = [
   './apple-touch-icon.png'
 ];
 
-// 1. Instalace: přednačte soubory a okamžitě se aktivuje
+// 1. Instalace - přednačte soubory přímo ze sítě bez použití HTTP mezipaměti
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
-  );
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return Promise.all(
+        PRECACHE_ASSETS.map((url) => {
+          return fetch(url, { cache: 'no-cache' }).then((response) => {
+            if (response.ok) return cache.put(url, response);
+          }).catch(() => {});
+        })
+      );
+    })
+  );
 });
 
-// 2. Aktivace: okamžité převzetí kontroly nad všemi otevřenými okny
+// 2. Aktivace - převezme okamžitě kontrolu nad všemi klienty
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    Promise.all([
+      caches.keys().then((keys) => {
+        return Promise.all(
+          keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        );
+      }),
+      self.clients.claim()
+    ])
+  );
 });
 
-// 3. Obsluha síťových požadavků
+// 3. Síťové dotazy - Network-First pro zdrojové soubory aplikace
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
 
-  // Požadavky na Google Apps Script API NIKDY nekešujeme přes Service Worker
+  // Google Apps Script API NIKDY nekešujeme
   if (url.includes('script.google.com') || event.request.method !== 'GET') {
     return;
   }
 
-  // A) Pro HTML stránku: Network-First (při online režimu stáhne vždy čerstvý HTML)
-  if (event.request.mode === 'navigate' || url.endsWith('.html') || url.endsWith('/')) {
-    event.respondWith(
-      fetch(event.request)
-        .then((networkResponse) => {
+  // Pro všechny interní soubory aplikace (HTML, CSS, JS, manifest):
+  // Zkusíme nejdřív SÍŤ (čerstvý kód z GitHubu bez diskové keše).
+  // Pokud síť selže (offline), vrátíme verzi z Cache Storage.
+  event.respondWith(
+    fetch(event.request, { cache: 'no-cache' })
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
           const resClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
-          return networkResponse;
-        })
-        .catch(() => caches.match('./index.html'))
-    );
-    return;
-  }
-
-  // B) Pro CSS, JS, ikony: Stale-While-Revalidate
-  // Okamžitě vrátí verzi z mezipaměti a na pozadí tiše aktualizuje soubory z GitHubu
-  event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.match(event.request).then((cachedResponse) => {
-        const fetchPromise = fetch(event.request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              cache.put(event.request, networkResponse.clone());
-            }
-            return networkResponse;
-          })
-          .catch(() => {
-            // V offline režimu ignorujeme chybu sítě
-          });
-
-        return cachedResponse || fetchPromise;
-      });
-    })
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          if (event.request.mode === 'navigate') return caches.match('./index.html');
+        });
+      })
   );
 });
