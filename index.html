@@ -5,14 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Michal – Rozvrh 2026/27</title>
     
-    <!-- Systémové barvy lišty řízené přímo Androidem a iOS -->
-    <meta name="theme-color" content="#faf8f5" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#1a1e26" media="(prefers-color-scheme: dark)">
-    
+    <!-- Výchozí systémová lišta pro korkový / tmavý režim -->
+    <meta name="theme-color" content="#d8ba93" id="theme-color-meta">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" id="apple-status-bar-meta">
     <meta name="apple-mobile-web-app-title" content="Rozvrh">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('zus_theme');
+            var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var theme = savedTheme || (systemDark ? 'dark' : 'light');
+            
+            document.documentElement.classList.add(theme === 'dark' ? 'theme-dark' : 'theme-light');
+            var meta = document.getElementById('theme-color-meta');
+            var appleMeta = document.getElementById('apple-status-bar-meta');
+            
+            if (theme === 'dark') {
+                if (meta) meta.content = '#1e1c1a';
+                if (appleMeta) appleMeta.content = 'black-translucent';
+            } else {
+                if (meta) meta.content = '#d8ba93';
+                if (appleMeta) appleMeta.content = 'default';
+            }
+        })();
+    </script>
 
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
@@ -23,6 +41,24 @@
             <h1>Michal – Rozvrh 2026/27</h1>
             <div class="header-actions">
                 <button id="btn-today" class="btn-chip hidden" aria-label="Přejít na dnešek">Dnes</button>
+                
+                <!-- Tlačítko přepínání motivu -->
+                <button id="btn-theme" class="btn-icon" aria-label="Přepnout motiv" title="Přepnout světlý korkový / tmavý motiv">
+                    <svg id="icon-theme-sun" class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg id="icon-theme-moon" class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -103,7 +139,7 @@
             </div>
 
             <div class="form-group" id="group-event-date" style="display: none;">
-                <label for="edit-event-date">Datum akce (lze vybrat libovolný týden/měsíc)</label>
+                <label for="edit-event-date">Datum akce</label>
                 <input type="date" id="edit-event-date">
             </div>
 
@@ -202,10 +238,10 @@
                         <button type="button" id="btn-absent-quick-week" class="history-chip" style="flex: 1;">Celý týden</button>
                     </div>
 
-                    <!-- Skrytý formátovaný text pro uložení do Google Tabulky -->
                     <input type="hidden" id="edit-absent-date">
                 </div>
             </div>
+
             <div id="substitute-section" class="substitute-box" style="display: none;">
                 <div class="substitute-box-title">Záskok na tuto hodinu</div>
                 

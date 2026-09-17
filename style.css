@@ -1,108 +1,111 @@
 /* =========================================================
-   1. BAREVNÝ SYSTÉM (ŘÍZENÝ ČISTĚ SYSTÉMEM TELEFONU)
+   1. BAREVNÝ SYSTÉM (KORKOVÝ ŠPUNT & TEPLÝ GRAFIT)
    ========================================================= */
 
-/* Výchozí světlý režim (příjemné teplé tóny slonoviny a papíru) */
-:root {
+/* Výchozí světlý režim: Barvy přírodního korkového špuntu */
+:root,
+html.theme-light {
     color-scheme: light;
 
-    --bg-page: #f5f2eb;
-    --bg-card: #ffffff;
-    --border-card: #e4decb;
-    --text-primary: #1c1917;
-    --text-secondary: #78716c;
-    --tab-bg: #e8e2d5;
-    --tab-text: #57534e;
-    --tab-active-bg: #2563eb;
+    /* Přesná barva korkového záhlaví a stavové lišty */
+    --cork-header: #d8ba93;
+    --bg-page: #f1e6d4;          /* Světlejší korkový papír / podklad */
+    --bg-card: #fdfbf7;          /* Jemný tón slonové kosti pro čitelnost karet */
+    --border-card: #cbb18a;      /* Hranice korkové drti */
+    --text-primary: #3d2b1f;     /* Hluboká pražená kávovo-korková hnědá */
+    --text-secondary: #7d6550;   /* Měkčí tón sušeného dřeva */
+    
+    --tab-bg: #c9a97d;
+    --tab-text: #453222;
+    --tab-active-bg: #8b4513;    /* Teplá sedlová useň / dřevo pro aktivní den */
     --tab-active-text: #ffffff;
-    --tab-active-date: #bfdbfe;
+    --tab-active-date: #fde8cd;
 
-    --absent-bg: #ece8df;
-    --absent-border: #d6cfc0;
-    --absent-stripe: #a8a29e;
-    --absent-text: #a8a29e;
+    --absent-bg: #dfd3c1;
+    --absent-border: #bfb09c;
+    --absent-stripe: #8a7a67;
+    --absent-text: #8a7a67;
 
-    /* Žáci bez souboru proužek NEMAJÍ */
     --stripe-default: transparent;
-    --stripe-private: #2563eb;
-    --private-bg: #eff6ff;
-    --stripe-gold: #d97706;
-    --stripe-purple: #9333ea;
-    --gender-girl: #be123c;
-    --gender-boy: #1d4ed8;
+    --stripe-private: #b45309;    /* Teplá koňaková pro soukromé hodiny */
+    --private-bg: #faeedb;
+    --stripe-gold: #c26907;
+    --stripe-purple: #86198f;
+    --gender-girl: #9f1239;
+    --gender-boy: #0369a1;
 
-    /* Pracovní události */
-    --stripe-concert: #be123c;
-    --bg-concert: #fff1f2;
+    /* Události */
+    --stripe-concert: #9f1239;
+    --bg-concert: #ffe4e6;
     --border-concert: #fecdd3;
-    --title-concert: #be123c;
+    --title-concert: #9f1239;
 
-    --stripe-meeting: #0f766e;
-    --bg-meeting: #f0fdfa;
-    --border-meeting: #99f6e4;
-    --title-meeting: #0f766e;
+    --stripe-meeting: #065f46;
+    --bg-meeting: #d1fae5;
+    --border-meeting: #a7f3d0;
+    --title-meeting: #065f46;
 
-    /* Stav výměny */
-    --swap-pending-bg: #fffbeb;
-    --swap-pending-border: #fde68a;
-    --swap-pending-text: #b45309;
+    /* Výměna žáků */
+    --swap-pending-bg: #fef3c7;
+    --swap-pending-border: #f59e0b;
+    --swap-pending-text: #92400e;
 
-    --modal-bg: #faf8f5;
-    --modal-overlay: rgba(28, 25, 23, 0.55);
+    --modal-bg: #f6ede0;
+    --modal-overlay: rgba(43, 30, 20, 0.65);
     --input-bg: #ffffff;
-    --input-border: #d6cfc0;
-    --bottom-bar-bg: rgba(245, 242, 235, 0.94);
+    --input-border: #cbb18a;
+    --bottom-bar-bg: rgba(216, 186, 147, 0.95);
 }
 
-/* Automatický tmavý režim při zapnutí tmavého motivu v telefonu */
-@media (prefers-color-scheme: dark) {
-    :root {
-        color-scheme: dark;
+/* Tmavý režim: Hluboký teplý grafit ladící ke kytarám */
+html.theme-dark {
+    color-scheme: dark;
 
-        --bg-page: #121212;
-        --bg-card: #1a1e26;
-        --border-card: #28303f;
-        --text-primary: #f8fafc;
-        --text-secondary: #94a3b8;
-        --tab-bg: #1e2430;
-        --tab-text: #94a3b8;
-        --tab-active-bg: #0b1120;
-        --tab-active-text: #ffffff;
-        --tab-active-date: #60a5fa;
+    --cork-header: #1e1c1a;
+    --bg-page: #141211;
+    --bg-card: #25221f;
+    --border-card: #3b3631;
+    --text-primary: #ede8e3;
+    --text-secondary: #a3998f;
 
-        --absent-bg: #14171d;
-        --absent-border: #242a36;
-        --absent-stripe: #334155;
-        --absent-text: #64748b;
+    --tab-bg: #2d2925;
+    --tab-text: #a3998f;
+    --tab-active-bg: #c07a38;     /* Zářivější jantarově-dřevěný tón v noci */
+    --tab-active-text: #ffffff;
+    --tab-active-date: #ffe3c4;
 
-        --stripe-default: transparent;
-        --stripe-private: #2563eb;
-        --private-bg: rgba(30, 58, 138, 0.2);
-        --stripe-gold: #ffd166;
-        --stripe-purple: #c084fc;
-        --gender-girl: #fca5a5;
-        --gender-boy: #93c5fd;
+    --absent-bg: #1a1816;
+    --absent-border: #2c2825;
+    --absent-stripe: #4a433d;
+    --absent-text: #6b635b;
 
-        --stripe-concert: #f43f5e;
-        --bg-concert: rgba(190, 18, 60, 0.16);
-        --border-concert: rgba(244, 63, 94, 0.35);
-        --title-concert: #fb7185;
+    --stripe-default: transparent;
+    --stripe-private: #d97706;
+    --private-bg: rgba(217, 119, 6, 0.16);
+    --stripe-gold: #fbbf24;
+    --stripe-purple: #d8b4fe;
+    --gender-girl: #fca5a5;
+    --gender-boy: #7dd3fc;
 
-        --stripe-meeting: #14b8a6;
-        --bg-meeting: rgba(15, 118, 110, 0.16);
-        --border-meeting: rgba(20, 184, 166, 0.35);
-        --title-meeting: #2dd4bf;
+    --stripe-concert: #f43f5e;
+    --bg-concert: rgba(244, 63, 94, 0.16);
+    --border-concert: rgba(244, 63, 94, 0.35);
+    --title-concert: #fb7185;
 
-        --swap-pending-bg: rgba(245, 158, 11, 0.15);
-        --swap-pending-border: rgba(245, 158, 11, 0.35);
-        --swap-pending-text: #fbbf24;
+    --stripe-meeting: #2dd4bf;
+    --bg-meeting: rgba(45, 212, 191, 0.16);
+    --border-meeting: rgba(45, 212, 191, 0.35);
+    --title-meeting: #2dd4bf;
 
-        --modal-bg: #1c222e;
-        --modal-overlay: rgba(0, 0, 0, 0.75);
-        --input-bg: #12151c;
-        --input-border: #2e384d;
-        --bottom-bar-bg: rgba(18, 18, 18, 0.94);
-    }
+    --swap-pending-bg: rgba(245, 158, 11, 0.18);
+    --swap-pending-border: rgba(245, 158, 11, 0.4);
+    --swap-pending-text: #fcd34d;
+
+    --modal-bg: #24211e;
+    --modal-overlay: rgba(0, 0, 0, 0.82);
+    --input-bg: #181614;
+    --input-border: #423d38;
+    --bottom-bar-bg: rgba(30, 28, 26, 0.95);
 }
 
 /* =========================================================
@@ -122,17 +125,17 @@ body {
     color: var(--text-primary);
     padding-bottom: 5.5rem;
     overflow-x: hidden;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 header {
-    background-color: var(--bg-card);
+    background-color: var(--cork-header);
     border-bottom: 1px solid var(--border-card);
     position: sticky;
     top: 0;
     z-index: 100;
-    padding-top: 0.3rem;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    padding-top: 0.35rem;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 h1 {
@@ -141,33 +144,47 @@ h1 {
     letter-spacing: -0.01em;
 }
 
-/* =========================================================
-   3. HORNÍ LIŠTA A STEPPER
-   ========================================================= */
-
 .header-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.4rem 0.8rem;
+    padding: 0.4rem 0.85rem;
 }
 
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.4rem;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.35rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-icon:active {
+    transform: scale(0.92);
+    background: rgba(0, 0, 0, 0.08);
 }
 
 .btn-chip {
-    background: #2563eb;
-    color: #ffffff;
+    background: var(--tab-active-bg);
+    color: var(--tab-active-text);
     border: none;
     border-radius: 12px;
     padding: 0.25rem 0.65rem;
     font-size: 0.75rem;
     font-weight: 700;
     cursor: pointer;
-    transition: transform 0.15s ease, opacity 0.2s ease;
+    transition: transform 0.15s ease;
 }
 
 .btn-chip:active {
@@ -201,7 +218,6 @@ h1 {
 }
 
 .btn-nav:active {
-    background: var(--border-card);
     transform: scale(0.92);
 }
 
@@ -218,7 +234,7 @@ h1 {
 }
 
 .week-display:hover, .week-display:focus {
-    background: var(--tab-bg);
+    background: rgba(0, 0, 0, 0.06);
     outline: none;
 }
 
@@ -237,7 +253,7 @@ h1 {
 
 .week-range {
     font-size: 0.72rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-secondary);
     margin-top: 1px;
 }
@@ -251,7 +267,7 @@ h1 {
 }
 
 /* =========================================================
-   4. HORNÍ ZÁLOŽKY DNŮ SE SIGNALIZAČNÍMI TEČKAMI
+   3. ZÁLOŽKY DNŮ
    ========================================================= */
 
 .day-selector {
@@ -279,8 +295,8 @@ h1 {
 .day-selector button.active {
     background: var(--tab-active-bg) !important;
     color: var(--tab-active-text) !important;
-    border-color: #3b82f6 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border-color: var(--border-card) !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 .tab-day-name {
@@ -292,7 +308,7 @@ h1 {
     font-size: 0.72rem;
     font-weight: 500;
     margin-top: 1px;
-    opacity: 0.85;
+    opacity: 0.9;
 }
 
 .day-selector button.active .tab-day-date {
@@ -317,20 +333,12 @@ h1 {
     display: inline-block;
 }
 
-.day-dot.dot-absent {
-    background-color: #ef4444;
-}
-
-.day-dot.dot-concert {
-    background-color: #f43f5e;
-}
-
-.day-dot.dot-meeting {
-    background-color: #14b8a6;
-}
+.day-dot.dot-absent { background-color: #ef4444; }
+.day-dot.dot-concert { background-color: #f43f5e; }
+.day-dot.dot-meeting { background-color: #14b8a6; }
 
 /* =========================================================
-   5. SEZNAM HODIN, PŘESTÁVKY A KARTIČKY
+   4. ROZVRHOVÉ KARTY & PŘESTÁVKY
    ========================================================= */
 
 main#schedule-container {
@@ -343,8 +351,8 @@ main#schedule-container {
     justify-content: center;
     padding: 0.35rem 0;
     margin-bottom: 0.45rem;
-    font-size: 0.72rem;
-    font-weight: 500;
+    font-size: 0.74rem;
+    font-weight: 600;
     color: var(--text-secondary);
     letter-spacing: 0.03em;
     user-select: none;
@@ -358,14 +366,14 @@ main#schedule-container {
     height: 1px;
     background: var(--border-card);
     margin: 0 0.5rem;
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 header, 
 .bottom-bar, 
 .lesson-card-wrapper,
 .break-indicator {
-    transition: filter 0.4s ease, opacity 0.4s ease;
+    transition: filter 0.35s ease, opacity 0.35s ease;
 }
 
 body.is-card-flipped-active header,
@@ -409,10 +417,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     transform: rotateY(0deg);
 }
 
-/* =========================================================
-   PŘESNÝ MATEMATICKÝ OHNUTÝ RŮŽEK (DOG-EAR 45°)
-   ========================================================= */
-
+/* Ohnutý růžek v barvě korkové kůže */
 .lesson-card-wrapper.has-note .flip-card-front {
     position: relative;
     clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
@@ -437,8 +442,8 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     width: 24px;
     height: 24px;
     clip-path: polygon(0 0, 100% 100%, 0 100%);
-    background: linear-gradient(225deg, rgba(255, 255, 255, 0.85) 0%, rgba(200, 195, 185, 0.85) 45%, rgba(0, 0, 0, 0.35) 100%);
-    box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(225deg, #fefbf6 0%, #d8ba93 50%, #8b5a2b 100%);
+    box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.35);
     border-bottom-left-radius: 3px;
     pointer-events: none;
     transition: transform 0.2s ease, filter 0.2s ease;
@@ -454,14 +459,11 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 
 .lesson-card-wrapper.has-note:hover .flip-card-front::after,
 .lesson-card-wrapper.has-note .flip-corner-btn:hover ~ .flip-card-front::after {
-    transform: scale(1.12);
+    transform: scale(1.15);
     filter: brightness(1.1);
 }
 
-/* =========================================================
-   RUB KARTY (HISTORIE, ZÁPISNÍK, ČASOVÁ OSA)
-   ========================================================= */
-
+/* Rub karty */
 .flip-card-back {
     position: absolute;
     top: 0;
@@ -469,7 +471,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     width: 100%;
     transform: rotateY(180deg);
     background: var(--bg-card);
-    border: 1.5px solid #2563eb;
+    border: 1.5px solid var(--tab-active-bg);
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
     padding: 0.9rem 1rem;
     box-sizing: border-box;
@@ -478,13 +480,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
-
-.event-concert-wrapper .flip-card-back {
-    border-color: var(--stripe-concert);
-}
-.event-meeting-wrapper .flip-card-back {
-    border-color: var(--stripe-meeting);
 }
 
 .flip-back-header {
@@ -504,12 +499,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     color: var(--text-secondary);
 }
 
-.flip-back-actions {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
 .btn-card-edit-mini {
     background: transparent;
     border: none;
@@ -517,11 +506,8 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     font-weight: 600;
     cursor: pointer;
     padding: 0.2rem 0.4rem;
-    color: #2563eb;
+    color: var(--tab-active-bg);
     border-radius: 4px;
-}
-.btn-card-edit-mini:hover {
-    text-decoration: underline;
 }
 
 .note-history-chips {
@@ -532,9 +518,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     margin-bottom: 0.5rem;
     scrollbar-width: none;
 }
-.note-history-chips::-webkit-scrollbar {
-    display: none;
-}
+.note-history-chips::-webkit-scrollbar { display: none; }
 
 .history-chip {
     padding: 0.2rem 0.45rem;
@@ -543,16 +527,16 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     border-radius: 6px;
     font-size: 0.72rem;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.15s ease;
 }
 
 .history-chip.active {
-    background: #2563eb;
-    color: #ffffff;
-    border-color: #2563eb;
+    background: var(--tab-active-bg);
+    color: var(--tab-active-text);
+    border-color: var(--tab-active-bg);
 }
 
 .flip-back-body {
@@ -572,10 +556,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     font-weight: 500;
 }
 
-/* =========================================================
-   LÍCOVÁ STRANA KARTY (HODINA, UDÁLOST, VÝMĚNA)
-   ========================================================= */
-
+/* Líc karty */
 .lesson-card {
     background: var(--bg-card);
     border: 1px solid var(--border-card);
@@ -587,7 +568,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: transform 0.15s ease, opacity 0.2s ease, background-color 0.2s ease;
+    transition: transform 0.15s ease, opacity 0.2s ease, background-color 0.25s ease;
 }
 
 .lesson-card:active {
@@ -604,7 +585,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     50% { outline-color: transparent; }
 }
 
-/* KARTA VE STAVU VÝMĚNY (ČEKÁ NA SCHVÁLENÍ) */
 .lesson-card.swap-pending {
     background: var(--swap-pending-bg) !important;
     border: 1.5px dashed var(--swap-pending-border) !important;
@@ -612,7 +592,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 
 .swap-badge {
     display: inline-block;
-    background: rgba(245, 158, 11, 0.18);
+    background: var(--swap-pending-bg);
     color: var(--swap-pending-text);
     border: 1px solid var(--swap-pending-border);
     font-size: 0.72rem;
@@ -631,7 +611,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 
 .end-time {
     font-size: 0.75rem;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--text-secondary);
 }
 
@@ -646,13 +626,8 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     line-height: 1.25;
 }
 
-.student-name.gender-girl {
-    color: var(--gender-girl) !important;
-}
-
-.student-name.gender-boy {
-    color: var(--gender-boy) !important;
-}
+.student-name.gender-girl { color: var(--gender-girl) !important; }
+.student-name.gender-boy { color: var(--gender-boy) !important; }
 
 .student-details {
     font-size: 0.8rem;
@@ -660,37 +635,25 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     margin-top: 0.2rem;
 }
 
-/* Soubor kytar – proužky podle věku */
-.lesson-card.ensemble-gold {
-    border-left: 5px solid var(--stripe-gold) !important;
-}
-.ensemble-title-older {
-    color: var(--stripe-gold) !important;
-}
+.lesson-card.ensemble-gold { border-left: 5px solid var(--stripe-gold) !important; }
+.ensemble-title-older { color: var(--stripe-gold) !important; }
 
-.lesson-card.ensemble-purple {
-    border-left: 5px solid var(--stripe-purple) !important;
-}
-.ensemble-title-younger {
-    color: var(--stripe-purple) !important;
-}
+.lesson-card.ensemble-purple { border-left: 5px solid var(--stripe-purple) !important; }
+.ensemble-title-younger { color: var(--stripe-purple) !important; }
 
 .lesson-card.private-card {
     border-left: 5px solid var(--stripe-private) !important;
     background: var(--private-bg) !important;
 }
 
-/* Karty akcí */
+/* Události */
 .lesson-card.event-concert {
     border: 1.5px solid var(--border-concert) !important;
     border-left: 6px solid var(--stripe-concert) !important;
     background: var(--bg-concert) !important;
     border-radius: 12px;
 }
-.event-title-concert {
-    color: var(--title-concert) !important;
-    font-weight: 800;
-}
+.event-title-concert { color: var(--title-concert) !important; font-weight: 800; }
 
 .lesson-card.event-meeting {
     border: 1.5px solid var(--border-meeting) !important;
@@ -698,10 +661,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     background: var(--bg-meeting) !important;
     border-radius: 12px;
 }
-.event-title-meeting {
-    color: var(--title-meeting) !important;
-    font-weight: 800;
-}
+.event-title-meeting { color: var(--title-meeting) !important; font-weight: 800; }
 
 .event-chip {
     display: inline-block;
@@ -711,14 +671,8 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     font-weight: 700;
     margin-right: 0.4rem;
 }
-.event-chip.concert {
-    background: rgba(244, 63, 94, 0.2);
-    color: var(--title-concert);
-}
-.event-chip.meeting {
-    background: rgba(20, 184, 166, 0.2);
-    color: var(--title-meeting);
-}
+.event-chip.concert { background: rgba(244, 63, 94, 0.2); color: var(--title-concert); }
+.event-chip.meeting { background: rgba(20, 184, 166, 0.2); color: var(--title-meeting); }
 
 /* Omluvení */
 .lesson-card.absent {
@@ -737,11 +691,11 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 
 .badge-absent {
     display: inline-block;
-    background: rgba(239, 68, 68, 0.12);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.14);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.35);
     font-size: 0.72rem;
-    font-weight: 600;
+    font-weight: 700;
     padding: 0.15rem 0.45rem;
     border-radius: 4px;
     margin-left: 0.4rem;
@@ -760,11 +714,11 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     margin-top: -1.6rem;
     margin-left: 1.5rem;
     background: var(--bg-card);
-    border: 1.5px solid #3b82f6;
-    border-left: 5px solid #3b82f6;
+    border: 1.5px solid #0284c7;
+    border-left: 5px solid #0284c7;
     border-radius: 8px;
     padding: 0.6rem 0.8rem;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -781,7 +735,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #3b82f6;
+    color: #0284c7;
     font-weight: bold;
 }
 
@@ -792,22 +746,22 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 
 .substitute-badge-card .sub-tag {
     font-size: 0.75rem;
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
+    background: rgba(2, 132, 199, 0.15);
+    color: #0284c7;
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .lesson-card.past-lesson {
-    opacity: 0.42 !important;
-    filter: grayscale(0.25);
+    opacity: 0.45 !important;
+    filter: grayscale(0.2);
 }
 
 .lesson-card.current-lesson {
     position: relative;
-    box-shadow: 0 0 16px rgba(59, 130, 246, 0.35);
-    border-top: 1px solid rgba(147, 197, 253, 0.4);
+    box-shadow: 0 0 16px rgba(180, 83, 9, 0.35);
+    border-top: 1px solid rgba(245, 158, 11, 0.4);
 }
 
 .lesson-progress-bar {
@@ -815,12 +769,12 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     bottom: 0;
     left: 0;
     height: 3px;
-    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    background: linear-gradient(90deg, #d97706, #f59e0b);
     transition: width 1s linear;
 }
 
 /* =========================================================
-   6. SPODNÍ LIŠTA A MODÁL
+   5. SPODNÍ LIŠTA A MODÁL
    ========================================================= */
 
 .bottom-bar {
@@ -836,7 +790,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     padding: 0.6rem 0.8rem;
     gap: 0.5rem;
     z-index: 100;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .bottom-bar button {
@@ -848,12 +802,12 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     padding: 0.7rem 0.3rem;
     border-radius: 8px;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     background: var(--bg-card);
     color: var(--text-primary);
     border: 1px solid var(--border-card);
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    transition: all 0.15s ease;
 }
 
 .modal-overlay {
@@ -868,9 +822,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     z-index: 1000;
 }
 
-.modal-overlay.hidden {
-    display: none;
-}
+.modal-overlay.hidden { display: none; }
 
 .modal {
     background: var(--modal-bg);
@@ -911,7 +863,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 
 .btn-approve-swap {
     flex: 1;
-    background: #16a34a;
+    background: #15803d;
     color: #ffffff;
     border: none;
     border-radius: 6px;
@@ -919,28 +871,18 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     font-size: 0.85rem;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.15s ease;
-}
-
-.btn-approve-swap:active {
-    background: #15803d;
 }
 
 .btn-cancel-swap {
     flex: 1;
     background: rgba(239, 68, 68, 0.15);
     color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    border: 1px solid rgba(239, 68, 68, 0.35);
     border-radius: 6px;
     padding: 0.55rem;
     font-size: 0.85rem;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.15s ease;
-}
-
-.btn-cancel-swap:active {
-    background: rgba(239, 68, 68, 0.25);
 }
 
 .type-switcher {
@@ -1025,9 +967,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     gap: 0.6rem;
 }
 
-.form-row .form-group {
-    flex: 1;
-}
+.form-row .form-group { flex: 1; }
 
 .checkbox-row {
     display: flex;
@@ -1043,8 +983,8 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     cursor: pointer;
 }
 
-.label-private { color: #2563eb; font-weight: 600; font-size: 0.9rem; }
-.label-ensemble { color: #d97706; font-weight: 600; font-size: 0.9rem; }
+.label-private { color: var(--stripe-private); font-weight: 700; font-size: 0.9rem; }
+.label-ensemble { color: var(--stripe-gold); font-weight: 700; font-size: 0.9rem; }
 
 .ensemble-tier-box, .event-tier-box {
     background: var(--tab-bg);
@@ -1099,15 +1039,9 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     border-bottom: 1px solid var(--border-card);
 }
 
-.substitute-divider span {
-    padding: 0 0.6rem;
-    opacity: 0.85;
-}
+.substitute-divider span { padding: 0 0.6rem; opacity: 0.85; }
 
-.radio-row {
-    display: flex;
-    gap: 1.2rem;
-}
+.radio-row { display: flex; gap: 1.2rem; }
 
 .radio-tag {
     display: flex;
@@ -1118,15 +1052,15 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     cursor: pointer;
 }
 
-.radio-tag.younger { color: #9333ea; }
-.radio-tag.older { color: #d97706; }
+.radio-tag.younger { color: var(--stripe-purple); }
+.radio-tag.older { color: var(--stripe-gold); }
 .radio-tag.event-concert-tag { color: var(--title-concert); }
 .radio-tag.event-meeting-tag { color: var(--title-meeting); }
 
 .btn-clear-sub {
-    background: rgba(239, 68, 68, 0.12);
+    background: rgba(239, 68, 68, 0.14);
     color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.25);
+    border: 1px solid rgba(239, 68, 68, 0.3);
     border-radius: 6px;
     padding: 0.45rem 0.8rem;
     font-size: 0.82rem;
@@ -1134,11 +1068,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     cursor: pointer;
     margin-top: 0.4rem;
     width: 100%;
-    transition: background 0.15s ease;
-}
-
-.btn-clear-sub:active {
-    background: rgba(239, 68, 68, 0.2);
 }
 
 .modal-actions {
@@ -1153,25 +1082,20 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     padding: 0.65rem;
     border-radius: 6px;
     font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     border: none;
 }
 
-.btn-primary { background: #2563eb; color: #fff; }
+.btn-primary { background: var(--tab-active-bg); color: var(--tab-active-text); }
 .btn-secondary { background: var(--tab-bg); color: var(--text-primary); }
 .modal-actions-danger { display: flex; gap: 0.6rem; margin-top: 0.6rem; }
 .btn-outline { background: transparent; border: 1px solid var(--border-card) !important; color: var(--text-primary); }
-.btn-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3) !important; }
+.btn-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35) !important; }
 
-/* Přechodové animace */
-.slide-from-right {
-    animation: slideRight 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.slide-from-left {
-    animation: slideLeft 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+/* Přechody dnů */
+.slide-from-right { animation: slideRight 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.slide-from-left { animation: slideLeft 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 @keyframes slideRight {
     from { opacity: 0; transform: translateX(35px); }
