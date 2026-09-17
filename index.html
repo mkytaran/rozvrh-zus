@@ -182,14 +182,30 @@
             <div class="absence-section" id="row-absent-section">
                 <div class="checkbox-row">
                     <input type="checkbox" id="edit-absent">
-                    <label for="edit-absent"><strong>Omluven / nepřijde v tomto týdnu</strong></label>
+                    <label for="edit-absent"><strong>Omluven / nepřijde</strong></label>
                 </div>
-                <div id="absent-date-container" style="display: none; margin-top: 0.4rem;">
-                    <label for="edit-absent-date" class="form-sublabel">Datum nebo rozsah (např. 15.9. nebo 10.9. - 24.9.):</label>
-                    <input type="text" id="edit-absent-date" placeholder="např. 15.9.">
+                
+                <div id="absent-date-container" style="display: none; margin-top: 0.6rem; background: var(--tab-bg); border: 1px solid var(--border-card); padding: 0.75rem; border-radius: 8px;">
+                    <div class="form-row">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="edit-absent-from" class="form-sublabel">Datum od:</label>
+                            <input type="date" id="edit-absent-from">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="edit-absent-to" class="form-sublabel">Datum do (volitelné):</label>
+                            <input type="date" id="edit-absent-to">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.4rem; margin-top: 0.6rem;">
+                        <button type="button" id="btn-absent-quick-today" class="history-chip" style="flex: 1;">Pouze dnes</button>
+                        <button type="button" id="btn-absent-quick-week" class="history-chip" style="flex: 1;">Celý týden</button>
+                    </div>
+
+                    <!-- Skrytý formátovaný text pro uložení do Google Tabulky -->
+                    <input type="hidden" id="edit-absent-date">
                 </div>
             </div>
-
             <div id="substitute-section" class="substitute-box" style="display: none;">
                 <div class="substitute-box-title">Záskok na tuto hodinu</div>
                 

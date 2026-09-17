@@ -55,8 +55,7 @@ const systemNow = new Date();
 let currentDay = (systemNow.getDay() >= 1 && systemNow.getDay() <= 5) ? dayMap[systemNow.getDay()] : 'Pondělí';
 
 let swapSourceStudent = null;
-let editingStudentName = null;
-let editingStudentOriginalDay = null;
+let editingStudentName = null; // Pokud je null, přidáváme NOVÉHO žáka
 let editingEventId = null;
 let editingEventOldIso = null;
 let currentModalMode = 'lesson';
@@ -94,6 +93,15 @@ function formatDateToInput(d) {
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
+}
+
+function parseInputDate(str) {
+    if (!str) return null;
+    const parts = str.split('-').map(Number);
+    if (parts.length !== 3) return null;
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    d.setHours(0, 0, 0, 0);
+    return d;
 }
 
 function formatDateHuman(d) {
@@ -140,8 +148,9 @@ function isLessonAbsentInDate(lesson, targetDate) {
     if (!lesson.absentDate || !lesson.absentDate.trim()) return true;
 
     const dateStr = lesson.absentDate.trim();
-    if (dateStr.includes('-')) {
-        const [startPart, endPart] = dateStr.split('-');
+    if (dateStr.includes('-') || dateStr.includes('–')) {
+        const separator = dateStr.includes('–') ? '–' : '-';
+        const [startPart, endPart] = dateStr.split(separator);
         const startDate = parseSingleDate(startPart);
         const endDate = parseSingleDate(endPart);
         if (startDate && endDate) return targetDate >= startDate && targetDate <= endDate;
@@ -180,7 +189,7 @@ function playGuitarChord() {
     } catch (e) {}
 }
 
-// --- 6. Sloučení dat pro daný den (Sjednocené čtení výjimek) ---
+// --- 6. Sloučení dat pro daný den ---
 function getEffectiveDayLessons(dayName) {
     const activeMonday = getMonday(new Date(), weekOffset);
     const isoKey = getISOWeekKey(activeMonday);
@@ -197,7 +206,6 @@ function getEffectiveDayLessons(dayName) {
             const slotKey = `${d}_slot_${idx}`;
             const timeKey = `${d}_${lesson.time}`;
 
-            // Načte přepis: preferuje jméno, se zpětnou kompatibilitou na staré klíče
             const override = overrides[nameKey] || overrides[slotKey] || overrides[timeKey] || {};
 
             const effectiveDay = override.effectiveDay !== undefined ? override.effectiveDay : d;
@@ -240,7 +248,7 @@ function getEffectiveDayLessons(dayName) {
     return lessons.sort((a, b) => a.time.localeCompare(b.time));
 }
 
-// --- 7. Záložky dnů a tečky ---
+// --- 7. Záložky dnů ---
 function updateWeekStepperUI() {
     const monday = getMonday(new Date(), weekOffset);
     const friday = new Date(monday);
@@ -664,7 +672,7 @@ function fetchCloudSchedule(silent = true) {
         });
 }
 
-// --- 10. Modál úprav a bezpečné ukládání výjimek ---
+// --- 10. Modál úprav a výběr z kalendáře ---
 function setModalMode(mode) {
     currentModalMode = mode;
     const btnLesson = document.getElementById('type-btn-lesson');
@@ -733,7 +741,7 @@ function populateSubstituteSelect(currentLessonStudent) {
 function handleCardClick(index) {
     const effectiveLessons = getEffectiveDayLessons(currentDay);
 
-    // DOKONČENÍ VÝMĚNY DVOU ŽÁKŮ
+    // Dokončení výměny
     if (swapSourceStudent !== null) {
         const lessonB = effectiveLessons[index];
         const src = swapSourceStudent;
@@ -783,15 +791,16 @@ function handleCardClick(index) {
         return;
     }
 
-    // OTEVŘENÍ KARTY PRO ÚPRAVU
+    // Otevření karty pro editaci existující hodiny
     const lesson = effectiveLessons[index];
     const daySelect = document.getElementById('edit-day');
     if (daySelect) daySelect.value = lesson.day;
 
+    const currentLessonDate = getDateForDay(lesson.day, weekOffset);
+
     const eventDateInput = document.getElementById('edit-event-date');
     if (eventDateInput) {
-        const currentSelectedDate = getDateForDay(lesson.day, weekOffset);
-        eventDateInput.value = formatDateToInput(currentSelectedDate);
+        eventDateInput.value = formatDateToInput(currentLessonDate);
     }
 
     const oldBanner = document.getElementById('modal-swap-approval-banner');
@@ -799,7 +808,6 @@ function handleCardClick(index) {
 
     if (lesson.isEvent) {
         editingStudentName = null;
-        editingStudentOriginalDay = null;
         editingEventId = lesson.id;
         const activeMonday = getMonday(new Date(), weekOffset);
         editingEventOldIso = getISOWeekKey(activeMonday);
@@ -817,7 +825,6 @@ function handleCardClick(index) {
         document.getElementById('btn-swap').style.display = 'none';
     } else {
         editingStudentName = lesson.name;
-        editingStudentOriginalDay = lesson.originalDay || lesson.day;
         editingEventId = null;
         editingEventOldIso = null;
         setModalMode('lesson');
@@ -893,6 +900,8 @@ function handleCardClick(index) {
 
         const editAbsentCheckbox = document.getElementById('edit-absent');
         const absentDateContainer = document.getElementById('absent-date-container');
+        const editAbsentFrom = document.getElementById('edit-absent-from');
+        const editAbsentTo = document.getElementById('edit-absent-to');
         const editAbsentDateInput = document.getElementById('edit-absent-date');
         const subSection = document.getElementById('substitute-section');
         const subCustom = document.getElementById('substitute-custom');
@@ -900,10 +909,43 @@ function handleCardClick(index) {
 
         populateSubstituteSelect(lesson.name);
 
-        // Korektní načtení stavu omluvenky
         const isCurrentlyAbsent = (currentOverride.absent !== undefined) ? currentOverride.absent : !!lesson.absent;
         editAbsentCheckbox.checked = isCurrentlyAbsent;
-        editAbsentDateInput.value = currentOverride.absentDate !== undefined ? currentOverride.absentDate : (lesson.absentDate || '');
+
+        const existingDateStr = (currentOverride.absentDate !== undefined ? currentOverride.absentDate : (lesson.absentDate || '')).trim();
+        editAbsentDateInput.value = existingDateStr;
+
+        if (existingDateStr) {
+            if (existingDateStr.includes('-') || existingDateStr.includes('–')) {
+                const sep = existingDateStr.includes('–') ? '–' : '-';
+                const [fromStr, toStr] = existingDateStr.split(sep);
+                const dFrom = parseSingleDate(fromStr);
+                const dTo = parseSingleDate(toStr);
+                editAbsentFrom.value = dFrom ? formatDateToInput(dFrom) : formatDateToInput(currentLessonDate);
+                editAbsentTo.value = dTo ? formatDateToInput(dTo) : '';
+            } else {
+                const dSingle = parseSingleDate(existingDateStr);
+                editAbsentFrom.value = dSingle ? formatDateToInput(dSingle) : formatDateToInput(currentLessonDate);
+                editAbsentTo.value = '';
+            }
+        } else {
+            editAbsentFrom.value = formatDateToInput(currentLessonDate);
+            editAbsentTo.value = '';
+        }
+
+        document.getElementById('btn-absent-quick-today').onclick = () => {
+            editAbsentFrom.value = formatDateToInput(currentLessonDate);
+            editAbsentTo.value = '';
+        };
+
+        document.getElementById('btn-absent-quick-week').onclick = () => {
+            const monday = getMonday(currentLessonDate, 0);
+            const friday = new Date(monday);
+            friday.setDate(monday.getDate() + 4);
+            editAbsentFrom.value = formatDateToInput(monday);
+            editAbsentTo.value = formatDateToInput(friday);
+        };
+
         subCustom.value = currentOverride.substitute !== undefined ? currentOverride.substitute : (lesson.substitute || '');
         subSelect.value = '';
 
@@ -985,9 +1027,11 @@ function cancelSwap(lesson) {
 
 document.getElementById('btn-cancel').onclick = () => document.getElementById('edit-modal').classList.add('hidden');
 
-// ULOŽENÍ HODINY (Ošetřena omluvenka, přesun dne i poznámky)
+// =========================================================
+// ULOŽENÍ HODINY (Přidání nové hodiny i úprava existující)
+// =========================================================
 document.getElementById('btn-save').onclick = () => {
-    // 1. Událost
+    // 1. Událost (Koncert / Porada)
     if (currentModalMode === 'event') {
         const timeVal = document.getElementById('edit-time').value;
         const endVal = document.getElementById('edit-event-end').value || addMinutes(timeVal, 60);
@@ -1049,23 +1093,70 @@ document.getElementById('btn-save').onclick = () => {
         return;
     }
 
-    // 2. Výuka žáka
+    // 2. Výuka žáka (Přidání nebo Úprava)
     const activeMonday = getMonday(new Date(), weekOffset);
     const isoKey = getISOWeekKey(activeMonday);
     if (!weekOverrides[isoKey]) weekOverrides[isoKey] = {};
 
     const targetDay = document.getElementById('edit-day') ? document.getElementById('edit-day').value : currentDay;
+    const newName = document.getElementById('edit-name').value.trim();
 
-    if (editingStudentName) {
-        const isPriv = document.getElementById('edit-private').checked;
-        const newTime = document.getElementById('edit-time').value;
-        const newName = document.getElementById('edit-name').value.trim();
-        const isAbs = document.getElementById('edit-absent').checked;
-        const absDate = isAbs ? document.getElementById('edit-absent-date').value.trim() : '';
-        const subVal = document.getElementById('substitute-custom').value.trim();
-        const notesVal = document.getElementById('edit-notes').value.trim();
+    if (!newName) {
+        alert("Zadejte prosím jméno žáka.");
+        return;
+    }
 
-        // Nalezení žáka v kmenovém rozvrhu podle jména, se kterým jsme kartu otevřeli
+    const isPriv = document.getElementById('edit-private').checked;
+    const newTime = document.getElementById('edit-time').value;
+    const isAbs = document.getElementById('edit-absent').checked;
+    const subVal = document.getElementById('substitute-custom').value.trim();
+    const notesVal = document.getElementById('edit-notes').value.trim();
+
+    // Formátování data omluvenky
+    let absDate = '';
+    if (isAbs) {
+        const dFrom = parseInputDate(document.getElementById('edit-absent-from').value);
+        const dTo = parseInputDate(document.getElementById('edit-absent-to').value);
+
+        if (dFrom && dTo && dTo.getTime() > dFrom.getTime()) {
+            absDate = `${dFrom.getDate()}.${dFrom.getMonth() + 1}. – ${dTo.getDate()}.${dTo.getMonth() + 1}.`;
+        } else if (dFrom) {
+            absDate = `${dFrom.getDate()}.${dFrom.getMonth() + 1}.`;
+        }
+    }
+
+    const rocnikVal = isPriv ? '' : document.getElementById('edit-rocnik').value.trim();
+    const hnVal = isPriv ? '' : document.getElementById('edit-hn').value.trim();
+    const ensembleVal = isPriv ? false : document.getElementById('edit-ensemble').checked;
+    const radYounger = document.getElementById('ensemble-younger');
+    const ensembleGroupVal = isPriv ? 'older' : ((radYounger && radYounger.checked) ? 'younger' : 'older');
+
+    // =====================================================
+    // A) PŘIDÁNÍ ÚPLNĚ NOVÉHO ŽÁKA
+    // =====================================================
+    if (!editingStudentName) {
+        const newLesson = {
+            time: newTime,
+            name: newName,
+            rocnik: rocnikVal,
+            hn: hnVal,
+            isPrivate: isPriv,
+            ensemble: ensembleVal,
+            ensembleGroup: ensembleGroupVal,
+            absent: false,
+            notes: ''
+        };
+
+        if (!masterSchedule[targetDay]) masterSchedule[targetDay] = [];
+        masterSchedule[targetDay].push(newLesson);
+        masterSchedule[targetDay].sort((a, b) => a.time.localeCompare(b.time));
+
+        currentDay = targetDay;
+    } 
+    // =====================================================
+    // B) ÚPRAVA NEBO PŘESUN EXISTUJÍCÍHO ŽÁKA
+    // =====================================================
+    else {
         let foundDay = null;
         let foundIdx = -1;
 
@@ -1085,21 +1176,13 @@ document.getElementById('btn-save').onclick = () => {
             lessonObj.time = newTime;
             lessonObj.name = newName;
             lessonObj.isPrivate = isPriv;
+            lessonObj.rocnik = rocnikVal;
+            lessonObj.hn = hnVal;
+            lessonObj.ensemble = ensembleVal;
+            lessonObj.ensembleGroup = ensembleGroupVal;
             lessonObj.absent = false;
 
-            if (isPriv) {
-                lessonObj.rocnik = '';
-                lessonObj.hn = '';
-                lessonObj.ensemble = false;
-            } else {
-                lessonObj.rocnik = document.getElementById('edit-rocnik').value.trim();
-                lessonObj.hn = document.getElementById('edit-hn').value.trim();
-                lessonObj.ensemble = document.getElementById('edit-ensemble').checked;
-                const radYounger = document.getElementById('ensemble-younger');
-                lessonObj.ensembleGroup = (radYounger && radYounger.checked) ? 'younger' : 'older';
-            }
-
-            // Přesun na jiný den v kmenovém rozvrhu
+            // Přesun na jiný den
             if (targetDay !== foundDay) {
                 masterSchedule[foundDay].splice(foundIdx, 1);
                 if (!masterSchedule[targetDay]) masterSchedule[targetDay] = [];
@@ -1111,46 +1194,63 @@ document.getElementById('btn-save').onclick = () => {
                 }
                 currentDay = targetDay;
             }
-        }
-
-        // Zápisník historie poznámek
-        const lessonDateHuman = formatDateHuman(getDateForDay(targetDay, weekOffset));
-        let noteHistoryPayload = null;
-
-        if (notesVal) {
-            noteHistoryPayload = {
-                date: lessonDateHuman,
-                student: newName,
-                notes: notesVal
-            };
-            if (!studentNotesHistory[newName]) studentNotesHistory[newName] = [];
-            studentNotesHistory[newName] = studentNotesHistory[newName].filter(h => h.date !== lessonDateHuman);
-            studentNotesHistory[newName].unshift({ date: lessonDateHuman, notes: notesVal });
         } else {
-            if (studentNotesHistory[newName]) {
-                studentNotesHistory[newName] = studentNotesHistory[newName].filter(h => h.date !== lessonDateHuman);
-            }
+            // Pokud by žák náhodou nebyl v masterSchedule nalezen, vytvoříme ho v cílovém dni
+            if (!masterSchedule[targetDay]) masterSchedule[targetDay] = [];
+            masterSchedule[targetDay].push({
+                time: newTime,
+                name: newName,
+                rocnik: rocnikVal,
+                hn: hnVal,
+                isPrivate: isPriv,
+                ensemble: ensembleVal,
+                ensembleGroup: ensembleGroupVal,
+                absent: false,
+                notes: ''
+            });
+            masterSchedule[targetDay].sort((a, b) => a.time.localeCompare(b.time));
+            currentDay = targetDay;
         }
+    }
 
-        // Uložení týdenního přepsání (Omluvenka, čas, poznámka) vázaného na jméno
-        const existingData = weekOverrides[isoKey][newName] || weekOverrides[isoKey][editingStudentName] || {};
-        if (newName !== editingStudentName && weekOverrides[isoKey][editingStudentName]) {
-            delete weekOverrides[isoKey][editingStudentName];
-        }
+    // Uložení historie poznámky
+    const lessonDateHuman = formatDateHuman(getDateForDay(targetDay, weekOffset));
+    let noteHistoryPayload = null;
 
-        weekOverrides[isoKey][newName] = {
-            ...existingData,
-            time: newTime,
-            absent: isAbs,
-            absentDate: isAbs ? absDate : '',
-            substitute: (isAbs && subVal) ? subVal : '',
+    if (notesVal) {
+        noteHistoryPayload = {
+            date: lessonDateHuman,
+            student: newName,
             notes: notesVal
         };
-
-        saveSchedule(noteHistoryPayload);
-        renderTabs();
-        renderSchedule();
+        if (!studentNotesHistory[newName]) studentNotesHistory[newName] = [];
+        studentNotesHistory[newName] = studentNotesHistory[newName].filter(h => h.date !== lessonDateHuman);
+        studentNotesHistory[newName].unshift({ date: lessonDateHuman, notes: notesVal });
+    } else {
+        if (studentNotesHistory[newName]) {
+            studentNotesHistory[newName] = studentNotesHistory[newName].filter(h => h.date !== lessonDateHuman);
+        }
     }
+
+    // Týdenní stav (Omluvenka / Záskok / Poznámka)
+    const oldKey = editingStudentName || newName;
+    const existingData = weekOverrides[isoKey][newName] || weekOverrides[isoKey][oldKey] || {};
+    if (editingStudentName && newName !== editingStudentName && weekOverrides[isoKey][editingStudentName]) {
+        delete weekOverrides[isoKey][editingStudentName];
+    }
+
+    weekOverrides[isoKey][newName] = {
+        ...existingData,
+        time: newTime,
+        absent: isAbs,
+        absentDate: isAbs ? absDate : '',
+        substitute: (isAbs && subVal) ? subVal : '',
+        notes: notesVal
+    };
+
+    saveSchedule(noteHistoryPayload);
+    renderTabs();
+    renderSchedule();
     document.getElementById('edit-modal').classList.add('hidden');
 };
 
@@ -1208,9 +1308,9 @@ document.getElementById('btn-delete').onclick = () => {
     }
 };
 
+// Tlačítko ➕ Hodina
 document.getElementById('add-lesson-btn').onclick = () => {
-    editingStudentName = null;
-    editingStudentOriginalDay = null;
+    editingStudentName = null; // ZÁSADNÍ: Nastavíme null pro nový záznam
     editingEventId = null;
     editingEventOldIso = null;
     setModalMode('lesson');
@@ -1231,7 +1331,8 @@ document.getElementById('add-lesson-btn').onclick = () => {
     document.getElementById('edit-private').checked = false;
     document.getElementById('edit-ensemble').checked = false;
     document.getElementById('edit-absent').checked = false;
-    document.getElementById('edit-absent-date').value = "";
+    document.getElementById('edit-absent-from').value = formatDateToInput(getDateForDay(currentDay, weekOffset));
+    document.getElementById('edit-absent-to').value = "";
     document.getElementById('substitute-custom').value = "";
 
     const oldBanner = document.getElementById('modal-swap-approval-banner');
@@ -1240,9 +1341,9 @@ document.getElementById('add-lesson-btn').onclick = () => {
     document.getElementById('edit-modal').classList.remove('hidden');
 };
 
+// Tlačítko 🗓️ Událost
 document.getElementById('add-event-btn').onclick = () => {
     editingStudentName = null;
-    editingStudentOriginalDay = null;
     editingEventId = null;
     editingEventOldIso = null;
     setModalMode('event');
@@ -1264,6 +1365,7 @@ document.getElementById('add-event-btn').onclick = () => {
     document.getElementById('edit-modal').classList.remove('hidden');
 };
 
+// Tlačítko ☕ Přestávka
 document.getElementById('add-break-btn').onclick = () => {
     const targetTime = prompt("Od jakého času posunout následující hodiny (HH:MM)?", "15:15");
     if (!targetTime) return;
