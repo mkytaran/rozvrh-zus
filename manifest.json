@@ -5,7 +5,7 @@
   "description": "Rozvrh hodin a deníček výuky kytary",
   "start_url": "./index.html",
   "scope": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#141211",
   "theme_color": "#141211",
