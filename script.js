@@ -393,7 +393,7 @@ function renderSchedule(animDir = '') {
                 if (diffMins > 0) {
                     const breakEl = document.createElement('div');
                     breakEl.className = 'break-indicator';
-                    breakEl.textContent = `— pauza ${diffMins} min —`;
+                    breakEl.textContent = `— přestávka ${diffMins} min —`;
                     container.appendChild(breakEl);
                 }
             }
@@ -1373,7 +1373,7 @@ document.getElementById('add-event-btn').onclick = () => {
 document.getElementById('add-break-btn').onclick = () => {
     const targetTime = prompt("Od jakého času posunout následující hodiny (HH:MM)?", "15:15");
     if (!targetTime) return;
-    const duration = prompt("Kolik minut má pauza trvat?", "5");
+    const duration = prompt("Kolik minut má přestávka trvat?", "5");
     const mins = parseInt(duration);
     if (isNaN(mins)) return;
 

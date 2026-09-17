@@ -291,7 +291,7 @@ h1 {
 }
 
 /* =========================================================
-   3. ZÁLOŽKY DNŮ (JEMNÉ PŘECHODY MEZI BARVAMI)
+   3. ZÁLOŽKY DNŮ
    ========================================================= */
 
 .day-selector {
@@ -369,7 +369,7 @@ main#schedule-container {
     padding: 0.75rem 0.8rem;
 }
 
-/* Pauza: velmi kompaktní, těsně mezi kartami */
+/* Přestávka: kompaktní, těsně mezi kartami */
 .break-indicator {
     display: flex;
     align-items: center;
@@ -445,79 +445,77 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 }
 
 /* =========================================================
-   PŘESNÝ OHNUTÝ RŮŽEK S MASKOVÁNÍM PŮVODNÍHO ROHU
+   PERFEKTNĚ SLÍCOVANÝ OHNUTÝ ROH (ČISTÉ CSS)
    ========================================================= */
 
-.lesson-card {
+.lesson-card-wrapper.has-note .flip-card-front {
     position: relative;
-    overflow: visible !important;
+    overflow: visible;
 }
 
 .card-corner-fold {
     position: absolute;
     top: -1px;
     right: -1px;
-    width: 34px;
-    height: 34px;
+    width: 26px;
+    height: 26px;
     cursor: pointer;
     z-index: 25;
-    touch-action: manipulation;
+    background: transparent;
 }
 
-.corner-fold-svg {
+/* 1. Maska: odkrojí roh karty barvou pozadí stránky */
+.card-corner-fold::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
     width: 100%;
     height: 100%;
-    display: block;
+    background: var(--bg-page);
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
     pointer-events: none;
 }
 
-/* Maska: překryje původní roh barvou podkladu stránky */
-.corner-fold-svg .fold-bg-mask {
-    fill: var(--bg-page);
+/* 2. Ohnutý cíp papíru: přehne se dolů do karty */
+.card-corner-fold::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: #d4be9b;
+    clip-path: polygon(0 0, 100% 100%, 0 100%);
+    box-shadow: -2px 2px 4px rgba(45, 30, 15, 0.22);
+    border-bottom: 1px solid #b39b77;
+    border-left: 1px solid #b39b77;
+    pointer-events: none;
+    transition: transform 0.15s ease, background-color 0.2s ease;
 }
 
-/* Stín pod ohybem */
-.corner-fold-svg .fold-shadow {
-    fill: rgba(0, 0, 0, 0.16);
+/* Tmavý režim */
+html.theme-dark .card-corner-fold::after {
+    background: #2b2723;
+    border-color: #3f3933;
+    box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.45);
 }
 
-/* Líc ohybu */
-.corner-fold-svg .fold-leaf {
-    fill: #d9c5a7;
-    transition: fill 0.2s ease;
+/* U koncertů a porad */
+.event-concert-wrapper .card-corner-fold::after {
+    background: #fbcfe8;
+    border-color: #db2777;
 }
 
-/* Hrana ohybu */
-.corner-fold-svg .fold-line {
-    stroke: #b09677;
-    stroke-width: 1.5;
-    stroke-linecap: round;
+.event-meeting-wrapper .card-corner-fold::after {
+    background: #a7f3d0;
+    border-color: #059669;
 }
 
-/* Tmavý motiv */
-html.theme-dark .corner-fold-svg .fold-leaf {
-    fill: #2e2924;
-}
-
-html.theme-dark .corner-fold-svg .fold-line {
-    stroke: #4a4239;
-}
-
-/* Pracovní akce */
-.event-concert .corner-fold-svg .fold-leaf { fill: #f8c9d2; }
-.event-concert .corner-fold-svg .fold-line { stroke: #9f1239; }
-
-.event-meeting .corner-fold-svg .fold-leaf { fill: #b6edd8; }
-.event-meeting .corner-fold-svg .fold-line { stroke: #065f46; }
-
-/* Interakce při dotyku / přejetí */
-.card-corner-fold:active .corner-fold-svg .fold-leaf,
-.card-corner-fold:hover .corner-fold-svg .fold-leaf {
-    fill: #c4a47c;
-}
-html.theme-dark .card-corner-fold:active .corner-fold-svg .fold-leaf,
-html.theme-dark .card-corner-fold:hover .corner-fold-svg .fold-leaf {
-    fill: #3d3730;
+/* Reakce na najetí / dotyk */
+.card-corner-fold:hover::after,
+.card-corner-fold:active::after {
+    transform: scale(1.08);
 }
 
 /* Rub karty */
@@ -697,7 +695,7 @@ html.theme-dark .card-corner-fold:hover .corner-fold-svg .fold-leaf {
 .lesson-card.ensemble-purple { border-left: 5px solid var(--stripe-purple) !important; }
 .ensemble-title-younger { color: var(--stripe-purple) !important; }
 
-/* Soukromá hodina: jemná, o tón tmavší */
+/* Soukromá hodina */
 .lesson-card.private-card {
     border-left: 4px solid var(--stripe-private) !important;
     background: var(--private-bg) !important;
