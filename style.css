@@ -121,7 +121,7 @@ html.theme-dark {
 }
 
 /* =========================================================
-   2. ZÁKLADNÍ STRUKTURA & EDGE-TO-EDGE OCHRANA ROHŮ
+   2. ZÁKLADNÍ STRUKTURA & KOMPAKTNÍ ODSZENÍ
    ========================================================= */
 
 * {
@@ -143,7 +143,7 @@ body {
     color: var(--text-primary);
     min-height: 100%;
     min-height: 100dvh;
-    padding-bottom: calc(5.5rem + max(16px, env(safe-area-inset-bottom, 0px)));
+    padding-bottom: calc(4.6rem + env(safe-area-inset-bottom, 0px));
     overflow-x: hidden;
     transition: background-color 0.25s ease, color 0.25s ease;
 }
@@ -796,7 +796,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 }
 
 /* =========================================================
-   5. SPODNÍ LIŠTA (EDGE-TO-EDGE GESTURE BAR) A MODÁL
+   5. SPODNÍ LIŠTA (PŘIROZENÝ COMPACT DOCK) A MODÁL
    ========================================================= */
 
 .bottom-bar {
@@ -811,23 +811,11 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     display: flex;
     gap: 0.5rem;
     z-index: 100;
-    padding-left: max(0.8rem, env(safe-area-inset-left, 0px));
-    padding-right: max(0.8rem, env(safe-area-inset-right, 0px));
-    padding-top: 0.6rem;
-    padding-bottom: max(1.2rem, calc(0.4rem + env(safe-area-inset-bottom, 0px)));
+    padding-left: max(0.6rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.6rem, env(safe-area-inset-right, 0px));
+    padding-top: 0.5rem;
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
     transition: background-color 0.25s ease, border-color 0.25s ease;
-}
-
-/* Podkladový prvek zamezující ztrátě barvy pod gesture barem */
-.bottom-bar::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    height: 120px;
-    background: var(--bottom-bar-bg);
-    pointer-events: none;
 }
 
 .bottom-bar button {
