@@ -496,19 +496,8 @@ function renderSchedule(animDir = '') {
             cardFront.style.opacity = (1 - (progressPercent / 100) * 0.45).toFixed(2);
         }
 
-        const cornerFoldHtml = hasCurrentWeekNote ? `
-            <div class="card-corner-fold" role="button" aria-label="Otočit na poznámky" title="Otočit na poznámky">
-                <svg viewBox="0 0 32 32" class="corner-fold-svg">
-                    <!-- 1. Trojúhelník v barvě pozadí stránky, který překryje původní roh karty -->
-                    <polygon points="0,0 32,0 32,32" class="fold-bg-mask" />
-                    <!-- 2. Jemný stín pod ohnutým papírem -->
-                    <polygon points="0,0 32,32 0,32" class="fold-shadow" />
-                    <!-- 3. Odvrácená strana ohnutého papíru -->
-                    <polygon points="0,0 32,32 0,32" class="fold-leaf" />
-                    <!-- 4. Diagonální hrana ohybu -->
-                    <line x1="0" y1="0" x2="32" y2="32" class="fold-line" />
-                </svg>
-            </div>` : '';
+       const cornerFoldHtml = hasCurrentWeekNote ? `
+        <div class="card-corner-fold" role="button" aria-label="Otočit na poznámky" title="Otočit na poznámky"></div>` : '';
 
         cardFront.innerHTML = `
             ${cornerFoldHtml}
