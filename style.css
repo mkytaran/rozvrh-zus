@@ -18,7 +18,7 @@ html.theme-light {
     --tab-bg: #e6d5be;           /* Neaktivní den: jemný korkový odstín */
     --tab-text: #453528;
     
-    /* Aktivní den: Elegantní pískový korek (žádná těžká hnědá) */
+    /* Aktivní den: Elegantní pískový korek */
     --tab-active-bg: #c4a47c;
     --tab-active-text: #2a1f16;
     --tab-active-date: #4a3a2d;
@@ -30,7 +30,7 @@ html.theme-light {
 
     --stripe-default: transparent;
     
-    /* Soukromá hodina: Jen o chlup tmavší než pozadí, klidný proužek */
+    /* Soukromá hodina: O chlup tmavší než pozadí */
     --stripe-private: #a88e70;
     --private-bg: #e7dac5;
     
@@ -90,7 +90,7 @@ html.theme-dark {
 
     --stripe-default: transparent;
     
-    /* Soukromá hodina v noci: O chlup světlejší grafit než pozadí */
+    /* Soukromá hodina v noci */
     --stripe-private: #5c5349;
     --private-bg: #1c1917;
     
@@ -444,59 +444,80 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     transform: rotateY(0deg);
 }
 
-/* Přesný vektorový SVG růžek */
+/* =========================================================
+   PŘESNÝ OHNUTÝ RŮŽEK S MASKOVÁNÍM PŮVODNÍHO ROHU
+   ========================================================= */
+
+.lesson-card {
+    position: relative;
+    overflow: visible !important;
+}
+
 .card-corner-fold {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 32px;
-    height: 32px;
+    top: -1px;
+    right: -1px;
+    width: 34px;
+    height: 34px;
     cursor: pointer;
-    z-index: 20;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
-    overflow: hidden;
-    border-top-right-radius: 9px;
+    z-index: 25;
+    touch-action: manipulation;
 }
 
 .corner-fold-svg {
-    width: 26px;
-    height: 26px;
+    width: 100%;
+    height: 100%;
     display: block;
-    filter: drop-shadow(-2px 2px 3px rgba(0, 0, 0, 0.22));
-    transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2), filter 0.18s ease;
+    pointer-events: none;
 }
 
-.corner-fold-svg .fold-triangle {
-    fill: #cbb18a;
+/* Maska: překryje původní roh barvou podkladu stránky */
+.corner-fold-svg .fold-bg-mask {
+    fill: var(--bg-page);
 }
 
-.corner-fold-svg .fold-edge {
-    stroke: #8b4513;
-    stroke-width: 1.2;
+/* Stín pod ohybem */
+.corner-fold-svg .fold-shadow {
+    fill: rgba(0, 0, 0, 0.16);
+}
+
+/* Líc ohybu */
+.corner-fold-svg .fold-leaf {
+    fill: #d9c5a7;
+    transition: fill 0.2s ease;
+}
+
+/* Hrana ohybu */
+.corner-fold-svg .fold-line {
+    stroke: #b09677;
+    stroke-width: 1.5;
     stroke-linecap: round;
 }
 
-html.theme-dark .corner-fold-svg .fold-triangle {
-    fill: #2d2925;
+/* Tmavý motiv */
+html.theme-dark .corner-fold-svg .fold-leaf {
+    fill: #2e2924;
 }
 
-html.theme-dark .corner-fold-svg .fold-edge {
-    stroke: #3b82f6;
-    stroke-width: 1.2;
+html.theme-dark .corner-fold-svg .fold-line {
+    stroke: #4a4239;
 }
 
-.event-concert .corner-fold-svg .fold-triangle { fill: #fecdd3; }
-.event-concert .corner-fold-svg .fold-edge { stroke: #9f1239; stroke-width: 1.2; }
+/* Pracovní akce */
+.event-concert .corner-fold-svg .fold-leaf { fill: #f8c9d2; }
+.event-concert .corner-fold-svg .fold-line { stroke: #9f1239; }
 
-.event-meeting .corner-fold-svg .fold-triangle { fill: #a7f3d0; }
-.event-meeting .corner-fold-svg .fold-edge { stroke: #065f46; stroke-width: 1.2; }
+.event-meeting .corner-fold-svg .fold-leaf { fill: #b6edd8; }
+.event-meeting .corner-fold-svg .fold-line { stroke: #065f46; }
 
-.card-corner-fold:hover .corner-fold-svg,
-.card-corner-fold:active .corner-fold-svg {
-    transform: scale(1.18);
-    filter: drop-shadow(-3px 3px 5px rgba(0, 0, 0, 0.35));
+/* Interakce při dotyku / přejetí */
+.card-corner-fold:active .corner-fold-svg .fold-leaf,
+.card-corner-fold:hover .corner-fold-svg .fold-leaf {
+    fill: #c4a47c;
+}
+html.theme-dark .card-corner-fold:active .corner-fold-svg .fold-leaf,
+html.theme-dark .card-corner-fold:hover .corner-fold-svg .fold-leaf {
+    fill: #3d3730;
 }
 
 /* Rub karty */
@@ -603,7 +624,6 @@ html.theme-dark .corner-fold-svg .fold-edge {
     align-items: center;
     cursor: pointer;
     position: relative;
-    overflow: hidden;
     transition: transform 0.15s ease, opacity 0.2s ease, background-color 0.25s ease;
 }
 
