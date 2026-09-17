@@ -121,7 +121,7 @@ html.theme-dark {
 }
 
 /* =========================================================
-   2. ZÁKLADNÍ STRUKTURA & KOMPAKTNÍ ODSZENÍ
+   2. ZÁKLADNÍ STRUKTURA & KOMPAKTNÍ ODSAZENÍ
    ========================================================= */
 
 * {
@@ -439,50 +439,69 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     transform: rotateY(0deg);
 }
 
-/* Ohnutý růžek v barvě korkové kůže */
+/* =========================================================
+   OHNUTÝ RŮŽEK S POZNÁMKOU (PŘESNÉ ZLÍCOVÁNÍ)
+   ========================================================= */
+
+/* Karta seříznutá v rohu pod úhlem 45° (22px) */
 .lesson-card-wrapper.has-note .flip-card-front {
     position: relative;
-    clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
+    clip-path: polygon(
+        0 0, 
+        calc(100% - 22px) 0, 
+        100% 22px, 
+        100% 100%, 
+        0 100%
+    );
 }
 
+/* Klikací tlačítko v rohu */
 .lesson-card-wrapper.has-note .flip-corner-btn {
     position: absolute;
     top: 0;
     right: 0;
-    width: 36px;
-    height: 36px;
-    z-index: 10;
+    width: 38px;
+    height: 38px;
+    z-index: 15;
     cursor: pointer;
     background: transparent;
 }
 
+/* Odvrácená strana ohnutého růžku – geometricky přesný trojúhelník */
 .lesson-card-wrapper.has-note .flip-card-front::after {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
-    width: 24px;
-    height: 24px;
-    clip-path: polygon(0 0, 100% 100%, 0 100%);
-    background: linear-gradient(225deg, #fefbf6 0%, #d8ba93 50%, #8b5a2b 100%);
-    box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.35);
-    border-bottom-left-radius: 3px;
+    width: 22px;
+    height: 22px;
+    clip-path: polygon(0 0, 0 100%, 100% 100%);
+    background: linear-gradient(135deg, #cbb18a 0%, #8b4513 100%);
+    box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.28);
+    border-bottom-left-radius: 2px;
     pointer-events: none;
-    transition: transform 0.2s ease, filter 0.2s ease;
+    transition: transform 0.15s ease, filter 0.15s ease;
+    z-index: 5;
 }
 
+/* Růžek v tmavém režimu */
+html.theme-dark .lesson-card-wrapper.has-note .flip-card-front::after {
+    background: linear-gradient(135deg, #3b3631 0%, #1e3a8a 100%);
+    box-shadow: -2px 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Růžek u pracovních akcí */
 .event-concert-wrapper.has-note .flip-card-front::after {
-    background: linear-gradient(225deg, #fecdd3 0%, #f43f5e 50%, #881337 100%);
+    background: linear-gradient(135deg, #fecdd3 0%, #9f1239 100%) !important;
 }
 
 .event-meeting-wrapper.has-note .flip-card-front::after {
-    background: linear-gradient(225deg, #ccfbf1 0%, #14b8a6 50%, #134e4a 100%);
+    background: linear-gradient(135deg, #a7f3d0 0%, #065f46 100%) !important;
 }
 
 .lesson-card-wrapper.has-note:hover .flip-card-front::after,
 .lesson-card-wrapper.has-note .flip-corner-btn:hover ~ .flip-card-front::after {
-    transform: scale(1.15);
-    filter: brightness(1.1);
+    filter: brightness(1.15);
 }
 
 /* Rub karty */
