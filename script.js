@@ -497,7 +497,17 @@ function renderSchedule(animDir = '') {
         }
 
         cardFront.innerHTML = `
-            ${hasCurrentWeekNote ? '<div class="flip-corner-btn" title="Otočit na poznámky"></div>' : ''}
+           ${hasCurrentWeekNote ? `
+            <div class="card-corner-fold" title="Otočit na poznámky">
+                <svg viewBox="0 0 28 28" class="corner-fold-svg" aria-hidden="true">
+                    <!-- Stín pod ohnutým papírem -->
+                    <polygon points="0,0 28,28 0,28" fill="rgba(0,0,0,0.18)" />
+                    <!-- Ohnutý trojúhelník papíru -->
+                    <polygon points="0,0 28,28 28,0" class="fold-triangle" />
+                    <!-- Hrana ohybu -->
+                    <line x1="0" y1="0" x2="28" y2="28" class="fold-edge" />
+                </svg>
+            </div>` : ''}
             <div class="time-col">
                 <div>${lesson.time}</div>
                 <div class="end-time">${endTime}</div>

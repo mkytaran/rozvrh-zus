@@ -1,64 +1,66 @@
 /* =========================================================
-   1. BAREVNÝ SYSTÉM (KORKOVÝ ŠPUNT & TEPLÝ GRAFIT)
+   1. BAREVNÝ SYSTÉM (JEMNÝ KOREK & TEPLÝ GRAFIT)
    ========================================================= */
 
-/* Světlý režim: Záhlaví v tónu pozadí, kontrastní tlačítka */
+/* Světlý režim: Jemné harmonické tóny korku a papíru */
 :root,
 html.theme-light {
     color-scheme: light;
 
     --bg-page: #f1e6d4;          /* Základní tón korkového papíru */
     --cork-header: #f1e6d4;      /* Záhlaví splývá s pozadím */
-    --bg-card: #fdfbf7;          /* Slonová kost pro karty */
-    --border-card: #cbb18a;      /* Kontury korkové drti */
-    --text-primary: #3d2b1f;     /* Hluboká pražená kávovo-korková hnědá */
-    --text-secondary: #7d6550;
+    --bg-card: #faf6ee;          /* Velmi jemná slonová kost pro karty */
+    --border-card: #d9c5a7;      /* Měkké kontury korku */
+    --text-primary: #3d2f24;     /* Příjemná tmavá kávová */
+    --text-secondary: #7f6e5e;
 
-    /* Tlačítka přiměřeně a čitelně obarvená */
-    --tab-bg: #dfc7a7;           /* Sytější korkový odstín tlačítek */
-    --tab-text: #3d2b1f;
-    --tab-active-bg: #8b4513;    /* Teplá useň pro aktivní den */
-    --tab-active-text: #ffffff;
-    --tab-active-date: #fde8cd;
+    /* Tlačítka s jemnými rozdíly */
+    --tab-bg: #e6d5be;           /* Neaktivní den: jemný korkový odstín */
+    --tab-text: #453528;
+    
+    /* Aktivní den: Elegantní pískový korek (žádná těžká hnědá) */
+    --tab-active-bg: #c4a47c;
+    --tab-active-text: #2a1f16;
+    --tab-active-date: #4a3a2d;
 
-    --absent-bg: #dfd3c1;
-    --absent-border: #bfb09c;
-    --absent-stripe: #8a7a67;
-    --absent-text: #8a7a67;
+    --absent-bg: #e5dacb;
+    --absent-border: #ccbea9;
+    --absent-stripe: #968673;
+    --absent-text: #8c7c6a;
 
     --stripe-default: transparent;
     
-    /* Soukromá hodina: Zřetelná safírová modř */
-    --stripe-private: #1d4ed8;
-    --private-bg: #e0e7ff;
+    /* Soukromá hodina: Jen o chlup tmavší než pozadí, klidný proužek */
+    --stripe-private: #a88e70;
+    --private-bg: #e7dac5;
     
     /* Kytarový soubor */
-    --stripe-gold: #c26907;      /* Starší: zlatohnědá */
-    --stripe-purple: #86198f;    /* Mladší: fialová */
+    --stripe-gold: #c2781f;      /* Starší: teplý jantar */
+    --stripe-purple: #8b3294;    /* Mladší: fialová */
 
     --gender-girl: #9f1239;
     --gender-boy: #0369a1;
 
     /* Události */
     --stripe-concert: #9f1239;
-    --bg-concert: #ffe4e6;
-    --border-concert: #fecdd3;
+    --bg-concert: #fce8eb;
+    --border-concert: #f8c9d2;
     --title-concert: #9f1239;
 
     --stripe-meeting: #065f46;
-    --bg-meeting: #d1fae5;
-    --border-meeting: #a7f3d0;
+    --bg-meeting: #dcf5eb;
+    --border-meeting: #b6edd8;
     --title-meeting: #065f46;
 
     /* Výměna žáků */
-    --swap-pending-bg: #fef3c7;
-    --swap-pending-border: #f59e0b;
-    --swap-pending-text: #92400e;
+    --swap-pending-bg: #fbf0d3;
+    --swap-pending-border: #e09f3e;
+    --swap-pending-text: #82470a;
 
-    --modal-bg: #f6ede0;
+    --modal-bg: #f5ebe0;
     --modal-overlay: rgba(43, 30, 20, 0.65);
     --input-bg: #ffffff;
-    --input-border: #cbb18a;
+    --input-border: #d9c5a7;
     --bottom-bar-bg: rgba(241, 230, 212, 0.95);
 }
 
@@ -67,30 +69,30 @@ html.theme-dark {
     color-scheme: dark;
 
     --bg-page: #141211;
-    --cork-header: #141211;      /* Záhlaví v noci splývá s pozadím */
-    --bg-card: #221f1d;
-    --border-card: #3b3631;
-    --text-primary: #ede8e3;
-    --text-secondary: #a3998f;
+    --cork-header: #141211;
+    --bg-card: #201e1b;
+    --border-card: #36312c;
+    --text-primary: #eae5df;
+    --text-secondary: #9c9288;
 
-    --tab-bg: #2a2622;
-    --tab-text: #a3998f;
+    --tab-bg: #26221f;
+    --tab-text: #9c9288;
     
     /* Aktivní den: Čistý temný safír */
     --tab-active-bg: #1e3a8a;
     --tab-active-text: #ffffff;
     --tab-active-date: #93c5fd;
 
-    --absent-bg: #1a1816;
-    --absent-border: #2c2825;
-    --absent-stripe: #4a433d;
-    --absent-text: #6b635b;
+    --absent-bg: #181615;
+    --absent-border: #282421;
+    --absent-stripe: #463f38;
+    --absent-text: #665f58;
 
     --stripe-default: transparent;
     
-    /* Soukromá hodina v noci */
-    --stripe-private: #3b82f6;
-    --private-bg: rgba(30, 58, 138, 0.25);
+    /* Soukromá hodina v noci: O chlup světlejší grafit než pozadí */
+    --stripe-private: #5c5349;
+    --private-bg: #1c1917;
     
     /* Kytarový soubor */
     --stripe-gold: #fbbf24;
@@ -113,10 +115,10 @@ html.theme-dark {
     --swap-pending-border: rgba(245, 158, 11, 0.4);
     --swap-pending-text: #fcd34d;
 
-    --modal-bg: #221f1d;
+    --modal-bg: #201e1b;
     --modal-overlay: rgba(0, 0, 0, 0.82);
-    --input-bg: #161413;
-    --input-border: #423d38;
+    --input-bg: #151312;
+    --input-border: #3d3731;
     --bottom-bar-bg: rgba(20, 18, 17, 0.95);
 }
 
@@ -256,7 +258,7 @@ h1 {
 }
 
 .week-display:hover, .week-display:focus {
-    background: rgba(0, 0, 0, 0.06);
+    background: rgba(0, 0, 0, 0.05);
     outline: none;
 }
 
@@ -289,7 +291,7 @@ h1 {
 }
 
 /* =========================================================
-   3. ZÁLOŽKY DNŮ
+   3. ZÁLOŽKY DNŮ (JEMNÉ PŘECHODY MEZI BARVAMI)
    ========================================================= */
 
 .day-selector {
@@ -318,7 +320,7 @@ h1 {
     background: var(--tab-active-bg) !important;
     color: var(--tab-active-text) !important;
     border-color: var(--border-card) !important;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .tab-day-name {
@@ -330,12 +332,12 @@ h1 {
     font-size: 0.72rem;
     font-weight: 500;
     margin-top: 1px;
-    opacity: 0.9;
+    opacity: 0.85;
 }
 
 .day-selector button.active .tab-day-date {
     color: var(--tab-active-date) !important;
-    font-weight: 600;
+    font-weight: 700;
     opacity: 1;
 }
 
@@ -360,35 +362,38 @@ h1 {
 .day-dot.dot-meeting { background-color: #14b8a6; }
 
 /* =========================================================
-   4. ROZVRHOVÉ KARTY & PŘESTÁVKY
+   4. ROZVRHOVÉ KARTY & KOMPAKTNÍ PŘESTÁVKA
    ========================================================= */
 
 main#schedule-container {
-    padding: 0.8rem;
+    padding: 0.75rem 0.8rem;
 }
 
+/* Pauza: velmi kompaktní, těsně mezi kartami */
 .break-indicator {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.35rem 0;
-    margin-bottom: 0.45rem;
-    font-size: 0.74rem;
+    padding: 0.1rem 0;
+    margin-top: 0.15rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: var(--text-secondary);
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
     user-select: none;
+    opacity: 0.85;
 }
 
 .break-indicator::before,
 .break-indicator::after {
     content: '';
     flex: 1;
-    max-width: 40px;
+    max-width: 34px;
     height: 1px;
     background: var(--border-card);
-    margin: 0 0.5rem;
-    opacity: 0.8;
+    margin: 0 0.45rem;
+    opacity: 0.75;
 }
 
 header, 
@@ -409,7 +414,7 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 
 .lesson-card-wrapper {
     position: relative;
-    margin-bottom: 0.55rem;
+    margin-bottom: 0.5rem;
     perspective: 1200px;
 }
 
@@ -439,69 +444,59 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     transform: rotateY(0deg);
 }
 
-/* =========================================================
-   OHNUTÝ RŮŽEK S POZNÁMKOU (PŘESNÉ ZLÍCOVÁNÍ)
-   ========================================================= */
-
-/* Karta seříznutá v rohu pod úhlem 45° (22px) */
-.lesson-card-wrapper.has-note .flip-card-front {
-    position: relative;
-    clip-path: polygon(
-        0 0, 
-        calc(100% - 22px) 0, 
-        100% 22px, 
-        100% 100%, 
-        0 100%
-    );
-}
-
-/* Klikací tlačítko v rohu */
-.lesson-card-wrapper.has-note .flip-corner-btn {
+/* Přesný vektorový SVG růžek */
+.card-corner-fold {
     position: absolute;
     top: 0;
     right: 0;
-    width: 38px;
-    height: 38px;
-    z-index: 15;
+    width: 32px;
+    height: 32px;
     cursor: pointer;
-    background: transparent;
+    z-index: 20;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    overflow: hidden;
+    border-top-right-radius: 9px;
 }
 
-/* Odvrácená strana ohnutého růžku – geometricky přesný trojúhelník */
-.lesson-card-wrapper.has-note .flip-card-front::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 22px;
-    height: 22px;
-    clip-path: polygon(0 0, 0 100%, 100% 100%);
-    background: linear-gradient(135deg, #cbb18a 0%, #8b4513 100%);
-    box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.28);
-    border-bottom-left-radius: 2px;
-    pointer-events: none;
-    transition: transform 0.15s ease, filter 0.15s ease;
-    z-index: 5;
+.corner-fold-svg {
+    width: 26px;
+    height: 26px;
+    display: block;
+    filter: drop-shadow(-2px 2px 3px rgba(0, 0, 0, 0.22));
+    transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2), filter 0.18s ease;
 }
 
-/* Růžek v tmavém režimu */
-html.theme-dark .lesson-card-wrapper.has-note .flip-card-front::after {
-    background: linear-gradient(135deg, #3b3631 0%, #1e3a8a 100%);
-    box-shadow: -2px 2px 6px rgba(0, 0, 0, 0.6);
+.corner-fold-svg .fold-triangle {
+    fill: #cbb18a;
 }
 
-/* Růžek u pracovních akcí */
-.event-concert-wrapper.has-note .flip-card-front::after {
-    background: linear-gradient(135deg, #fecdd3 0%, #9f1239 100%) !important;
+.corner-fold-svg .fold-edge {
+    stroke: #8b4513;
+    stroke-width: 1.2;
+    stroke-linecap: round;
 }
 
-.event-meeting-wrapper.has-note .flip-card-front::after {
-    background: linear-gradient(135deg, #a7f3d0 0%, #065f46 100%) !important;
+html.theme-dark .corner-fold-svg .fold-triangle {
+    fill: #2d2925;
 }
 
-.lesson-card-wrapper.has-note:hover .flip-card-front::after,
-.lesson-card-wrapper.has-note .flip-corner-btn:hover ~ .flip-card-front::after {
-    filter: brightness(1.15);
+html.theme-dark .corner-fold-svg .fold-edge {
+    stroke: #3b82f6;
+    stroke-width: 1.2;
+}
+
+.event-concert .corner-fold-svg .fold-triangle { fill: #fecdd3; }
+.event-concert .corner-fold-svg .fold-edge { stroke: #9f1239; stroke-width: 1.2; }
+
+.event-meeting .corner-fold-svg .fold-triangle { fill: #a7f3d0; }
+.event-meeting .corner-fold-svg .fold-edge { stroke: #065f46; stroke-width: 1.2; }
+
+.card-corner-fold:hover .corner-fold-svg,
+.card-corner-fold:active .corner-fold-svg {
+    transform: scale(1.18);
+    filter: drop-shadow(-3px 3px 5px rgba(0, 0, 0, 0.35));
 }
 
 /* Rub karty */
@@ -682,8 +677,9 @@ html.theme-dark .lesson-card-wrapper.has-note .flip-card-front::after {
 .lesson-card.ensemble-purple { border-left: 5px solid var(--stripe-purple) !important; }
 .ensemble-title-younger { color: var(--stripe-purple) !important; }
 
+/* Soukromá hodina: jemná, o tón tmavší */
 .lesson-card.private-card {
-    border-left: 5px solid var(--stripe-private) !important;
+    border-left: 4px solid var(--stripe-private) !important;
     background: var(--private-bg) !important;
 }
 
@@ -801,8 +797,8 @@ html.theme-dark .lesson-card-wrapper.has-note .flip-card-front::after {
 
 .lesson-card.current-lesson {
     position: relative;
-    box-shadow: 0 0 16px rgba(180, 83, 9, 0.35);
-    border-top: 1px solid rgba(245, 158, 11, 0.4);
+    box-shadow: 0 0 16px rgba(196, 164, 124, 0.45);
+    border-top: 1px solid rgba(196, 164, 124, 0.6);
 }
 
 .lesson-progress-bar {
@@ -810,7 +806,7 @@ html.theme-dark .lesson-card-wrapper.has-note .flip-card-front::after {
     bottom: 0;
     left: 0;
     height: 3px;
-    background: linear-gradient(90deg, #d97706, #f59e0b);
+    background: linear-gradient(90deg, #c4a47c, #d9c5a7);
     transition: width 1s linear;
 }
 
@@ -1138,7 +1134,7 @@ html.theme-dark .lesson-card-wrapper.has-note .flip-card-front::after {
 .btn-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35) !important; }
 
 /* =========================================================
-   PŘECHODY DNŮ (VÝRAZNÝ POSUN S PRUŽNOSTÍ A MÍRNÝM SCALE)
+   6. PŘECHODY DNŮ (VÝRAZNÝ POSUN S PRUŽNOSTÍ A SCALE)
    ========================================================= */
 
 .slide-from-right { 
