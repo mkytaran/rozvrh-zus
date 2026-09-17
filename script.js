@@ -1505,6 +1505,17 @@ function initTheme() {
     }
     }
 
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+    btnLogout.onclick = (e) => {
+        e.preventDefault();
+        if (confirm('Opravdu se chcete odhlásit z rozvrhu?')) {
+            localStorage.removeItem('zus_pin');
+            location.reload();
+        }
+        };
+    }
+
     function applyTheme(theme) {
         const root = document.documentElement;
         if (theme === 'dark') {
