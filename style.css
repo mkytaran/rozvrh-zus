@@ -2,22 +2,22 @@
    1. BAREVNÝ SYSTÉM (KORKOVÝ ŠPUNT & TEPLÝ GRAFIT)
    ========================================================= */
 
-/* Výchozí světlý režim: Barvy přírodního korkového špuntu */
+/* Světlý režim: Záhlaví v tónu pozadí, kontrastní tlačítka */
 :root,
 html.theme-light {
     color-scheme: light;
 
-    /* Přesná barva korkového záhlaví a stavové lišty */
-    --cork-header: #d8ba93;
-    --bg-page: #f1e6d4;          /* Světlejší korkový papír / podklad */
-    --bg-card: #fdfbf7;          /* Jemný tón slonové kosti pro čitelnost karet */
-    --border-card: #cbb18a;      /* Hranice korkové drti */
+    --bg-page: #f1e6d4;          /* Základní tón korkového papíru */
+    --cork-header: #f1e6d4;      /* Záhlaví splývá s pozadím */
+    --bg-card: #fdfbf7;          /* Slonová kost pro karty */
+    --border-card: #cbb18a;      /* Kontury korkové drti */
     --text-primary: #3d2b1f;     /* Hluboká pražená kávovo-korková hnědá */
-    --text-secondary: #7d6550;   /* Měkčí tón sušeného dřeva */
-    
-    --tab-bg: #c9a97d;
-    --tab-text: #453222;
-    --tab-active-bg: #8b4513;    /* Teplá sedlová useň / dřevo pro aktivní den */
+    --text-secondary: #7d6550;
+
+    /* Tlačítka přiměřeně a čitelně obarvená */
+    --tab-bg: #dfc7a7;           /* Sytější korkový odstín tlačítek */
+    --tab-text: #3d2b1f;
+    --tab-active-bg: #8b4513;    /* Teplá useň pro aktivní den */
     --tab-active-text: #ffffff;
     --tab-active-date: #fde8cd;
 
@@ -27,10 +27,15 @@ html.theme-light {
     --absent-text: #8a7a67;
 
     --stripe-default: transparent;
-    --stripe-private: #b45309;    /* Teplá koňaková pro soukromé hodiny */
-    --private-bg: #faeedb;
-    --stripe-gold: #c26907;
-    --stripe-purple: #86198f;
+    
+    /* Soukromá hodina: Zřetelná safírová modř (žádná záměna se souborem!) */
+    --stripe-private: #1d4ed8;
+    --private-bg: #e0e7ff;
+    
+    /* Kytarový soubor */
+    --stripe-gold: #c26907;      /* Starší: zlatohnědá */
+    --stripe-purple: #86198f;    /* Mladší: fialová */
+
     --gender-girl: #9f1239;
     --gender-boy: #0369a1;
 
@@ -54,25 +59,27 @@ html.theme-light {
     --modal-overlay: rgba(43, 30, 20, 0.65);
     --input-bg: #ffffff;
     --input-border: #cbb18a;
-    --bottom-bar-bg: rgba(216, 186, 147, 0.95);
+    --bottom-bar-bg: rgba(241, 230, 212, 0.95);
 }
 
-/* Tmavý režim: Hluboký teplý grafit ladící ke kytarám */
+/* Tmavý režim: Grafit s elegantním safírovým aktivním dnem */
 html.theme-dark {
     color-scheme: dark;
 
-    --cork-header: #1e1c1a;
     --bg-page: #141211;
-    --bg-card: #25221f;
+    --cork-header: #141211;      /* Záhlaví v noci splývá s pozadím */
+    --bg-card: #221f1d;
     --border-card: #3b3631;
     --text-primary: #ede8e3;
     --text-secondary: #a3998f;
 
-    --tab-bg: #2d2925;
+    --tab-bg: #2a2622;
     --tab-text: #a3998f;
-    --tab-active-bg: #c07a38;     /* Zářivější jantarově-dřevěný tón v noci */
+    
+    /* Aktivní den: Čistý temný safír místo staré hnědé */
+    --tab-active-bg: #1e3a8a;
     --tab-active-text: #ffffff;
-    --tab-active-date: #ffe3c4;
+    --tab-active-date: #93c5fd;
 
     --absent-bg: #1a1816;
     --absent-border: #2c2825;
@@ -80,10 +87,15 @@ html.theme-dark {
     --absent-text: #6b635b;
 
     --stripe-default: transparent;
-    --stripe-private: #d97706;
-    --private-bg: rgba(217, 119, 6, 0.16);
+    
+    /* Soukromá hodina v noci: Jasně modrý proužek */
+    --stripe-private: #3b82f6;
+    --private-bg: rgba(30, 58, 138, 0.25);
+    
+    /* Kytarový soubor */
     --stripe-gold: #fbbf24;
     --stripe-purple: #d8b4fe;
+
     --gender-girl: #fca5a5;
     --gender-boy: #7dd3fc;
 
@@ -101,11 +113,11 @@ html.theme-dark {
     --swap-pending-border: rgba(245, 158, 11, 0.4);
     --swap-pending-text: #fcd34d;
 
-    --modal-bg: #24211e;
+    --modal-bg: #221f1d;
     --modal-overlay: rgba(0, 0, 0, 0.82);
-    --input-bg: #181614;
+    --input-bg: #161413;
     --input-border: #423d38;
-    --bottom-bar-bg: rgba(30, 28, 26, 0.95);
+    --bottom-bar-bg: rgba(20, 18, 17, 0.95);
 }
 
 /* =========================================================

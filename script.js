@@ -1465,21 +1465,20 @@ function initTheme() {
     const moonIcon = document.getElementById('icon-theme-moon');
 
     function updateSystemStatusBar(theme) {
-        const isDark = (theme === 'dark');
-        // Přesné tóny ladící k záhlaví
-        const targetColor = isDark ? '#1e1c1a' : '#d8ba93';
+    const isDark = (theme === 'dark');
+    // Přesné barvy ladící k záhlaví splývajícímu s pozadím:
+    const targetColor = isDark ? '#141211' : '#f1e6d4';
 
-        // Odstraníme staré meta tagy a vložíme čistý bez podmínky media
-        document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
-        const meta = document.createElement('meta');
-        meta.name = 'theme-color';
-        meta.content = targetColor;
-        document.head.appendChild(meta);
+    document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
+    const meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    meta.content = targetColor;
+    document.head.appendChild(meta);
 
-        const appleMeta = document.getElementById('apple-status-bar-meta');
-        if (appleMeta) {
-            appleMeta.content = isDark ? 'black-translucent' : 'default';
-        }
+    const appleMeta = document.getElementById('apple-status-bar-meta');
+    if (appleMeta) {
+        appleMeta.content = isDark ? 'black-translucent' : 'default';
+    }
     }
 
     function applyTheme(theme) {
