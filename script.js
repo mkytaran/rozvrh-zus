@@ -54,7 +54,7 @@ const dayMap = ['Neděle', 'Pondělí', 'Úterý', 'Středa', 'Čtvrtek', 'Páte
 const systemNow = new Date();
 let currentDay = (systemNow.getDay() >= 1 && systemNow.getDay() <= 5) ? dayMap[systemNow.getDay()] : 'Pondělí';
 
-let swapSourceStudent = null; // Uchovává vybraného žáka pro výměnu
+let swapSourceStudent = null;
 let editingSlotKey = null;
 let editingEventId = null;
 let editingEventOldIso = null;
@@ -179,7 +179,7 @@ function playGuitarChord() {
     } catch (e) {}
 }
 
-// --- 6. Sloučení dat pro daný den s přesnou evidencí slotů ---
+// --- 6. Sloučení dat pro daný den ---
 function getEffectiveDayLessons(dayName) {
     const activeMonday = getMonday(new Date(), weekOffset);
     const isoKey = getISOWeekKey(activeMonday);
@@ -192,7 +192,6 @@ function getEffectiveDayLessons(dayName) {
             const slotKey = `${d}_slot_${idx}`;
             const override = overrides[slotKey] || {};
 
-            // Zůstává na původním dni a čase, pokud nebyla výměna již dříve schválena
             const effectiveDay = override.effectiveDay !== undefined ? override.effectiveDay : d;
             const effectiveTime = override.time !== undefined ? override.time : lesson.time;
 
@@ -387,7 +386,6 @@ function renderSchedule(animDir = '') {
             previousStudentEndMins = endMins;
         }
 
-        // Ohnutý roh výhradně pro neprázdnou poznámku aktuálního týdne
         const hasCurrentWeekNote = !!(lesson.notes && lesson.notes.trim().length > 0);
         const studentHistory = (!isEvent && lesson.name && studentNotesHistory[lesson.name]) ? studentNotesHistory[lesson.name] : [];
 
@@ -461,7 +459,6 @@ function renderSchedule(animDir = '') {
             detailsHtml = tags.join(' | ');
         }
 
-        // Zobrazení plánované výměny
         if (isSwapPending) {
             const p = lesson.swapPendingWith;
             const targetInfo = ` (${p.targetDay} ${p.targetTime})`;
@@ -470,8 +467,6 @@ function renderSchedule(animDir = '') {
 
         const absentBadge = isAbsent ? `<span class="badge-absent">Omluvenka${lesson.absentDate ? ` (${lesson.absentDate})` : ''}</span>` : '';
         const noteFlagClass = hasCurrentWeekNote ? 'has-note' : '';
-        
-        // Zvýraznění při výběru pro výměnu
         const isSwapSource = swapSourceStudent && (swapSourceStudent.slotKey === lesson.slotKey);
 
         const wrapper = document.createElement('div');
@@ -480,7 +475,6 @@ function renderSchedule(animDir = '') {
         const flipInner = document.createElement('div');
         flipInner.className = 'flip-card-inner';
 
-        // Líc karty
         const cardFront = document.createElement('div');
         cardFront.className = `flip-card-front lesson-card ${isSwapSource ? 'swap-mode' : ''} ${isSwapPending ? 'swap-pending' : ''} ${isAbsent ? 'absent' : ''} ${hasSub ? 'has-substitute' : ''} ${stripeClass} ${timeStatusClass}`;
 
@@ -504,24 +498,20 @@ function renderSchedule(animDir = '') {
         `;
 
         cardFront.onclick = (e) => {
-            // Pokud jsme v režimu výběru protějšku pro výměnu, dokončíme výměnu
             if (swapSourceStudent !== null) {
                 handleCardClick(index);
                 return;
             }
-            // Kliknutí na samotný růžek kartu otočí
             if (e.target.classList.contains('flip-corner-btn')) {
                 e.stopPropagation();
                 toggleCardFlip(wrapper);
                 return;
             }
-            // Kliknutí na tělo karty otevře modál
             handleCardClick(index);
         };
 
         flipInner.appendChild(cardFront);
 
-        // Rub karty
         if (hasCurrentWeekNote) {
             const cardBack = document.createElement('div');
             cardBack.className = 'flip-card-back';
@@ -618,7 +608,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// --- 9. Synchronizace ---
+// --- 9. Ukládání a synchronizace ---
 function saveSchedule(newPrivateNote = null) {
     localStorage.setItem('zus_master_schedule', JSON.stringify(masterSchedule));
     localStorage.setItem('zus_week_overrides', JSON.stringify(weekOverrides));
@@ -667,7 +657,7 @@ function fetchCloudSchedule(silent = true) {
         });
 }
 
-// --- 10. Modál úprav a logické operace výměn ---
+// --- 10. Modál úprav ---
 function setModalMode(mode) {
     currentModalMode = mode;
     const btnLesson = document.getElementById('type-btn-lesson');
@@ -736,16 +726,14 @@ function populateSubstituteSelect(currentLessonStudent) {
 function handleCardClick(index) {
     const effectiveLessons = getEffectiveDayLessons(currentDay);
 
-    // =========================================================
-    // DOKONČENÍ VÝMĚNY (Kliknutí na 2. žáka)
-    // =========================================================
+    // DOKONČENÍ VÝMĚNY
     if (swapSourceStudent !== null) {
         const lessonB = effectiveLessons[index];
         const src = swapSourceStudent;
-        swapSourceStudent = null; // Ukončíme swap mód
+        swapSourceStudent = null;
 
-        // Zkontrolujeme, zda nejde o stejný slot a zda nejde o událost
-        if (!lessonB.isEvent && src.slotKey !== lessonB.slotKey) {
+        const isSameSlot = (src.slotKey === lessonB.slotKey);
+        if (!lessonB.isEvent && !isSameSlot) {
             const activeMonday = getMonday(new Date(), weekOffset);
             const isoKey = getISOWeekKey(activeMonday);
             if (!weekOverrides[isoKey]) weekOverrides[isoKey] = {};
@@ -753,7 +741,6 @@ function handleCardClick(index) {
             const keyA = src.slotKey;
             const keyB = lessonB.slotKey;
 
-            // Plán výměny: žáci prozatím zůstávají na svých místech, pouze se zapíše cíl
             weekOverrides[isoKey][keyA] = {
                 ...(weekOverrides[isoKey][keyA] || {}),
                 swapPendingWith: {
@@ -790,9 +777,7 @@ function handleCardClick(index) {
         return;
     }
 
-    // =========================================================
-    // STANDARDNÍ OTEVŘENÍ KARTY PRO ÚPRAVU
-    // =========================================================
+    // OTEVŘENÍ KARTY PRO EDITACI
     const lesson = effectiveLessons[index];
     const daySelect = document.getElementById('edit-day');
     if (daySelect) daySelect.value = lesson.day;
@@ -830,13 +815,12 @@ function handleCardClick(index) {
         setModalMode('lesson');
         document.getElementById('btn-swap').style.display = 'block';
 
-        // Pokud je u žáka plánovaná výměna, zobrazíme ovládací prvky
         if (lesson.swapPendingWith) {
             const banner = document.createElement('div');
             banner.id = 'modal-swap-approval-banner';
             banner.className = 'swap-approval-banner';
             banner.innerHTML = `
-                <div class="swap-approval-title">⇄ Plánovaná výměna za žáka: <strong>${lesson.swapPendingWith.name}</strong> (${lesson.swapPendingWith.targetDay} v ${lesson.swapPendingWith.targetTime})</div>
+                <div class="swap-approval-title">⇄ Plánovaná výměna za žáka: <strong>${lesson.swapPendingWith.name}</strong> (${lesson.swapPendingWith.targetDay} ${lesson.swapPendingWith.targetTime})</div>
                 <div class="swap-approval-actions">
                     <button type="button" id="btn-approve-swap-action" class="btn-approve-swap">✓ Výměna schválena (prohodit)</button>
                     <button type="button" id="btn-cancel-swap-action" class="btn-cancel-swap">✕ Zrušit plánovanou výměnu</button>
@@ -934,7 +918,7 @@ function handleCardClick(index) {
     document.getElementById('edit-modal').classList.remove('hidden');
 }
 
-// 1. Schválení výměny: Prohodí časy a dny a smaže příznak swapPendingWith
+// 1. Schválení výměny
 function approveSwap(lesson) {
     const activeMonday = getMonday(new Date(), weekOffset);
     const isoKey = getISOWeekKey(activeMonday);
@@ -964,7 +948,7 @@ function approveSwap(lesson) {
     if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
 }
 
-// 2. Zrušení plánované výměny: Pouze odstraní záznam swapPendingWith
+// 2. Zrušení plánované výměny
 function cancelSwap(lesson) {
     const activeMonday = getMonday(new Date(), weekOffset);
     const isoKey = getISOWeekKey(activeMonday);
@@ -992,6 +976,7 @@ function cancelSwap(lesson) {
 
 document.getElementById('btn-cancel').onclick = () => document.getElementById('edit-modal').classList.add('hidden');
 
+// ULOŽENÍ HODINY (Včetně spolehlivého přesunu na jiný den)
 document.getElementById('btn-save').onclick = () => {
     // 1. Událost
     if (currentModalMode === 'event') {
@@ -1055,7 +1040,7 @@ document.getElementById('btn-save').onclick = () => {
         return;
     }
 
-    // 2. Výuka žáka: Důsledné zachování existujících stavů výměny
+    // 2. Výuka žáka
     const activeMonday = getMonday(new Date(), weekOffset);
     const isoKey = getISOWeekKey(activeMonday);
     if (!weekOverrides[isoKey]) weekOverrides[isoKey] = {};
@@ -1071,19 +1056,12 @@ document.getElementById('btn-save').onclick = () => {
         const subVal = document.getElementById('substitute-custom').value.trim();
         const notesVal = document.getElementById('edit-notes').value.trim();
 
-        // Klíčová oprava: ZACHOVÁVÁME swapPendingWith i effectiveDay, pokud existují!
-        const existingData = weekOverrides[isoKey][editingSlotKey] || {};
+        const [origDay, , idxStr] = editingSlotKey.split('_');
+        const origIdx = parseInt(idxStr);
+        const masterLessons = masterSchedule[origDay] || [];
 
-        weekOverrides[isoKey][editingSlotKey] = {
-            ...existingData,
-            time: newTime,
-            absent: isAbs,
-            absentDate: absDate,
-            substitute: (isAbs && subVal) ? subVal : '',
-            notes: notesVal
-        };
-
-        const lessonDateHuman = formatDateHuman(getDateForDay(currentDay, weekOffset));
+        // Zpracování historie poznámek
+        const lessonDateHuman = formatDateHuman(getDateForDay(targetDay, weekOffset));
         let noteHistoryPayload = null;
 
         if (notesVal) {
@@ -1092,7 +1070,6 @@ document.getElementById('btn-save').onclick = () => {
                 student: newName,
                 notes: notesVal
             };
-
             if (!studentNotesHistory[newName]) studentNotesHistory[newName] = [];
             studentNotesHistory[newName] = studentNotesHistory[newName].filter(h => h.date !== lessonDateHuman);
             studentNotesHistory[newName].unshift({ date: lessonDateHuman, notes: notesVal });
@@ -1102,41 +1079,68 @@ document.getElementById('btn-save').onclick = () => {
             }
         }
 
-        // Aktualizace kmenového rozvrhu pro permanentní změny
-        const [origDay, , idxStr] = editingSlotKey.split('_');
-        const origIdx = parseInt(idxStr);
-        const masterLessons = masterSchedule[origDay] || [];
+        // =========================================================
+        // PŘÍMÝ PŘESUN NA JINÝ DEN:
+        // =========================================================
+        if (targetDay !== origDay && masterLessons[origIdx]) {
+            // 1. Vyjmeme žáka z původního dne
+            const movedLesson = masterLessons.splice(origIdx, 1)[0];
+            movedLesson.time = newTime;
+            movedLesson.name = newName;
+            movedLesson.isPrivate = isPriv;
+            movedLesson.absent = false;
 
-        if (masterLessons[origIdx]) {
-            if (targetDay !== origDay) {
-                const movedLesson = masterLessons.splice(origIdx, 1)[0];
-                movedLesson.time = newTime;
-                movedLesson.name = newName;
-                movedLesson.isPrivate = isPriv;
-                movedLesson.absent = false;
-
-                if (!masterSchedule[targetDay]) masterSchedule[targetDay] = [];
-                masterSchedule[targetDay].push(movedLesson);
-                currentDay = targetDay;
+            if (isPriv) {
+                movedLesson.rocnik = '';
+                movedLesson.hn = '';
+                movedLesson.ensemble = false;
             } else {
-                masterLessons[origIdx].time = newTime;
-                masterLessons[origIdx].name = newName;
-                masterLessons[origIdx].isPrivate = isPriv;
-                masterLessons[origIdx].absent = false;
-
-                if (isPriv) {
-                    masterLessons[origIdx].rocnik = '';
-                    masterLessons[origIdx].hn = '';
-                    masterLessons[origIdx].ensemble = false;
-                } else {
-                    masterLessons[origIdx].rocnik = document.getElementById('edit-rocnik').value.trim();
-                    masterLessons[origIdx].hn = document.getElementById('edit-hn').value.trim();
-                    masterLessons[origIdx].ensemble = document.getElementById('edit-ensemble').checked;
-
-                    const radYounger = document.getElementById('ensemble-younger');
-                    masterLessons[origIdx].ensembleGroup = (radYounger && radYounger.checked) ? 'younger' : 'older';
-                }
+                movedLesson.rocnik = document.getElementById('edit-rocnik').value.trim();
+                movedLesson.hn = document.getElementById('edit-hn').value.trim();
+                movedLesson.ensemble = document.getElementById('edit-ensemble').checked;
+                const radYounger = document.getElementById('ensemble-younger');
+                movedLesson.ensembleGroup = (radYounger && radYounger.checked) ? 'younger' : 'older';
             }
+
+            // 2. Vložíme do cílového dne
+            if (!masterSchedule[targetDay]) masterSchedule[targetDay] = [];
+            masterSchedule[targetDay].push(movedLesson);
+            masterSchedule[targetDay].sort((a, b) => a.time.localeCompare(b.time));
+
+            // 3. Odstraníme starý override slot z původního dne, aby nezůstal viset
+            delete weekOverrides[isoKey][editingSlotKey];
+
+            // 4. Přepneme zobrazení na cílový den
+            currentDay = targetDay;
+        } else if (masterLessons[origIdx]) {
+            // Editace v rámci stejného dne
+            masterLessons[origIdx].time = newTime;
+            masterLessons[origIdx].name = newName;
+            masterLessons[origIdx].isPrivate = isPriv;
+            masterLessons[origIdx].absent = false;
+
+            if (isPriv) {
+                masterLessons[origIdx].rocnik = '';
+                masterLessons[origIdx].hn = '';
+                masterLessons[origIdx].ensemble = false;
+            } else {
+                masterLessons[origIdx].rocnik = document.getElementById('edit-rocnik').value.trim();
+                masterLessons[origIdx].hn = document.getElementById('edit-hn').value.trim();
+                masterLessons[origIdx].ensemble = document.getElementById('edit-ensemble').checked;
+                const radYounger = document.getElementById('ensemble-younger');
+                masterLessons[origIdx].ensembleGroup = (radYounger && radYounger.checked) ? 'younger' : 'older';
+            }
+
+            // Uložíme týdenní stav
+            const existingData = weekOverrides[isoKey][editingSlotKey] || {};
+            weekOverrides[isoKey][editingSlotKey] = {
+                ...existingData,
+                time: newTime,
+                absent: isAbs,
+                absentDate: absDate,
+                substitute: (isAbs && subVal) ? subVal : '',
+                notes: notesVal
+            };
         }
 
         saveSchedule(noteHistoryPayload);
@@ -1185,6 +1189,9 @@ document.getElementById('btn-delete').onclick = () => {
         const origIdx = parseInt(idxStr);
         if (masterSchedule[origDay]) {
             masterSchedule[origDay].splice(origIdx, 1);
+            const activeMonday = getMonday(new Date(), weekOffset);
+            const isoKey = getISOWeekKey(activeMonday);
+            if (weekOverrides[isoKey]) delete weekOverrides[isoKey][editingSlotKey];
             saveSchedule();
             renderTabs();
             renderSchedule();
