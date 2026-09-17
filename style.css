@@ -1137,16 +1137,36 @@ html.theme-dark .lesson-card-wrapper.has-note .flip-card-front::after {
 .btn-outline { background: transparent; border: 1px solid var(--border-card) !important; color: var(--text-primary); }
 .btn-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35) !important; }
 
-/* Přechody dnů */
-.slide-from-right { animation: slideRight 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.slide-from-left { animation: slideLeft 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+/* =========================================================
+   PŘECHODY DNŮ (VÝRAZNÝ POSUN S PRUŽNOSTÍ A MÍRNÝM SCALE)
+   ========================================================= */
+
+.slide-from-right { 
+    animation: slideRight 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards; 
+}
+
+.slide-from-left { 
+    animation: slideLeft 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards; 
+}
 
 @keyframes slideRight {
-    from { opacity: 0; transform: translateX(35px); }
-    to { opacity: 1; transform: translateX(0); }
+    0% { 
+        opacity: 0; 
+        transform: translateX(110px) scale(0.96); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateX(0) scale(1); 
+    }
 }
 
 @keyframes slideLeft {
-    from { opacity: 0; transform: translateX(-35px); }
-    to { opacity: 1; transform: translateX(0); }
+    0% { 
+        opacity: 0; 
+        transform: translateX(-110px) scale(0.96); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateX(0) scale(1); 
+    }
 }

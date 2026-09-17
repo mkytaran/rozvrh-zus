@@ -1442,13 +1442,20 @@ document.addEventListener('touchend', e => {
     const idx = workDays.indexOf(currentDay);
     if (idx === -1) return;
 
-    if (touchEndX < touchStartX - 60 && idx < workDays.length - 1) {
+    const swipeDist = touchEndX - touchStartX;
+    const threshold = 45; // Snížený práh pro svižnější reakci prstu
+
+    // Švih doleva -> další den
+    if (swipeDist < -threshold && idx < workDays.length - 1) {
         currentDay = workDays[idx + 1];
+        if (navigator.vibrate) navigator.vibrate(18); // Lehká haptická odezva
         renderTabs();
         renderSchedule('right');
     }
-    if (touchEndX > touchStartX + 60 && idx > 0) {
+    // Švih doprava -> předchozí den
+    else if (swipeDist > threshold && idx > 0) {
         currentDay = workDays[idx - 1];
+        if (navigator.vibrate) navigator.vibrate(18); // Lehká haptická odezva
         renderTabs();
         renderSchedule('left');
     }
