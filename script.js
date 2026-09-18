@@ -438,6 +438,7 @@ function renderSchedule(animDir = '') {
 
         let timeStatusClass = '';
         let progressPercent = 0;
+        let remainingMinutes = null;
 
         if (isToday) {
             if (currentMins >= endMins) {
@@ -447,6 +448,7 @@ function renderSchedule(animDir = '') {
                 const totalDuration = endMins - startMins;
                 const elapsed = currentMins - startMins;
                 progressPercent = Math.min(100, Math.round((elapsed / totalDuration) * 100));
+                remainingMinutes = endMins - currentMins;
 
                 if (!isEvent && (totalDuration - elapsed === 5) && playedChordForTime !== `${currentDay}-${lesson.time}`) {
                     playedChordForTime = `${currentDay}-${lesson.time}`;
@@ -488,18 +490,25 @@ function renderSchedule(animDir = '') {
         const flipInner = document.createElement('div');
         flipInner.className = 'flip-card-inner';
 
-        // Líc karty s maskovacím SVG růžkem
+        // Líc karty
         const cardFront = document.createElement('div');
         cardFront.className = `flip-card-front lesson-card ${isSwapSource ? 'swap-mode' : ''} ${isSwapPending ? 'swap-pending' : ''} ${isAbsent ? 'absent' : ''} ${hasSub ? 'has-substitute' : ''} ${stripeClass} ${timeStatusClass}`;
 
+        // Nastavení CSS proměnné pro postupné plynulé podbarvení probíhající hodiny
         if (timeStatusClass === 'current-lesson') {
-            cardFront.style.opacity = (1 - (progressPercent / 100) * 0.45).toFixed(2);
+            cardFront.style.setProperty('--progress-width', `${progressPercent}%`);
         }
 
-       const cornerFoldHtml = hasCurrentWeekNote ? `
-        <div class="card-corner-fold" role="button" aria-label="Otočit na poznámky" title="Otočit na poznámky"></div>` : '';
+        const cornerFoldHtml = hasCurrentWeekNote ? `
+            <div class="card-corner-fold" role="button" aria-label="Otočit na poznámky" title="Otočit na poznámky"></div>` : '';
+
+        const remainingTimeHtml = (timeStatusClass === 'current-lesson' && remainingMinutes !== null) ? `
+            <div class="lesson-remaining-mins ${remainingMinutes <= 5 ? 'ride-edge' : ''}" aria-hidden="true">
+                ${remainingMinutes}
+            </div>` : '';
 
         cardFront.innerHTML = `
+            ${remainingTimeHtml}
             ${cornerFoldHtml}
             <div class="time-col">
                 <div>${lesson.time}</div>
@@ -511,7 +520,6 @@ function renderSchedule(animDir = '') {
                 </div>
                 <div class="student-details">${detailsHtml}</div>
             </div>
-            ${timeStatusClass === 'current-lesson' ? `<div class="lesson-progress-bar" style="width: ${progressPercent}%;"></div>` : ''}
         `;
 
         cardFront.onclick = (e) => {
@@ -519,7 +527,6 @@ function renderSchedule(animDir = '') {
                 handleCardClick(index);
                 return;
             }
-            // Zkontroluje kliknutí na nový SVG růžek i starší třídu
             const foldBtn = e.target.closest('.card-corner-fold') || e.target.closest('.flip-corner-btn');
             if (foldBtn) {
                 e.stopPropagation();
@@ -1449,27 +1456,28 @@ document.addEventListener('touchend', e => {
     if (idx === -1) return;
 
     const swipeDist = touchEndX - touchStartX;
-    const threshold = 45; // Snížený práh pro svižnější reakci prstu
+    const threshold = 45;
 
     // Švih doleva -> další den
     if (swipeDist < -threshold && idx < workDays.length - 1) {
         currentDay = workDays[idx + 1];
-        if (navigator.vibrate) navigator.vibrate(18); // Lehká haptická odezva
+        if (navigator.vibrate) navigator.vibrate(18);
         renderTabs();
         renderSchedule('right');
     }
     // Švih doprava -> předchozí den
     else if (swipeDist > threshold && idx > 0) {
         currentDay = workDays[idx - 1];
-        if (navigator.vibrate) navigator.vibrate(18); // Lehká haptická odezva
+        if (navigator.vibrate) navigator.vibrate(18);
         renderTabs();
         renderSchedule('left');
     }
 }, { passive: true });
 
+// Pravidelná aktualizace každých 30 sekund pro plynulý posun podbarvení a odpočtu
 setInterval(() => {
     if (weekOffset === 0) renderSchedule();
-}, 60000);
+}, 30000);
 
 // --- 12. Správa tématu a systémové lišty ---
 function initTheme() {
@@ -1478,30 +1486,29 @@ function initTheme() {
     const moonIcon = document.getElementById('icon-theme-moon');
 
     function updateSystemStatusBar(theme) {
-    const isDark = (theme === 'dark');
-    // Přesné barvy ladící k záhlaví splývajícímu s pozadím:
-    const targetColor = isDark ? '#141211' : '#f1e6d4';
+        const isDark = (theme === 'dark');
+        const targetColor = isDark ? '#141211' : '#f1e6d4';
 
-    document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
-    const meta = document.createElement('meta');
-    meta.name = 'theme-color';
-    meta.content = targetColor;
-    document.head.appendChild(meta);
+        document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
+        const meta = document.createElement('meta');
+        meta.name = 'theme-color';
+        meta.content = targetColor;
+        document.head.appendChild(meta);
 
-    const appleMeta = document.getElementById('apple-status-bar-meta');
-    if (appleMeta) {
-        appleMeta.content = isDark ? 'black-translucent' : 'default';
-    }
+        const appleMeta = document.getElementById('apple-status-bar-meta');
+        if (appleMeta) {
+            appleMeta.content = isDark ? 'black-translucent' : 'default';
+        }
     }
 
     const btnLogout = document.getElementById('btn-logout');
     if (btnLogout) {
-    btnLogout.onclick = (e) => {
-        e.preventDefault();
-        if (confirm('Opravdu se chcete odhlásit z rozvrhu?')) {
-            localStorage.removeItem('zus_pin');
-            location.reload();
-        }
+        btnLogout.onclick = (e) => {
+            e.preventDefault();
+            if (confirm('Opravdu se chcete odhlásit z rozvrhu?')) {
+                localStorage.removeItem('zus_pin');
+                location.reload();
+            }
         };
     }
 

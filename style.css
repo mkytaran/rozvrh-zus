@@ -57,6 +57,13 @@ html.theme-light {
     --swap-pending-border: #e09f3e;
     --swap-pending-text: #82470a;
 
+    /* Barva postupného podbarvení probíhající hodiny */
+    --progress-bg-fill: rgba(196, 164, 124, 0.28);
+
+    /* Barva vyseknutého čísla: tmavší než karta (#faf6ee), světlejší než pruh (#c4a47c) */
+    --engraved-time-color: #e5d7c3;
+    --engraved-time-shadow: 1px 1px 0px rgba(255, 255, 255, 0.6);
+
     --modal-bg: #f5ebe0;
     --modal-overlay: rgba(43, 30, 20, 0.65);
     --input-bg: #ffffff;
@@ -114,6 +121,13 @@ html.theme-dark {
     --swap-pending-bg: rgba(245, 158, 11, 0.18);
     --swap-pending-border: rgba(245, 158, 11, 0.4);
     --swap-pending-text: #fcd34d;
+
+    /* Barva postupného podbarvení v noci */
+    --progress-bg-fill: rgba(255, 255, 255, 0.09);
+
+    /* Barva vyseknutého čísla v noci: tmavší než karta (#201e1b), ale světlejší než pozadí/pruh */
+    --engraved-time-color: #191715;
+    --engraved-time-shadow: 1px 1px 0px rgba(255, 255, 255, 0.05);
 
     --modal-bg: #201e1b;
     --modal-overlay: rgba(0, 0, 0, 0.82);
@@ -447,12 +461,10 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
    INDIKÁTOR POZNÁMKY – VÝRAZNÉ TLAČÍTKO V PRAVÉM HORNÍM ROHU
    ========================================================= */
 
-/* Skrytí případných původních SVG prvků z HTML */
 .card-corner-fold svg {
     display: none !important;
 }
 
-/* Kontejner tlačítka v pravém horním rohu karty */
 .card-corner-fold {
     position: absolute;
     top: 8px;
@@ -468,7 +480,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Samotné tlačítko (výrazný puntík s jemným ohraničením a stínem) */
 .card-corner-fold::after {
     content: '';
     position: absolute;
@@ -482,17 +493,14 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
 }
 
-/* Přizpůsobení barvy tlačítka pro zelené porady */
 .event-meeting-wrapper .card-corner-fold::after {
     background-color: var(--stripe-meeting);
 }
 
-/* Přizpůsobení barvy tlačítka pro červené koncerty */
 .event-concert-wrapper .card-corner-fold::after {
     background-color: var(--stripe-concert);
 }
 
-/* Interakce: znatelné vyskočení (efekt stisknutelného tlačítka) */
 .card-corner-fold:hover::after,
 .card-corner-fold:active::after {
     transform: scale(1.25);
@@ -592,7 +600,9 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     font-weight: 500;
 }
 
-/* Líc karty */
+/* =========================================================
+   LÍC KARTY & POSTUPNÉ PODBARVOVÁNÍ PRŮBĚHU HODINY
+   ========================================================= */
 .lesson-card {
     background: var(--bg-card);
     border: 1px solid var(--border-card);
@@ -603,11 +613,68 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
     align-items: center;
     cursor: pointer;
     position: relative;
+    overflow: hidden; /* Ořezává podbarvení i vyseknuté číslo v rozích */
     transition: transform 0.15s ease, opacity 0.2s ease, background-color 0.25s ease;
 }
 
 .lesson-card:active {
     transform: scale(0.99);
+}
+
+/* Obsah karty je bezpečně nad pozadím i vyseknutým číslem */
+.lesson-card > .time-col,
+.lesson-card > .info-col {
+    position: relative;
+    z-index: 2;
+}
+
+/* Probíhající hodina */
+.lesson-card.current-lesson {
+    box-shadow: 0 0 16px rgba(196, 164, 124, 0.45);
+    border-top: 1px solid rgba(196, 164, 124, 0.6);
+}
+
+/* Podbarvení průběhu hodiny na pozadí karty */
+.lesson-card.current-lesson::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--progress-width, 0%);
+    background: var(--progress-bg-fill);
+    z-index: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    transition: width 1s linear;
+}
+
+/* =========================================================
+   VYSEKNUTÝ ZBÝVAJÍCÍ ČAS (ENGRAVED EFFECT)
+   ========================================================= */
+.lesson-remaining-mins {
+    position: absolute;
+    right: 1.15rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.75rem;
+    font-weight: 900;
+    line-height: 1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--engraved-time-color);
+    text-shadow: var(--engraved-time-shadow);
+    letter-spacing: -0.05em;
+    user-select: none;
+    pointer-events: none;
+    z-index: 1; /* Leží nad podbarvením, ale pod textem žáka */
+    transition: right 0.6s cubic-bezier(0.22, 1, 0.36, 1), left 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s ease;
+}
+
+/* Režim posledních 5 minut: číslo se přichytí na postupující hranu pruhu */
+.lesson-remaining-mins.ride-edge {
+    right: auto;
+    left: calc(var(--progress-width, 88%) - 0.35rem);
+    transform: translate(-100%, -50%);
 }
 
 .lesson-card.swap-mode {
@@ -792,21 +859,6 @@ body.is-card-flipped-active .lesson-card-wrapper:not(.is-active-flipped) {
 .lesson-card.past-lesson {
     opacity: 0.45 !important;
     filter: grayscale(0.2);
-}
-
-.lesson-card.current-lesson {
-    position: relative;
-    box-shadow: 0 0 16px rgba(196, 164, 124, 0.45);
-    border-top: 1px solid rgba(196, 164, 124, 0.6);
-}
-
-.lesson-progress-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #c4a47c, #d9c5a7);
-    transition: width 1s linear;
 }
 
 /* =========================================================
