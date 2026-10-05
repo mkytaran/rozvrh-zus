@@ -3,7 +3,7 @@
   "name": "Michal – Rozvrh 2026/27",
   "short_name": "Rozvrh",
   "description": "Rozvrh hodin a deníček výuky kytary",
-  "start_url": "./index.html",
+  "start_url": "./index.html?v=2",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
