@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zus-app-cache';
+const CACHE_NAME = 'zus-app-cache-v2';
 
 const PRECACHE_ASSETS = [
   './',
